@@ -302,16 +302,19 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
           >
             <div style={{
               width: 36, height: 36, borderRadius: 10,
-              background: "linear-gradient(135deg, rgba(255,165,76,0.2), rgba(232,117,10,0.12))",
-              border: "1px solid rgba(232,117,10,0.18)",
+              background: "linear-gradient(135deg, rgba(255,210,160,0.45), rgba(255,235,200,0.35))",
+              border: "1px solid rgba(232,117,10,0.15)",
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0,
             }}>
-              <IcTrain />
+              <IcChatBubble />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: "#2d2040" }}>培训会话</div>
-              <div style={{ fontSize: 11.5, color: "#b07b44", marginTop: 2 }}>打开邀请培训对话流，继续员工培训</div>
+              <div style={{
+                fontSize: 13.5, fontWeight: 600, color: "#2d2040",
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              }}>茶水区服务标准培训</div>
+              <div style={{ fontSize: 11.5, color: "#b0a0c0", marginTop: 2 }}>今天 09:41</div>
             </div>
             <IcChevronRight />
           </button>
