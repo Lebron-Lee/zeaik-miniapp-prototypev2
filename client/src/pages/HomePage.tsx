@@ -1257,7 +1257,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     </span>
                   </div>
                   <div style={{ fontSize: 12, marginTop: 4, lineHeight: 1.55, color: "rgba(255,247,239,0.92)" }}>
-                    说清这次想带大家练成什么，我来帮你快速配好题库。
+                    告诉我培训需求，我来帮你快速配好题库。
                   </div>
                 </div>
                 <button
@@ -1322,97 +1322,104 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             }}
           >
             {trainingLaunchStep !== 3 ? (
-              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 12, background: "linear-gradient(180deg, rgba(247,245,255,0.72) 0%, rgba(255,255,255,0.98) 100%)" }}>
+              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 12, background: "linear-gradient(180deg, rgba(248,246,255,0.86) 0%, rgba(255,255,255,0.98) 100%)" }}>
                 <div
                   style={{
-                    borderRadius: 16,
-                    border: "1px solid rgba(229,223,252,0.98)",
-                    background: "linear-gradient(180deg, rgba(251,250,255,0.98) 0%, rgba(244,239,255,0.96) 100%)",
-                    padding: "12px 13px",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.95)",
+                    borderRadius: 18,
+                    border: "1px solid rgba(232,226,252,0.98)",
+                    background: "linear-gradient(180deg, rgba(252,251,255,0.99) 0%, rgba(246,242,255,0.97) 100%)",
+                    padding: "13px 14px",
+                    boxShadow: "0 8px 18px rgba(96,77,210,0.05), inset 0 1px 0 rgba(255,255,255,0.96)",
                   }}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
                       <div
                         style={{
-                          width: 28,
-                          height: 28,
+                          width: 26,
+                          height: 26,
                           borderRadius: 999,
-                          background: "rgba(108,89,247,0.1)",
-                          color: "#5d48e8",
+                          border: "1.5px solid rgba(43,35,84,0.9)",
+                          color: "#241a44",
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: 800,
                           flexShrink: 0,
+                          background: "rgba(255,255,255,0.92)",
                         }}
                       >
-                        1
+                        ⌘
                       </div>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 12, color: "#8a82a8" }}>本次培训对象</div>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040", marginTop: 4 }}>{targetSummary}</div>
+                      <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 13, color: "#1f1738", fontWeight: 700 }}>本次培训对象</span>
+                        <span style={{ fontSize: 15, color: "#5d48e8", fontWeight: 800 }}>{targetSummary}</span>
+                        <span style={{ fontSize: 13, color: "#b8b1d7" }}>|</span>
+                        <button
+                          onClick={() => {
+                            if (onOpenOrgTree) onOpenOrgTree();
+                            else toast.info("请在组织架构页切换培训对象");
+                          }}
+                          style={{
+                            border: "none",
+                            padding: 0,
+                            background: "transparent",
+                            color: "#5d48e8",
+                            fontSize: 13,
+                            fontWeight: 700,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            flexShrink: 0,
+                          }}
+                        >
+                          <span>切换</span>
+                        </button>
                       </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        if (onOpenOrgTree) onOpenOrgTree();
-                        else toast.info("请在组织架构页切换培训对象");
-                      }}
-                      style={{
-                        border: "none",
-                        padding: 0,
-                        background: "transparent",
-                        color: "#5d48e8",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span>{allSelected ? "切换" : "重新选择"}</span>
-                      <span style={{ color: "#a79fe0" }}>›</span>
-                    </button>
+                    <span style={{ fontSize: 16, color: "#3e315e", flexShrink: 0 }}>⌄</span>
                   </div>
                 </div>
 
-
                 <div
                   style={{
-                    borderRadius: 16,
-                    border: "1px solid rgba(225,219,248,0.96)",
-                    background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,245,255,0.96) 100%)",
-                    padding: "12px 13px",
+                    borderRadius: 18,
+                    border: "1px solid rgba(232,226,252,0.98)",
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.995) 0%, rgba(249,247,255,0.98) 100%)",
+                    padding: "18px 16px 14px",
                     display: "flex",
                     flexDirection: "column",
-                    gap: 10,
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.92)",
+                    gap: 14,
+                    boxShadow: "0 10px 24px rgba(96,77,210,0.05), inset 0 1px 0 rgba(255,255,255,0.96)",
                   }}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div style={{ fontSize: 13, color: "#2d2040", lineHeight: 1.6, flex: 1 }}>
-                      你可以描述你的培训目的和培训目标，如有相关文件也可直接上传，系统会自动形成题库。
+                  <div style={{ fontSize: 16, color: "#20163c", lineHeight: 1.65, fontWeight: 700, letterSpacing: "0.01em" }}>
+                    描述培训目的和目标，信息越清楚，题库越贴合。
+                  </div>
+                  <div style={{ borderTop: "1px dashed rgba(214,207,233,0.88)", paddingTop: 14 }}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, color: "#8d86a8" }}>
+                        <span style={{ fontSize: 16, lineHeight: 1 }}>🗎</span>
+                        <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>如有相关培训资料，可点击上传</span>
+                      </div>
+                      <button
+                        onClick={() => trainingLaunchUploadRef.current?.click()}
+                        style={{
+                          border: "none",
+                          borderRadius: 999,
+                          padding: "10px 24px",
+                          background: "linear-gradient(135deg, #6f63ff 0%, #5a45f5 100%)",
+                          color: "#ffffff",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          boxShadow: "0 8px 18px rgba(90,69,245,0.2)",
+                          flexShrink: 0,
+                        }}
+                      >
+                        上传
+                      </button>
                     </div>
-                    <button
-                      onClick={() => trainingLaunchUploadRef.current?.click()}
-                      style={{
-                        border: "none",
-                        borderRadius: 999,
-                        padding: "8px 16px",
-                        background: "rgba(108,89,247,0.12)",
-                        color: "#5d48e8",
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                        boxShadow: "none",
-                        flexShrink: 0,
-                      }}
-                    >
-                      上传
-                    </button>
                   </div>
                   <input
                     ref={trainingLaunchUploadRef}
