@@ -632,6 +632,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [trainingIsThinking, setTrainingIsThinking] = useState(false);
   const [trainingRegisterRelation, setTrainingRegisterRelation] = useState<"downward" | "upward" | null>(null);
   const [trainingRegisterPosition, setTrainingRegisterPosition] = useState("");
+  const [trainingRegisterCustomPosition, setTrainingRegisterCustomPosition] = useState("");
   const trainingMsgIdRef = React.useRef(10000);
 
   // 培训 Mock 数据
@@ -1432,6 +1433,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             onClick={() => {
                               setTrainingRegisterRelation(null);
                               setTrainingRegisterPosition("");
+                              setTrainingRegisterCustomPosition("");
                               setShowTrainingRegister(true);
                             }}
                             style={{
@@ -2081,6 +2083,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       onClick={() => {
                         setTrainingRegisterRelation(relationKey);
                         setTrainingRegisterPosition("");
+                        setTrainingRegisterCustomPosition("");
                       }}
                       style={{
                         flex: 1,
@@ -2116,12 +2119,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 4 }}>你的岗位</div>
-                  <div style={{ fontSize: 12, lineHeight: 1.5, color: "#8a6f58", marginBottom: 10 }}>
-                    {TRAINING_RELATION_OPTIONS[trainingRegisterRelation].helper}
-                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 10 }}>你的岗位</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {TRAINING_RELATION_OPTIONS[trainingRegisterRelation].positions.map((position) => {
+                    {[...TRAINING_RELATION_OPTIONS[trainingRegisterRelation].positions, "其它"].map((position) => {
                       const isSelected = trainingRegisterPosition === position;
                       return (
                         <button
@@ -2129,7 +2129,12 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           type="button"
                           id={`training-reg-position-${position}`}
                           data-testid={`training-reg-position-${position}`}
-                          onClick={() => setTrainingRegisterPosition(position)}
+                          onClick={() => {
+                            setTrainingRegisterPosition(position);
+                            if (position !== "其它") {
+                              setTrainingRegisterCustomPosition("");
+                            }
+                          }}
                           style={{
                             padding: "9px 12px",
                             borderRadius: 999,
@@ -2147,6 +2152,28 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       );
                     })}
                   </div>
+                  {trainingRegisterPosition === "其它" && (
+                    <input
+                      id="training-reg-position-custom"
+                      data-testid="training-reg-position-custom"
+                      placeholder="请输入岗位名称"
+                      value={trainingRegisterCustomPosition}
+                      onChange={(e) => setTrainingRegisterCustomPosition(e.target.value)}
+                      style={{
+                        width: "100%",
+                        marginTop: 10,
+                        padding: "12px 14px",
+                        border: "1.5px solid rgba(232,117,10,0.18)",
+                        borderRadius: 14,
+                        fontSize: 14,
+                        color: "#2d2040",
+                        outline: "none",
+                        boxSizing: "border-box",
+                        background: "rgba(255,255,255,0.9)",
+                        boxShadow: "inset 0 1px 2px rgba(232,117,10,0.04)",
+                      }}
+                    />
+                  )}
                 </div>
               )}
             </div>
@@ -2174,6 +2201,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 setShowTrainingRegister(false);
                 setTrainingRegisterRelation(null);
                 setTrainingRegisterPosition("");
+                setTrainingRegisterCustomPosition("");
               }}
               style={{
                 width: "100%", padding: "11px",
