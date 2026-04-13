@@ -1176,6 +1176,18 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
+  const handleTrainingLaunchUploadTrigger = () => {
+    const simulatedIntent = "培训场景：门店晨会前，用 10 分钟完成服务标准快速培训";
+    const simulatedGoal = "培训需求：让新入职服务员掌握迎宾话术、点单确认与异常情况第一时间上报流程。";
+
+    setTrainingLaunchIntent(prev => prev.trim() || simulatedIntent);
+    setTrainingLaunchGoal(prev => prev.trim() || simulatedGoal);
+    setInputText(`${simulatedIntent}；${simulatedGoal}`);
+    setChatMode(true);
+    trainingLaunchUploadRef.current?.click();
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
   // 语音按住说话
   const handleVoiceStart = () => setIsVoiceHolding(true);
   const handleVoiceEnd = () => {
@@ -1365,7 +1377,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   <div className="flex items-center justify-between gap-2" style={{ minWidth: 0 }}>
                     <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap", textAlign: "left" }}>如有相关文件资料可直接上传</span>
                     <button
-                        onClick={() => trainingLaunchUploadRef.current?.click()}
+                        onClick={handleTrainingLaunchUploadTrigger}
                         style={{
                           border: "none",
                           borderRadius: 999,
