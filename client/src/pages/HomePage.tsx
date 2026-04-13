@@ -1235,7 +1235,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             <div
               style={{
                 padding: "14px 15px 13px",
-                background: "linear-gradient(135deg, rgba(111,94,255,0.96) 0%, rgba(103,82,255,0.96) 45%, rgba(80,62,230,0.96) 100%)",
+                background: "linear-gradient(135deg, rgba(255,154,60,0.98) 0%, rgba(232,117,10,0.97) 58%, rgba(196,94,0,0.97) 100%)",
                 color: "#fffaf4",
               }}
             >
@@ -1278,7 +1278,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               </div>
             </div>
 
-            <div style={{ padding: "14px", background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,245,255,0.98) 100%)" }}>
+            <div style={{ padding: "14px", background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,248,241,0.98) 100%)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 {[
                   { index: 1, title: "选择培训对象", done: hasTargets || trainingLaunchStep === 3 },
@@ -1291,7 +1291,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           width: 24,
                           height: 24,
                           borderRadius: 999,
-                          background: item.done ? "linear-gradient(135deg, #7d6bff, #5a45f5)" : "rgba(213,208,244,0.85)",
+                          background: item.done ? "linear-gradient(135deg, #ff9a3c, #e8750a)" : "rgba(255,223,194,0.92)",
                           color: "#fff",
                           fontSize: 11,
                           fontWeight: 700,
@@ -1302,9 +1302,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       >
                         {item.done ? "✓" : `0${item.index}`}
                       </div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: item.done ? "#3b2fb9" : "#8076a6" }}>{item.title}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: item.done ? "#c45e00" : "#aa7d52" }}>{item.title}</div>
                     </div>
-                    {idx === 0 && <div style={{ fontSize: 18, color: "#b7b1dc" }}>›</div>}
+                    {idx === 0 && <div style={{ fontSize: 18, color: "#e3b27d" }}>›</div>}
                   </React.Fragment>
                 ))}
               </div>
@@ -1316,20 +1316,20 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               borderRadius: "4px 20px 20px 20px",
               overflow: "hidden",
               background: "rgba(255,255,255,0.98)",
-              border: "1px solid rgba(224,214,255,0.95)",
-              boxShadow: "0 14px 30px rgba(92,76,212,0.08), inset 0 1px 0 rgba(255,255,255,0.9)",
+              border: "1px solid rgba(255,214,180,0.95)",
+              boxShadow: "0 14px 30px rgba(232,117,10,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
               backdropFilter: "blur(18px)",
             }}
           >
             {trainingLaunchStep !== 3 ? (
-              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 12, background: "linear-gradient(180deg, rgba(248,246,255,0.86) 0%, rgba(255,255,255,0.98) 100%)" }}>
+              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 12, background: "linear-gradient(180deg, rgba(255,249,243,0.9) 0%, rgba(255,255,255,0.98) 100%)" }}>
                 <div
                   style={{
                     borderRadius: 18,
-                    border: "1px solid rgba(232,226,252,0.98)",
-                    background: "linear-gradient(180deg, rgba(252,251,255,0.99) 0%, rgba(246,242,255,0.97) 100%)",
+                    border: "1px solid rgba(255,223,194,0.98)",
+                    background: "linear-gradient(180deg, rgba(255,253,250,0.99) 0%, rgba(255,246,238,0.98) 100%)",
                     padding: "13px 14px",
-                    boxShadow: "0 8px 18px rgba(96,77,210,0.05), inset 0 1px 0 rgba(255,255,255,0.96)",
+                    boxShadow: "0 8px 18px rgba(232,117,10,0.06), inset 0 1px 0 rgba(255,255,255,0.96)",
                   }}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -1339,8 +1339,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           width: 26,
                           height: 26,
                           borderRadius: 999,
-                          border: "1.5px solid rgba(43,35,84,0.9)",
-                          color: "#241a44",
+                          border: "1.5px solid rgba(232,117,10,0.68)",
+                          color: "#c45e00",
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1353,9 +1353,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         ⌘
                       </div>
                       <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 13, color: "#1f1738", fontWeight: 700 }}>本次培训对象</span>
-                        <span style={{ fontSize: 15, color: "#5d48e8", fontWeight: 800 }}>{targetSummary}</span>
-                        <span style={{ fontSize: 13, color: "#b8b1d7" }}>|</span>
+                        <span style={{ fontSize: 13, color: "#7b4a17", fontWeight: 700 }}>本次培训对象</span>
+                        <span style={{ fontSize: 15, color: "#e8750a", fontWeight: 800 }}>{targetSummary}</span>
+                        <span style={{ fontSize: 13, color: "#e0b282" }}>|</span>
                         <button
                           onClick={() => {
                             if (onOpenOrgTree) onOpenOrgTree();
@@ -1365,7 +1365,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             border: "none",
                             padding: 0,
                             background: "transparent",
-                            color: "#5d48e8",
+                            color: "#e8750a",
                             fontSize: 13,
                             fontWeight: 700,
                             display: "inline-flex",
@@ -1378,28 +1378,28 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         </button>
                       </div>
                     </div>
-                    <span style={{ fontSize: 16, color: "#3e315e", flexShrink: 0 }}>⌄</span>
+                    <span style={{ fontSize: 16, color: "#b86b1c", flexShrink: 0 }}>⌄</span>
                   </div>
                 </div>
 
                 <div
                   style={{
                     borderRadius: 18,
-                    border: "1px solid rgba(232,226,252,0.98)",
-                    background: "linear-gradient(180deg, rgba(255,255,255,0.995) 0%, rgba(249,247,255,0.98) 100%)",
+                    border: "1px solid rgba(255,223,194,0.98)",
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.995) 0%, rgba(255,249,244,0.98) 100%)",
                     padding: "18px 16px 14px",
                     display: "flex",
                     flexDirection: "column",
                     gap: 14,
-                    boxShadow: "0 10px 24px rgba(96,77,210,0.05), inset 0 1px 0 rgba(255,255,255,0.96)",
+                    boxShadow: "0 10px 24px rgba(232,117,10,0.06), inset 0 1px 0 rgba(255,255,255,0.96)",
                   }}
                 >
-                  <div style={{ fontSize: 16, color: "#20163c", lineHeight: 1.65, fontWeight: 700, letterSpacing: "0.01em" }}>
+                  <div style={{ fontSize: 16, color: "#6e4212", lineHeight: 1.65, fontWeight: 700, letterSpacing: "0.01em" }}>
                     描述培训目的和目标，信息越清楚，题库越贴合。
                   </div>
-                  <div style={{ borderTop: "1px dashed rgba(214,207,233,0.88)", paddingTop: 14 }}>
+                  <div style={{ borderTop: "1px dashed rgba(236,188,141,0.88)", paddingTop: 14 }}>
                     <div className="flex items-center justify-between gap-3">
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, color: "#8d86a8" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, color: "#9b7752" }}>
                         <span style={{ fontSize: 16, lineHeight: 1 }}>🗎</span>
                         <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>如有相关培训资料，可点击上传</span>
                       </div>
@@ -1409,11 +1409,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           border: "none",
                           borderRadius: 999,
                           padding: "10px 24px",
-                          background: "linear-gradient(135deg, #6f63ff 0%, #5a45f5 100%)",
+                          background: "linear-gradient(135deg, #ff9a3c 0%, #e8750a 100%)",
                           color: "#ffffff",
                           fontSize: 13,
                           fontWeight: 700,
-                          boxShadow: "0 8px 18px rgba(90,69,245,0.2)",
+                          boxShadow: "0 8px 18px rgba(232,117,10,0.2)",
                           flexShrink: 0,
                         }}
                       >
@@ -1437,15 +1437,15 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           style={{
                             borderRadius: 999,
                             background: "rgba(255,255,255,0.98)",
-                            border: "1px solid rgba(214,208,247,0.95)",
+                            border: "1px solid rgba(255,214,180,0.95)",
                             padding: "7px 10px",
                             display: "flex",
                             alignItems: "center",
                             gap: 6,
                           }}
                         >
-                          <span style={{ fontSize: 12, color: "#403261", fontWeight: 600 }}>{file.name}</span>
-                          <span style={{ fontSize: 11, color: "#8d84a5" }}>{file.sizeLabel}</span>
+                          <span style={{ fontSize: 12, color: "#7a4b16", fontWeight: 600 }}>{file.name}</span>
+                          <span style={{ fontSize: 11, color: "#b0835a" }}>{file.sizeLabel}</span>
                         </div>
                       ))}
                     </div>
