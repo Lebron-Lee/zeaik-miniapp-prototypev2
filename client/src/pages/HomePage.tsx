@@ -963,11 +963,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setMessages(prev => [
       ...prev,
       { id: msgIdRef.current++, role: "user", text: "发起碎片化培训" },
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: "好的，我们分两步发起培训：默认先对全员发起，你也可以切换对象；再描述培训目的，系统会自动推荐题库。",
-      },
     ]);
   };
 
@@ -1262,7 +1257,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     </span>
                   </div>
                   <div style={{ fontSize: 12, marginTop: 4, lineHeight: 1.55, color: "rgba(255,247,239,0.92)" }}>
-                    说清这次培训想提升什么，我会自动整理题库，让员工更快进入训练。
+                    说清这次想带大家练成什么，我来帮你快速配好题库。
                   </div>
                 </div>
                 <button
@@ -1327,13 +1322,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             }}
           >
             {trainingLaunchStep !== 3 ? (
-              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 12, background: "linear-gradient(180deg, rgba(247,245,255,0.72) 0%, rgba(255,255,255,0.98) 100%)" }}>
                 <div
                   style={{
                     borderRadius: 16,
-                    border: "1px solid rgba(222,216,249,0.95)",
-                    background: "linear-gradient(180deg, rgba(248,246,255,0.98) 0%, rgba(255,255,255,0.98) 100%)",
+                    border: "1px solid rgba(229,223,252,0.98)",
+                    background: "linear-gradient(180deg, rgba(251,250,255,0.98) 0%, rgba(244,239,255,0.96) 100%)",
                     padding: "12px 13px",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.95)",
                   }}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -1388,12 +1384,13 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 <div
                   style={{
                     borderRadius: 16,
-                    border: "1px dashed rgba(108,89,247,0.22)",
-                    background: "rgba(245,242,255,0.92)",
+                    border: "1px solid rgba(225,219,248,0.96)",
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,245,255,0.96) 100%)",
                     padding: "12px 13px",
                     display: "flex",
                     flexDirection: "column",
                     gap: 10,
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.92)",
                   }}
                 >
                   <div className="flex items-center justify-between gap-3">
