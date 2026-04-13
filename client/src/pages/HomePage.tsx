@@ -1252,7 +1252,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               }}
             >
               <div className="flex items-center justify-center gap-2">
-                <div style={{ fontSize: 12.5, lineHeight: 1.45, color: "#000000", textAlign: "center" }}>
+                <div style={{ fontSize: 14, lineHeight: 1.5, color: "#000000", textAlign: "center" }}>
                   告诉我培训需求，我来帮你快速配好题库。
                 </div>
                 <button
@@ -1298,7 +1298,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       >
                         {item.done ? "✓" : `0${item.index}`}
                       </div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#000000" }}>{item.title}</div>
+                      <div style={{ fontSize: 13, fontWeight: 400, color: "#000000" }}>{item.title}</div>
                     </div>
                     {idx === 0 && <div style={{ fontSize: 18, color: "#c7b4a1" }}>›</div>}
                   </React.Fragment>
@@ -1349,17 +1349,20 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         }}
                         style={{
                           border: "none",
-                          padding: 0,
+                          padding: "0 2px",
                           background: "transparent",
-                          color: "#000000",
+                          color: "#8f6b47",
                           fontSize: 13,
                           fontWeight: 500,
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: 6,
+                          gap: 4,
                           flexShrink: 0,
+                          textDecoration: "underline",
+                          textUnderlineOffset: 2,
                         }}
                       >
+                        <span style={{ fontSize: 12, lineHeight: 1 }}>↗</span>
                         <span>切换</span>
                       </button>
                     </div>
