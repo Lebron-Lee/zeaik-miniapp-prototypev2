@@ -1339,9 +1339,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         ⌘
                       </div>
                       <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 13, color: "#000000", fontWeight: 500 }}>本次培训对象</span>
-                        <span style={{ fontSize: 15, color: "#000000", fontWeight: 600 }}>{targetSummary}</span>
-                        <span style={{ fontSize: 13, color: "#cbb8a4" }}>|</span>
+                        <span style={{ fontSize: 13, color: "#000000", fontWeight: 500 }}>培训对象</span>
+                        <span style={{ fontSize: 13, color: "#5c58e9", fontWeight: 500 }}>{targetSummary}</span>
                         <button
                           onClick={() => {
                             if (onOpenOrgTree) onOpenOrgTree();
@@ -1366,21 +1365,18 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     </div>
                     <span style={{ fontSize: 16, color: "#8f8174", flexShrink: 0 }}>⌄</span>
                   </div>
-                  <div className="flex items-center gap-3" style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 14, color: "#000000", lineHeight: 1.6, fontWeight: 400, flex: 1, minWidth: 0 }}>
-                      描述培训目的和目标，信息越清楚，题库越贴合。
-                    </div>
+                  <div className="flex items-center justify-end gap-2" style={{ minWidth: 0 }}>
                     <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
-                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap" }}>资料可直接上传</span>
+                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap" }}>如有相关文件资料可直接上传</span>
                       <button
                         onClick={() => trainingLaunchUploadRef.current?.click()}
                         style={{
                           border: "none",
                           borderRadius: 999,
-                          padding: "8px 18px",
+                          padding: "6px 16px",
                           background: "rgba(255,233,211,0.95)",
                           color: "#000000",
-                          fontSize: 13,
+                          fontSize: 12.5,
                           fontWeight: 600,
                           boxShadow: "0 4px 10px rgba(232,117,10,0.06)",
                           flexShrink: 0,
