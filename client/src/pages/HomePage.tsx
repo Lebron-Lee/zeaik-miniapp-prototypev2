@@ -685,18 +685,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       setMessages([]);
       setChatMode(true);
       setTimeout(() => {
-        setMessages([
-          {
-            id: newTrainingMsgId(),
-            role: "ai",
-            text: `你好！👋 你通过 **${TRAINING_INVITE_CARD.inviterName}（${TRAINING_INVITE_CARD.inviterRole}）** 的邀请链接进入了智爱客小程序。\n\n以下是为你准备的培训任务。你可以先查看上方的「培训介绍」，了解目标与培训方式，再点击「立即培训」开始 👇`,
-          },
-          {
-            id: newTrainingMsgId(),
-            role: "ai",
-            trainingCard: TRAINING_INVITE_CARD,
-          },
-        ]);
+        setMessages([]);
       }, 400);
     }
   }, [fromTrainingScan]);
@@ -716,7 +705,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
-        { id: newTrainingMsgId(), role: "user", text: "立即培训" },
+        { id: newTrainingMsgId(), role: "user", text: "立即开始" },
         { id: newTrainingMsgId(), role: "ai", text: `第 1 题：${q.question}`, isQuestion: true, questionIdx: 0 },
       ]);
     }, 300);
@@ -807,13 +796,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     }
   };
 
-  const handleTrainingIntroAction = (item: TrainingIntroItem) => {
+  const handleTrainingIntroAction = (_item: TrainingIntroItem) => {
     setChatMode(true);
-    setMessages(prev => [
-      ...prev,
-      { id: newTrainingMsgId(), role: "user", text: `我想了解：${item.title}` },
-      { id: newTrainingMsgId(), role: "ai", text: item.aiReply },
-    ]);
+    setShowTrainingRegister(true);
   };
 
   const isTrainingConversation = fromTrainingScan || trainingRegistered || trainingIsActive || trainingIsFeedback || messages.some(
@@ -1183,44 +1168,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         boxShadow: "0 2px 8px rgba(232,117,10,0.3)",
                       }}
                     >
-                      开始前须知
+                      立即开始
                     </button>
                   </div>
-                </div>
-
-                <div className="px-3 pb-2 flex flex-col gap-1.5">
-                  {TRAINING_INTRO_ITEMS.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleTrainingIntroAction(item)}
-                      style={{
-                        width: "100%", display: "flex", alignItems: "center", gap: 10,
-                        padding: "9px 11px",
-                        background: "rgba(255,255,255,0.92)",
-                        border: "1px solid rgba(255,211,176,0.9)",
-                        borderRadius: 11,
-                        textAlign: "left",
-                        boxShadow: "0 1px 6px rgba(232,117,10,0.06)",
-                        transition: "all 0.15s",
-                      }}
-                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,247,238,1)")}
-                      onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.92)")}
-                    >
-                      <div style={{
-                        width: 32, height: 32, borderRadius: 10,
-                        background: "rgba(232,117,10,0.12)", color: "#e8750a",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 11.5, fontWeight: 700, flexShrink: 0,
-                      }}>
-                        {item.badge}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, color: "#2d2040", fontWeight: 600 }}>{item.title}</div>
-                        <div style={{ fontSize: 12, color: "#8f7d6c", marginTop: 2, lineHeight: 1.35 }}>{item.subtitle}</div>
-                      </div>
-                      <IcArrow />
-                    </button>
-                  ))}
                 </div>
               </>
             ) : (
@@ -1448,7 +1398,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               boxShadow: "0 4px 16px rgba(232,117,10,0.28)",
                             }}
                           >
-                            立即培训
+                            立即开始
                           </button>
                         )}
                         {trainingRegistered && (
