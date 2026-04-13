@@ -1306,68 +1306,64 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           >
             {trainingLaunchStep !== 3 ? (
               <div style={{ padding: 0, display: "flex", flexDirection: "column", gap: 0, background: "linear-gradient(180deg, rgba(255,252,249,0.94) 0%, rgba(255,255,255,0.98) 100%)" }}>
+                <div className="flex items-center justify-between gap-3" style={{ minWidth: 0, padding: "13px 14px 10px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
+                    <div
+                      style={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: 999,
+                        border: "1.5px solid rgba(232,117,10,0.22)",
+                        color: "#8f6b47",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 13,
+                        fontWeight: 800,
+                        flexShrink: 0,
+                        background: "rgba(255,255,255,0.92)",
+                      }}
+                    >
+                      ⌘
+                    </div>
+                    <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 13, color: "#000000", fontWeight: 500 }}>培训对象</span>
+                      <span style={{ fontSize: 13, color: "#5c58e9", fontWeight: 500 }}>{targetSummary}</span>
+                      <button
+                        onClick={() => {
+                          if (onOpenOrgTree) onOpenOrgTree();
+                          else toast.info("请在组织架构页切换培训对象");
+                        }}
+                        style={{
+                          border: "none",
+                          padding: 0,
+                          background: "transparent",
+                          color: "#000000",
+                          fontSize: 13,
+                          fontWeight: 500,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span>切换</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <div
                   style={{
                     borderRadius: 18,
                     border: "1px solid rgba(242,223,206,0.92)",
                     background: "linear-gradient(180deg, rgba(255,255,255,0.995) 0%, rgba(255,250,246,0.98) 100%)",
-                    padding: "13px 14px",
+                    padding: "10px 14px",
                     boxShadow: "0 6px 14px rgba(232,117,10,0.04), inset 0 1px 0 rgba(255,255,255,0.96)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12,
                   }}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
-                      <div
-                        style={{
-                          width: 26,
-                          height: 26,
-                          borderRadius: 999,
-                          border: "1.5px solid rgba(232,117,10,0.22)",
-                          color: "#8f6b47",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 13,
-                          fontWeight: 800,
-                          flexShrink: 0,
-                          background: "rgba(255,255,255,0.92)",
-                        }}
-                      >
-                        ⌘
-                      </div>
-                      <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 13, color: "#000000", fontWeight: 500 }}>培训对象</span>
-                        <span style={{ fontSize: 13, color: "#5c58e9", fontWeight: 500 }}>{targetSummary}</span>
-                        <button
-                          onClick={() => {
-                            if (onOpenOrgTree) onOpenOrgTree();
-                            else toast.info("请在组织架构页切换培训对象");
-                          }}
-                          style={{
-                            border: "none",
-                            padding: 0,
-                            background: "transparent",
-                            color: "#000000",
-                            fontSize: 13,
-                            fontWeight: 500,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 6,
-                            flexShrink: 0,
-                          }}
-                        >
-                          <span>切换</span>
-                        </button>
-                      </div>
-                    </div>
-                    <span style={{ fontSize: 16, color: "#8f8174", flexShrink: 0 }}>⌄</span>
-                  </div>
-                  <div className="flex items-center justify-end gap-2" style={{ minWidth: 0 }}>
+                  <div className="flex items-center justify-start gap-2" style={{ minWidth: 0 }}>
                     <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
-                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap" }}>如有相关文件资料可直接上传</span>
+                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap", textAlign: "left" }}>如有相关文件资料可直接上传</span>
                       <button
                         onClick={() => trainingLaunchUploadRef.current?.click()}
                         style={{
