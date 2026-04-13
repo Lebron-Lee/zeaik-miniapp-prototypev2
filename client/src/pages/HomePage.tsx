@@ -2024,12 +2024,22 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
       {/* 培训注册弹层（扫码培训模式） */}
       {showTrainingRegister && (
-        <div style={{
-          position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)",
-          display: "flex", alignItems: "flex-end", zIndex: 200,
-          backdropFilter: "blur(4px)",
-        }}>
-          <div style={{
+        <div
+          onClick={() => {
+            setShowTrainingRegister(false);
+            setTrainingRegisterRelation(null);
+            setTrainingRegisterPosition("");
+            setTrainingRegisterCustomPosition("");
+          }}
+          style={{
+            position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)",
+            display: "flex", alignItems: "flex-end", zIndex: 200,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
             width: "100%",
             background: "linear-gradient(180deg, rgba(255,251,246,0.98) 0%, rgba(255,246,236,0.98) 100%)",
             borderRadius: "22px 22px 0 0",
@@ -2190,23 +2200,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 marginBottom: 10,
               }}
             >
-              确认注册，开始培训
-            </button>
-            <button
-              onClick={() => {
-                setShowTrainingRegister(false);
-                setTrainingRegisterRelation(null);
-                setTrainingRegisterPosition("");
-                setTrainingRegisterCustomPosition("");
-              }}
-              style={{
-                width: "100%", padding: "11px",
-                background: "rgba(255,255,255,0.7)", border: "1px solid rgba(232,117,10,0.16)",
-                borderRadius: 14, color: "#8a6f58", fontSize: 14,
-                cursor: "pointer",
-              }}
-            >
-              取消
+              开始培训
             </button>
           </div>
         </div>
