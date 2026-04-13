@@ -1,5 +1,6 @@
 /**
  * 智爱客-餐饮AI 小程序原型外壳 v5
+ * 设计提醒（本文件）：遵循微信小程序移动端单路径导航，首页“碎片化培训”需在登录校验后直达“发起培训”管理页；整体保持暖橙米色底、品牌橙强调色、375px 设备壳内的轻量切换体验。
  * 三阶段营销落地页产品设计：
  * Stage 1: 广告落地 → 未登录AI对话（首页即对话页）
  * Stage 2: 快捷按钮触发登录提示 → 登录后产品体验
@@ -227,11 +228,14 @@ export default function MiniAppShell() {
     setUserPhone(phone);
     setStage(2);
     setShowLoginModal(false);
-    // 登录后根据触发来源自动跳转对应页面
+    // 首页快捷入口遵循“验证后直达目标页”，碎片化培训直接进入发起培训页面，避免再经过员工任务首页。
     if (loginTrigger === "AI巡检") {
       setAppView("inspection");
     } else if (loginTrigger === "工资日结") {
       setAppView("daily-salary");
+    } else if (loginTrigger === "碎片化培训" || loginTrigger === "培训智能体") {
+      setFromTrainingScan(false);
+      setAppView("training-manager");
     } else if (loginTrigger === "产品体验" || loginTrigger === "免费体验" || loginTrigger === "视频体验") {
       setAppView("product");
     }
@@ -283,7 +287,9 @@ export default function MiniAppShell() {
   };
 
   const handleOpenTraining = () => {
-    setAppView("training");
+    // 品牌体验路径：从首页点击“碎片化培训”后，直接进入管理端的“发起培训”功能页。
+    setFromTrainingScan(false);
+    setAppView("training-manager");
   };
 
   const handleOpenOrgTree = () => {
@@ -442,7 +448,7 @@ export default function MiniAppShell() {
         )}
         {appView === "training-manager" && (
           <TrainingManagerPage
-            onBack={() => setAppView("training")}
+            onBack={() => setAppView("home")}
             onOpenOrgTree={handleOpenOrgTree}
           />
         )}
@@ -455,7 +461,7 @@ export default function MiniAppShell() {
         {appView === "org-register" && (
           <OrgRegisterPage
             onBack={() => setAppView("org-tree")}
-            onComplete={() => setAppView("training")}
+            onComplete={() => setAppView("training-manager")}
           />
         )}
 
