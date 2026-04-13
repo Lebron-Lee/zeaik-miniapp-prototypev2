@@ -1,16 +1,13 @@
 /**
  * 培训智能体 · 店长管理端
- * 设计提醒（本文件）：保持微信小程序单任务流，首页培训入口可一键直达“发起培训”子功能弹层；管理页本身仍作为培训运营容器承接返回与组织架构扩展。
  * 功能：发起培训任务 + 完成率看板 + 问题清单排名
  * 设计规范：橙色主题，数据看板卡片，问题清单可下钻
  */
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 interface TrainingManagerPageProps {
   onBack: () => void;
   onOpenOrgTree?: () => void;
-  autoOpenCreate?: boolean;
-  onAutoOpenConsumed?: () => void;
 }
 
 // ── 类型定义 ──────────────────────────────────────────────────────────────────
@@ -106,16 +103,10 @@ const IcCheck = () => (
 const CURRENT_USER = {
   name: "王店长",
   level: "门店级",
-  hasSuperior: false,
+  hasSuperior: false,           // false = 模拟「首次发起、尚无上级」场景
   superiors: ["李区域经理", "张人力资源经理"],
-  isFirstLaunch: true,
+  isFirstLaunch: true,         // 是否首次发起培训
 };
-
-const ORG_LEVEL_GROUPS = [
-  { id: "front-service", label: "前厅服务组", hint: "门店级 · 服务岗", staffIds: ["S1", "S2", "S5"] },
-  { id: "kitchen", label: "后厨出品组", hint: "门店级 · 后厨岗", staffIds: ["S3", "S6"] },
-  { id: "cashier", label: "收银与迎宾组", hint: "门店级 · 收银岗", staffIds: ["S4"] },
-];
 
 function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (data: any) => void }) {
   const [selectedStaff, setSelectedStaff] = useState<Set<string>>(new Set());
@@ -124,7 +115,6 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
   const [deadline, setDeadline] = useState("今日 22:00");
   const [linkCopied, setLinkCopied] = useState(false);
   const [inviteTarget, setInviteTarget] = useState<"wechat" | "link" | null>(null);
-  const [selectMode, setSelectMode] = useState<"org" | "staff">("org");
   const [syncSuperior, setSyncSuperior] = useState(true); // 默认开启同步上级
   const [superiorNotified, setSuperiorNotified] = useState(false);
 
@@ -158,9 +148,8 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
       display: "flex", alignItems: "flex-end",
     }}>
       <div style={{
-        width: "min(100%, 375px)", background: "white", borderRadius: "22px 22px 0 0",
-        maxHeight: "80vh", display: "flex", flexDirection: "column", margin: "0 auto",
-        boxShadow: "0 -12px 32px rgba(99, 55, 10, 0.16)",
+        width: "100%", background: "white", borderRadius: "20px 20px 0 0",
+        maxHeight: "80vh", display: "flex", flexDirection: "column",
       }}>
         {/* 弹层头部 */}
         <div style={{
@@ -193,6 +182,32 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
         <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px" }}>
           {step === 1 && (
             <>
+              {/* 未绑定上级警告 */}
+              {!CURRENT_USER.hasSuperior && (
+                <div style={{
+                  background: "linear-gradient(135deg, #FFF3E0, #FFF8F0)",
+                  border: "1.5px solid #FFB74D", borderRadius: 12,
+                  padding: "12px 14px", marginBottom: 14,
+                  display: "flex", alignItems: "flex-start", gap: 10,
+                }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>⚠️</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#E65100", marginBottom: 4 }}>
+                      你尚未加入上级组织
+                    </div>
+                    <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                      培训数据将无法向上汇报，上级也无法看到你的团队情况。
+                      建议先完成上级绑定，再发起培训。
+                    </div>
+                    <button style={{
+                      marginTop: 8, padding: "6px 14px", borderRadius: 8, border: "none",
+                      background: "linear-gradient(135deg, #e8750a, #ff9a3c)",
+                      color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer",
+                    }}>立即绑定上级 →</button>
+                  </div>
+                </div>
+              )}
+              {/* 首次发起提示 */}
               {CURRENT_USER.hasSuperior && CURRENT_USER.isFirstLaunch && (
                 <div style={{
                   background: "linear-gradient(135deg, #E3F2FD, #EDE7F6)",
@@ -212,140 +227,38 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
                   </div>
                 </div>
               )}
-
-              <div style={{
-                background: "linear-gradient(180deg, #FFF9F3 0%, #FFFFFF 100%)",
-                border: "1px solid #F6D1AE", borderRadius: 14, padding: 12, marginBottom: 12,
-              }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1A1A1A" }}>选择培训对象</div>
-                    <div style={{ fontSize: 11, color: "#8A6B52", marginTop: 3 }}>可先按组织层级批量勾选，再切换到人员视图精细补充。</div>
-                  </div>
+              <div style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>选择要培训的员工（可多选）</div>
+              {STAFF_STATS.map(s => (
+                <div
+                  key={s.id}
+                  onClick={() => toggleStaff(s.id)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12, padding: "11px 12px",
+                    borderRadius: 12, marginBottom: 8, cursor: "pointer",
+                    background: selectedStaff.has(s.id) ? "#FFF3E0" : "#FAFAFA",
+                    border: selectedStaff.has(s.id) ? "1.5px solid #e8750a" : "1.5px solid #F0F0F0",
+                    transition: "all 0.15s",
+                  }}
+                >
                   <div style={{
-                    minWidth: 56, padding: "5px 10px", borderRadius: 999,
-                    background: selectedStaff.size > 0 ? "#FFF3E0" : "#F5F5F5",
-                    color: selectedStaff.size > 0 ? "#e8750a" : "#999", fontSize: 11, fontWeight: 700, textAlign: "center",
+                    width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                    background: selectedStaff.has(s.id) ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#F0F0F0",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 14, fontWeight: 700, color: selectedStaff.has(s.id) ? "white" : "#888",
                   }}>
-                    已选 {selectedStaff.size} 人
+                    {selectedStaff.has(s.id) ? <IcCheck /> : s.name[0]}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1A1A1A" }}>{s.name}</div>
+                    <div style={{ fontSize: 12, color: "#888" }}>{s.role}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 12, color: s.avgScore >= 4 ? "#43A047" : s.avgScore >= 3 ? "#F57C00" : "#888" }}>
+                      {s.avgScore > 0 ? `均分 ${s.avgScore}` : "未答题"}
+                    </div>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    onClick={() => setSelectMode("org")}
-                    style={{
-                      flex: 1, border: "none", borderRadius: 10, padding: "9px 0", cursor: "pointer",
-                      background: selectMode === "org" ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#FFF1E5",
-                      color: selectMode === "org" ? "white" : "#a85d18", fontSize: 12, fontWeight: 700,
-                    }}
-                  >
-                    按组织架构选择
-                  </button>
-                  <button
-                    onClick={() => setSelectMode("staff")}
-                    style={{
-                      flex: 1, border: "none", borderRadius: 10, padding: "9px 0", cursor: "pointer",
-                      background: selectMode === "staff" ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#FFF1E5",
-                      color: selectMode === "staff" ? "white" : "#a85d18", fontSize: 12, fontWeight: 700,
-                    }}
-                  >
-                    按人员选择
-                  </button>
-                </div>
-              </div>
-
-              {selectMode === "org" ? (
-                <>
-                  {ORG_LEVEL_GROUPS.map(group => {
-                    const groupStaff = STAFF_STATS.filter(staff => group.staffIds.includes(staff.id));
-                    const allSelected = groupStaff.every(staff => selectedStaff.has(staff.id));
-                    const selectedCount = groupStaff.filter(staff => selectedStaff.has(staff.id)).length;
-
-                    return (
-                      <div key={group.id} style={{
-                        borderRadius: 14, marginBottom: 10, overflow: "hidden",
-                        border: allSelected ? "1.5px solid #f0a154" : "1px solid #F1E4D8", background: "#FFFCF8",
-                      }}>
-                        <button
-                          onClick={() => groupStaff.forEach(staff => toggleStaff(staff.id))}
-                          style={{
-                            width: "100%", border: "none", background: "none", cursor: "pointer",
-                            padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-                          }}
-                        >
-                          <div style={{ textAlign: "left" }}>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A" }}>{group.label}</div>
-                            <div style={{ fontSize: 11, color: "#8B7B6A", marginTop: 3 }}>{group.hint} · 共 {groupStaff.length} 人</div>
-                          </div>
-                          <div style={{
-                            padding: "5px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
-                            background: allSelected ? "#FFF3E0" : "#F6EFE7", color: allSelected ? "#e8750a" : "#8A6B52",
-                          }}>
-                            {selectedCount === groupStaff.length ? "已全选" : `已选 ${selectedCount}/${groupStaff.length}`}
-                          </div>
-                        </button>
-                        <div style={{ padding: "0 14px 12px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-                          {groupStaff.map(staff => (
-                            <button
-                              key={staff.id}
-                              onClick={() => toggleStaff(staff.id)}
-                              style={{
-                                border: selectedStaff.has(staff.id) ? "1px solid #e8750a" : "1px solid #ECDDCF",
-                                background: selectedStaff.has(staff.id) ? "#FFF3E0" : "white",
-                                borderRadius: 999, padding: "7px 10px", cursor: "pointer",
-                                display: "flex", alignItems: "center", gap: 6,
-                              }}
-                            >
-                              <span style={{
-                                width: 18, height: 18, borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                background: selectedStaff.has(staff.id) ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#EFE7DE",
-                                color: selectedStaff.has(staff.id) ? "white" : "#8A7B6C", fontSize: 10, fontWeight: 700,
-                              }}>{selectedStaff.has(staff.id) ? "✓" : staff.name[0]}</span>
-                              <span style={{ fontSize: 12, color: "#3B3027", fontWeight: 600 }}>{staff.name}</span>
-                              <span style={{ fontSize: 11, color: "#9C8D7E" }}>{staff.role}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </>
-              ) : (
-                <>
-                  <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>按人员逐个选择，更适合临时加训或补训。</div>
-                  {STAFF_STATS.map(s => (
-                    <div
-                      key={s.id}
-                      onClick={() => toggleStaff(s.id)}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 12, padding: "11px 12px",
-                        borderRadius: 12, marginBottom: 8, cursor: "pointer",
-                        background: selectedStaff.has(s.id) ? "#FFF3E0" : "#FAFAFA",
-                        border: selectedStaff.has(s.id) ? "1.5px solid #e8750a" : "1.5px solid #F0F0F0",
-                        transition: "all 0.15s",
-                      }}
-                    >
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                        background: selectedStaff.has(s.id) ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#F0F0F0",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 14, fontWeight: 700, color: selectedStaff.has(s.id) ? "white" : "#888",
-                      }}>
-                        {selectedStaff.has(s.id) ? <IcCheck /> : s.name[0]}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#1A1A1A" }}>{s.name}</div>
-                        <div style={{ fontSize: 12, color: "#888" }}>{s.role}</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 12, color: s.avgScore >= 4 ? "#43A047" : s.avgScore >= 3 ? "#F57C00" : "#888" }}>
-                          {s.avgScore > 0 ? `均分 ${s.avgScore}` : "未答题"}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </>
-              )}
+              ))}
             </>
           )}
 
@@ -695,7 +608,7 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
 }
 
 // ── 主组件 ────────────────────────────────────────────────────────────────────
-export default function TrainingManagerPage({ onBack, onOpenOrgTree, autoOpenCreate = false, onAutoOpenConsumed }: TrainingManagerPageProps) {
+export default function TrainingManagerPage({ onBack, onOpenOrgTree }: TrainingManagerPageProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "problems">("overview");
   const [showCreate, setShowCreate] = useState(false);
   const [sentSuccess, setSentSuccess] = useState(false);
@@ -709,12 +622,6 @@ export default function TrainingManagerPage({ onBack, onOpenOrgTree, autoOpenCre
     setSentSuccess(true);
     setTimeout(() => setSentSuccess(false), 3000);
   };
-
-  useEffect(() => {
-    if (!autoOpenCreate) return;
-    setShowCreate(true);
-    onAutoOpenConsumed?.();
-  }, [autoOpenCreate, onAutoOpenConsumed]);
 
   return (
     <div style={{
