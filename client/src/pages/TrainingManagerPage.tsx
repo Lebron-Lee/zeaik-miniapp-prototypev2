@@ -182,31 +182,6 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
         <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px" }}>
           {step === 1 && (
             <>
-              {/* 未绑定上级警告 */}
-              {!CURRENT_USER.hasSuperior && (
-                <div style={{
-                  background: "linear-gradient(135deg, #FFF3E0, #FFF8F0)",
-                  border: "1.5px solid #FFB74D", borderRadius: 12,
-                  padding: "12px 14px", marginBottom: 14,
-                  display: "flex", alignItems: "flex-start", gap: 10,
-                }}>
-                  <span style={{ fontSize: 20, flexShrink: 0 }}>⚠️</span>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#E65100", marginBottom: 4 }}>
-                      你尚未加入上级组织
-                    </div>
-                    <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
-                      培训数据将无法向上汇报，上级也无法看到你的团队情况。
-                      建议先完成上级绑定，再发起培训。
-                    </div>
-                    <button style={{
-                      marginTop: 8, padding: "6px 14px", borderRadius: 8, border: "none",
-                      background: "linear-gradient(135deg, #e8750a, #ff9a3c)",
-                      color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                    }}>立即绑定上级 →</button>
-                  </div>
-                </div>
-              )}
               {/* 首次发起提示 */}
               {CURRENT_USER.hasSuperior && CURRENT_USER.isFirstLaunch && (
                 <div style={{
@@ -227,38 +202,76 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
                   </div>
                 </div>
               )}
-              <div style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>选择要培训的员工（可多选）</div>
-              {STAFF_STATS.map(s => (
-                <div
-                  key={s.id}
-                  onClick={() => toggleStaff(s.id)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 12, padding: "11px 12px",
-                    borderRadius: 12, marginBottom: 8, cursor: "pointer",
-                    background: selectedStaff.has(s.id) ? "#FFF3E0" : "#FAFAFA",
-                    border: selectedStaff.has(s.id) ? "1.5px solid #e8750a" : "1.5px solid #F0F0F0",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                    background: selectedStaff.has(s.id) ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#F0F0F0",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 14, fontWeight: 700, color: selectedStaff.has(s.id) ? "white" : "#888",
-                  }}>
-                    {selectedStaff.has(s.id) ? <IcCheck /> : s.name[0]}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1A1A1A" }}>{s.name}</div>
-                    <div style={{ fontSize: 12, color: "#888" }}>{s.role}</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 12, color: s.avgScore >= 4 ? "#43A047" : s.avgScore >= 3 ? "#F57C00" : "#888" }}>
-                      {s.avgScore > 0 ? `均分 ${s.avgScore}` : "未答题"}
-                    </div>
-                  </div>
+              <div style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>选择培训员工</div>
+              <div style={{
+                background: "linear-gradient(180deg, #FFF9F3 0%, #FFFFFF 100%)",
+                border: "1px solid #F5D7BC", borderRadius: 14, padding: "12px 12px 6px", marginBottom: 12,
+              }}>
+                <div style={{ fontSize: 12, color: "#8B6E56", lineHeight: 1.6, marginBottom: 10 }}>
+                  按组织架构展示，可直接选择组织架构节点并勾选该节点下的培训人员。
                 </div>
-              ))}
+                {[
+                  { label: "前厅服务组", hint: "门店层级 · 服务岗", members: STAFF_STATS.filter(s => s.role === "服务员") },
+                  { label: "后厨出品组", hint: "门店层级 · 后厨岗", members: STAFF_STATS.filter(s => s.role === "厨师") },
+                  { label: "收银与迎宾组", hint: "门店层级 · 收银岗", members: STAFF_STATS.filter(s => s.role === "收银员") },
+                ].map(group => {
+                  const selectedCount = group.members.filter(member => selectedStaff.has(member.id)).length;
+                  const allSelected = group.members.length > 0 && selectedCount === group.members.length;
+
+                  return (
+                    <div
+                      key={group.label}
+                      style={{
+                        borderRadius: 12, border: allSelected ? "1.5px solid #e8750a" : "1px solid #F1E4D8",
+                        background: allSelected ? "#FFF7EF" : "#FFFCF8", marginBottom: 10, overflow: "hidden",
+                      }}
+                    >
+                      <div style={{
+                        padding: "11px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+                        borderBottom: "1px solid rgba(232,117,10,0.08)",
+                      }}>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A" }}>{group.label}</div>
+                          <div style={{ fontSize: 11, color: "#8D7865", marginTop: 3 }}>{group.hint}</div>
+                        </div>
+                        <button
+                          onClick={() => group.members.forEach(member => toggleStaff(member.id))}
+                          style={{
+                            border: "none", cursor: "pointer", padding: "6px 10px", borderRadius: 999,
+                            background: allSelected ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#FFF1E5",
+                            color: allSelected ? "white" : "#B2661D", fontSize: 11, fontWeight: 700,
+                          }}
+                        >
+                          {allSelected ? "取消整组" : `整组选择 ${selectedCount}/${group.members.length}`}
+                        </button>
+                      </div>
+                      <div style={{ padding: "10px 12px 12px", display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {group.members.map(member => (
+                          <button
+                            key={member.id}
+                            onClick={() => toggleStaff(member.id)}
+                            style={{
+                              border: selectedStaff.has(member.id) ? "1px solid #e8750a" : "1px solid #EADBCD",
+                              background: selectedStaff.has(member.id) ? "#FFF3E0" : "white",
+                              borderRadius: 999, padding: "7px 10px", cursor: "pointer",
+                              display: "flex", alignItems: "center", gap: 6,
+                            }}
+                          >
+                            <span style={{
+                              width: 18, height: 18, borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center",
+                              background: selectedStaff.has(member.id) ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#EFE7DE",
+                              color: selectedStaff.has(member.id) ? "white" : "#8A7B6C", fontSize: 10, fontWeight: 700,
+                            }}>
+                              {selectedStaff.has(member.id) ? "✓" : member.name[0]}
+                            </span>
+                            <span style={{ fontSize: 12, color: "#3B3027", fontWeight: 600 }}>{member.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </>
           )}
 
