@@ -7,6 +7,7 @@
  * - 「今日经营」卡片：点击问题联动发送到对话
  * - 底部：快捷按钮 + 输入框（支持语音/文字切换，拍照触发AI检测模拟）
  * - 对话界面：内嵌在页面中，支持流式AI回复
+ * - 设计哲学：沿用暖橙玻璃卡片与拟物浮层语言，把碎片化培训做成聊天流中的双步骤任务卡，强调轻量引导、可快速决策与组织分组选择
  */
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -341,6 +342,82 @@ type Message = {
   trainingScore?: number;
 };
 
+interface TrainingLaunchBankOption {
+  id: string;
+  title: string;
+  description: string;
+  meta: string;
+  tag: string;
+}
+
+interface TrainingLaunchMember {
+  id: string;
+  name: string;
+  role: string;
+}
+
+interface TrainingLaunchGroup {
+  id: string;
+  label: string;
+  hint: string;
+  members: TrainingLaunchMember[];
+}
+
+const TRAINING_LAUNCH_BANKS: TrainingLaunchBankOption[] = [
+  {
+    id: "service-standard",
+    title: "服务标准题库",
+    description: "覆盖迎宾、点单、巡台、顾客投诉处理等高频服务场景。",
+    meta: "12个知识点 · 适合前厅标准化训练",
+    tag: "门店常用",
+  },
+  {
+    id: "opening-closing",
+    title: "开闭店流程题库",
+    description: "聚焦门店开店检查、交接班、收档清场与安全巡查。",
+    meta: "9个知识点 · 适合班前班后抽查",
+    tag: "流程纠偏",
+  },
+  {
+    id: "food-safety",
+    title: "食品安全题库",
+    description: "围绕留样、效期、冷链、清洁消杀与后厨协同规范展开。",
+    meta: "10个知识点 · 适合后厨与值班经理",
+    tag: "风险优先",
+  },
+];
+
+const TRAINING_LAUNCH_GROUPS: TrainingLaunchGroup[] = [
+  {
+    id: "front-service",
+    label: "前厅服务组",
+    hint: "门店层级 · 服务礼仪与顾客接待",
+    members: [
+      { id: "S1", name: "曹敏", role: "服务员" },
+      { id: "S2", name: "李明", role: "服务员" },
+      { id: "S5", name: "赵强", role: "服务员" },
+    ],
+  },
+  {
+    id: "kitchen-pass",
+    label: "后厨出品组",
+    hint: "门店层级 · 食品安全与出品流程",
+    members: [
+      { id: "S3", name: "张华", role: "厨师" },
+      { id: "S6", name: "陈静", role: "厨师" },
+    ],
+  },
+  {
+    id: "cashier-greeting",
+    label: "收银与迎宾组",
+    hint: "门店层级 · 高峰接待与收银操作",
+    members: [
+      { id: "S4", name: "王芳", role: "收银员" },
+      { id: "S7", name: "刘宁", role: "迎宾" },
+    ],
+  },
+];
+
 // ─── 店铺信息采集弹窗 ────────────────────────────────────────────────────────
 type StoreType = "快餐" | "正餐" | "火锅" | "烧烤" | "奶茶" | "其他";
 type AreaRange = "50㎡以下" | "50-100㎡" | "100-300㎡" | "300㎡以上";
@@ -633,6 +710,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [trainingRegisterRelation, setTrainingRegisterRelation] = useState<"downward" | "upward" | null>(null);
   const [trainingRegisterPosition, setTrainingRegisterPosition] = useState("");
   const [trainingRegisterCustomPosition, setTrainingRegisterCustomPosition] = useState("");
+  const [trainingLaunchStep, setTrainingLaunchStep] = useState<0 | 1 | 2 | 3>(0);
+  const [selectedTrainingBankId, setSelectedTrainingBankId] = useState<string | null>(null);
+  const [selectedTrainingTargets, setSelectedTrainingTargets] = useState<Set<string>>(new Set());
   const trainingMsgIdRef = React.useRef(10000);
 
   // 培训 Mock 数据
@@ -677,6 +757,15 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
   const currentTrainingTask = trainingActiveTask ?? TRAINING_INVITE_CARD;
   const currentTrainingIntroSummary = getTrainingIntroSummary(currentTrainingTask);
+  const selectedTrainingBank = TRAINING_LAUNCH_BANKS.find(item => item.id === selectedTrainingBankId) ?? null;
+  const allTrainingLaunchMembers = TRAINING_LAUNCH_GROUPS.flatMap(group =>
+    group.members.map(member => ({ ...member, groupId: group.id, groupLabel: group.label })),
+  );
+  const selectedTrainingMembers = allTrainingLaunchMembers.filter(member => selectedTrainingTargets.has(member.id));
+  const selectedTrainingGroupLabels = TRAINING_LAUNCH_GROUPS.filter(group =>
+    group.members.some(member => selectedTrainingTargets.has(member.id)),
+  ).map(group => group.label);
+  const trainingLaunchActive = trainingLaunchStep > 0;
   const TRAINING_RELATION_OPTIONS = {
     downward: {
       label: "我是TA的下级",
@@ -821,6 +910,104 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const handleTrainingIntroAction = (_item: TrainingIntroItem) => {
     setChatMode(true);
     setShowTrainingRegister(true);
+  };
+
+  const startTrainingLaunchConversation = () => {
+    setChatMode(true);
+    if (trainingLaunchActive) {
+      setTrainingLaunchStep(1);
+      setSelectedTrainingBankId(null);
+      setSelectedTrainingTargets(new Set());
+      return;
+    }
+
+    setTrainingLaunchStep(1);
+    setSelectedTrainingBankId(null);
+    setSelectedTrainingTargets(new Set());
+    setMessages(prev => [
+      ...prev,
+      { id: msgIdRef.current++, role: "user", text: "发起碎片化培训" },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: "好的，我来帮你快速锁定培训需求。先选一个培训题库，再选择培训对象，全程都在对话里完成。",
+      },
+    ]);
+  };
+
+  const handleSelectTrainingBank = (bankId: string) => {
+    const nextBank = TRAINING_LAUNCH_BANKS.find(item => item.id === bankId);
+    if (!nextBank) return;
+
+    setSelectedTrainingBankId(bankId);
+    setTrainingLaunchStep(2);
+    setMessages(prev => [
+      ...prev,
+      { id: msgIdRef.current++, role: "user", text: `培训题库：${nextBank.title}` },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: "已为你锁定题库。接下来请选择培训对象，可按组织分组快速勾选。",
+      },
+    ]);
+  };
+
+  const toggleTrainingTarget = (memberId: string) => {
+    setSelectedTrainingTargets(prev => {
+      const next = new Set(prev);
+      if (next.has(memberId)) next.delete(memberId);
+      else next.add(memberId);
+      return next;
+    });
+  };
+
+  const toggleTrainingGroup = (group: TrainingLaunchGroup) => {
+    setSelectedTrainingTargets(prev => {
+      const next = new Set(prev);
+      const allSelected = group.members.every(member => next.has(member.id));
+      group.members.forEach(member => {
+        if (allSelected) next.delete(member.id);
+        else next.add(member.id);
+      });
+      return next;
+    });
+  };
+
+  const resetTrainingLaunchFlow = () => {
+    setTrainingLaunchStep(1);
+    setSelectedTrainingBankId(null);
+    setSelectedTrainingTargets(new Set());
+    setMessages(prev => [
+      ...prev,
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: "好的，我们重新来过。请先重新选择培训题库。",
+      },
+    ]);
+  };
+
+  const handleSubmitTrainingTargets = () => {
+    if (!selectedTrainingBank || selectedTrainingTargets.size === 0) {
+      toast.error("请先选择培训对象");
+      return;
+    }
+
+    const summaryNames = selectedTrainingMembers.map(member => member.name).join("、");
+    setTrainingLaunchStep(3);
+    setMessages(prev => [
+      ...prev,
+      {
+        id: msgIdRef.current++,
+        role: "user",
+        text: `培训对象：${summaryNames}`,
+      },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: "已完成本次碎片化培训需求确认。你可以继续发起培训任务，系统会按所选对象进入后续配置。",
+      },
+    ]);
   };
 
   const isTrainingConversation = fromTrainingScan || trainingRegistered || trainingIsActive || trainingIsFeedback || messages.some(
@@ -969,6 +1156,334 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         </React.Fragment>
       ));
     });
+  };
+
+  const renderTrainingLaunchCard = () => {
+    if (!trainingLaunchActive) return null;
+
+    return (
+      <div className="flex mb-3" style={{ justifyContent: "flex-start" }}>
+        <div style={{ maxWidth: "92%", display: "flex", flexDirection: "column" }}>
+          <div
+            style={{
+              borderRadius: "4px 20px 20px 20px",
+              overflow: "hidden",
+              background: "rgba(255,255,255,0.98)",
+              border: "1px solid rgba(255,208,171,0.86)",
+              boxShadow: "0 12px 26px rgba(232,117,10,0.14), inset 0 1px 0 rgba(255,255,255,0.85)",
+              backdropFilter: "blur(18px)",
+            }}
+          >
+            <div
+              style={{
+                padding: "14px 15px 13px",
+                background: "linear-gradient(135deg, rgba(255,154,60,0.96) 0%, rgba(232,117,10,0.96) 100%)",
+                color: "#fffaf4",
+              }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "0.02em" }}>碎片化培训</div>
+                  <div style={{ fontSize: 12, marginTop: 4, lineHeight: 1.55, color: "rgba(255,247,239,0.9)" }}>
+                    参考蚂蚁阿福的任务卡追问方式，将培训需求拆成可快速完成的两步选择。
+                  </div>
+                </div>
+                <button
+                  onClick={resetTrainingLaunchFlow}
+                  style={{
+                    border: "1px solid rgba(255,255,255,0.34)",
+                    background: "rgba(255,255,255,0.12)",
+                    color: "#fff",
+                    borderRadius: 999,
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    padding: "6px 10px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  重新选择
+                </button>
+              </div>
+            </div>
+
+            <div style={{ padding: "14px" }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                {[
+                  { step: 1, title: "选择培训题库" },
+                  { step: 2, title: "选择培训对象" },
+                ].map(item => {
+                  const completed = trainingLaunchStep > item.step;
+                  const active = trainingLaunchStep === item.step;
+                  return (
+                    <div
+                      key={item.step}
+                      style={{
+                        flex: 1,
+                        borderRadius: 14,
+                        padding: "10px 10px 9px",
+                        background: active
+                          ? "linear-gradient(135deg, rgba(255,240,224,1) 0%, rgba(255,247,239,0.96) 100%)"
+                          : completed
+                            ? "rgba(255,245,232,0.98)"
+                            : "rgba(249,242,235,0.88)",
+                        border: active || completed ? "1px solid rgba(232,117,10,0.22)" : "1px solid rgba(229,216,205,0.9)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <div
+                          style={{
+                            width: 22,
+                            height: 22,
+                            borderRadius: 999,
+                            background: completed || active
+                              ? "linear-gradient(135deg, #ff9a3c, #e8750a)"
+                              : "rgba(221,204,189,0.9)",
+                            color: "#fff",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {completed ? "✓" : `0${item.step}`}
+                        </div>
+                        <div style={{ fontSize: 12.5, fontWeight: 700, color: active || completed ? "#723400" : "#9b8775" }}>
+                          {item.title}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {trainingLaunchStep === 1 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>01. 请选择培训题库</div>
+                  <div style={{ fontSize: 12, color: "#8a735f", lineHeight: 1.6 }}>
+                    先锁定场景，再把培训链接发给对应员工，后续系统会自动把培训行为沉淀到组织结构里。
+                  </div>
+                  {TRAINING_LAUNCH_BANKS.map(bank => {
+                    const isSelected = selectedTrainingBankId === bank.id;
+                    return (
+                      <button
+                        key={bank.id}
+                        onClick={() => handleSelectTrainingBank(bank.id)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          borderRadius: 16,
+                          padding: "13px 14px",
+                          background: isSelected ? "linear-gradient(135deg, rgba(255,244,233,1) 0%, rgba(255,249,244,0.98) 100%)" : "rgba(255,253,250,0.95)",
+                          border: isSelected ? "1.5px solid rgba(232,117,10,0.55)" : "1px solid rgba(237,224,212,0.95)",
+                          boxShadow: isSelected ? "0 8px 16px rgba(232,117,10,0.1)" : "0 4px 10px rgba(106,72,32,0.04)",
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{bank.title}</div>
+                            <div style={{ fontSize: 12, color: "#8d7865", marginTop: 4, lineHeight: 1.55 }}>{bank.description}</div>
+                            <div style={{ fontSize: 11.5, color: "#c16a12", marginTop: 7, fontWeight: 600 }}>{bank.meta}</div>
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+                            <span
+                              style={{
+                                borderRadius: 999,
+                                padding: "5px 8px",
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: isSelected ? "#fff" : "#c45e00",
+                                background: isSelected ? "linear-gradient(135deg, #ff9a3c, #e8750a)" : "rgba(255,241,228,0.95)",
+                              }}
+                            >
+                              {bank.tag}
+                            </span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: isSelected ? "#e8750a" : "#b9a08a" }}>
+                              {isSelected ? "已选择" : "选择"}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {trainingLaunchStep === 2 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>02. 请选择培训对象</div>
+                    <div style={{ fontSize: 12, color: "#8a735f", marginTop: 4, lineHeight: 1.6 }}>
+                      当前题库：<span style={{ color: "#c45e00", fontWeight: 700 }}>{selectedTrainingBank?.title}</span>。支持整组选择，也可对个别员工单独勾选。
+                    </div>
+                  </div>
+                  {TRAINING_LAUNCH_GROUPS.map(group => {
+                    const selectedCount = group.members.filter(member => selectedTrainingTargets.has(member.id)).length;
+                    const allSelected = group.members.length > 0 && selectedCount === group.members.length;
+                    return (
+                      <div
+                        key={group.id}
+                        style={{
+                          borderRadius: 16,
+                          border: allSelected ? "1.5px solid rgba(232,117,10,0.48)" : "1px solid rgba(237,224,212,0.95)",
+                          background: allSelected ? "rgba(255,247,239,0.98)" : "rgba(255,252,248,0.94)",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-3" style={{ padding: "12px 13px 10px" }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>{group.label}</div>
+                            <div style={{ fontSize: 11.5, color: "#8d7865", marginTop: 3 }}>{group.hint}</div>
+                          </div>
+                          <button
+                            onClick={() => toggleTrainingGroup(group)}
+                            style={{
+                              border: "none",
+                              cursor: "pointer",
+                              padding: "6px 10px",
+                              borderRadius: 999,
+                              background: allSelected ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#fff1e5",
+                              color: allSelected ? "#fff" : "#c45e00",
+                              fontSize: 11.5,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {allSelected ? "取消整组" : `整组选择 ${selectedCount}/${group.members.length}`}
+                          </button>
+                        </div>
+                        <div style={{ padding: "0 13px 13px", display: "flex", flexWrap: "wrap", gap: 8 }}>
+                          {group.members.map(member => {
+                            const isSelected = selectedTrainingTargets.has(member.id);
+                            return (
+                              <button
+                                key={member.id}
+                                onClick={() => toggleTrainingTarget(member.id)}
+                                style={{
+                                  border: isSelected ? "1px solid #e8750a" : "1px solid #eadbcd",
+                                  background: isSelected ? "#fff3e0" : "white",
+                                  borderRadius: 999,
+                                  padding: "7px 10px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    width: 18,
+                                    height: 18,
+                                    borderRadius: 999,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    background: isSelected ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#efe7de",
+                                    color: isSelected ? "white" : "#8a7b6c",
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {isSelected ? "✓" : member.name[0]}
+                                </span>
+                                <span style={{ fontSize: 12, color: "#3b3027", fontWeight: 600 }}>{member.name}</span>
+                                <span style={{ fontSize: 11, color: "#9b8877" }}>{member.role}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  <button
+                    onClick={handleSubmitTrainingTargets}
+                    style={{
+                      width: "100%",
+                      border: "none",
+                      borderRadius: 16,
+                      padding: "12px 14px",
+                      background: selectedTrainingTargets.size > 0
+                        ? "linear-gradient(135deg, #ff9a3c, #e8750a)"
+                        : "rgba(230,220,210,0.95)",
+                      color: "#fff",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      boxShadow: selectedTrainingTargets.size > 0 ? "0 10px 20px rgba(232,117,10,0.2)" : "none",
+                    }}
+                  >
+                    确认培训对象（{selectedTrainingTargets.size}人）
+                  </button>
+                </div>
+              )}
+
+              {trainingLaunchStep === 3 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>培训需求已确认</div>
+                  <div
+                    style={{
+                      borderRadius: 16,
+                      background: "linear-gradient(180deg, rgba(255,249,244,0.98) 0%, rgba(255,245,236,0.96) 100%)",
+                      border: "1px solid rgba(255,215,182,0.85)",
+                      padding: "14px",
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      <div>
+                        <div style={{ fontSize: 12, color: "#9b7f69" }}>培训题库</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040", marginTop: 3 }}>{selectedTrainingBank?.title}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: "#9b7f69" }}>培训对象</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040", marginTop: 3 }}>
+                          {selectedTrainingMembers.length} 人 · {selectedTrainingGroupLabels.join(" / ")}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#8d7865", marginTop: 6, lineHeight: 1.6 }}>
+                          {selectedTrainingMembers.map(member => `${member.name}（${member.role}）`).join("、")}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={resetTrainingLaunchFlow}
+                      style={{
+                        flex: 1,
+                        borderRadius: 14,
+                        border: "1px solid rgba(232,117,10,0.22)",
+                        background: "rgba(255,247,239,0.98)",
+                        color: "#c45e00",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        padding: "11px 12px",
+                      }}
+                    >
+                      重新筛选
+                    </button>
+                    <button
+                      onClick={() => onOpenTraining?.()}
+                      style={{
+                        flex: 1.25,
+                        borderRadius: 14,
+                        border: "none",
+                        background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        padding: "11px 12px",
+                        boxShadow: "0 10px 20px rgba(232,117,10,0.2)",
+                      }}
+                    >
+                      去发起培训
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <span style={{ fontSize: 11, color: "#9d92aa", marginTop: 6, marginLeft: 8 }}>刚刚</span>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -1306,7 +1821,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     id="zeaik-home-training-entry"
                     data-testid="zeaik-home-training-entry"
                     aria-label="9.9元餐饮AI培训"
-                    onClick={() => toast.info("培训报名即将开放")}
+                    onClick={() => (isLoggedIn ? startTrainingLaunchConversation() : onRequestLogin?.("碎片化培训"))}
                     style={{
                       flex: 1, borderRadius: 11, padding: "8px 10px",
                       background: "linear-gradient(135deg, rgba(255,235,200,0.7) 0%, rgba(255,220,170,0.6) 100%)",
@@ -1745,7 +2260,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               </div>
             </div>
           ))}
-          <div ref={chatEndRef}/>
+          {renderTrainingLaunchCard()}
+          <div ref={chatEndRef} />
         </div>
       )}
 
@@ -1770,7 +2286,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               <button
                 key={i}
                 onClick={() => {
-                  if (!isLoggedIn) {
+                  if (!isLoggedIn && label !== "碎片化培训" && label !== "培训智能体") {
                     // 第一阶段：未登录，触发登录提示
                     onRequestLogin?.(label);
                   } else if (label === "工资日结") {
@@ -1788,7 +2304,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   } else if (label === "集团AI") {
                     onOpenGroupAiModel?.();
                   } else if (label === "碎片化培训" || label === "培训智能体") {
-                    onOpenTraining?.();
+                    startTrainingLaunchConversation();
                   } else {
                     toast.info(`${label}功能即将开放`);
                   }
