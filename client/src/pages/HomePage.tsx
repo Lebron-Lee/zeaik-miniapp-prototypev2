@@ -1240,25 +1240,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               }}
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "0.02em" }}>发起培训</div>
-                    <span
-                      style={{
-                        borderRadius: 999,
-                        padding: "4px 8px",
-                        background: "rgba(255,255,255,0.16)",
-                        border: "1px solid rgba(255,255,255,0.18)",
-                        fontSize: 11.5,
-                        fontWeight: 700,
-                      }}
-                    >
-                      进行中
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 12, marginTop: 4, lineHeight: 1.55, color: "rgba(255,247,239,0.92)" }}>
-                    告诉我培训需求，我来帮你快速配好题库。
-                  </div>
+                <div style={{ fontSize: 12.5, lineHeight: 1.55, color: "rgba(255,247,239,0.94)", paddingTop: 1 }}>
+                  告诉我培训需求，我来帮你快速配好题库。
                 </div>
                 <button
                   onClick={resetTrainingLaunchFlow}
@@ -1322,7 +1305,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             }}
           >
             {trainingLaunchStep !== 3 ? (
-              <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 12, background: "linear-gradient(180deg, rgba(255,249,243,0.9) 0%, rgba(255,255,255,0.98) 100%)" }}>
+              <div style={{ padding: 0, display: "flex", flexDirection: "column", gap: 0, background: "linear-gradient(180deg, rgba(255,249,243,0.9) 0%, rgba(255,255,255,0.98) 100%)" }}>
                 <div
                   style={{
                     borderRadius: 18,
@@ -1330,6 +1313,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     background: "linear-gradient(180deg, rgba(255,253,250,0.99) 0%, rgba(255,246,238,0.98) 100%)",
                     padding: "13px 14px",
                     boxShadow: "0 8px 18px rgba(232,117,10,0.06), inset 0 1px 0 rgba(255,255,255,0.96)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
                   }}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -1380,35 +1366,18 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     </div>
                     <span style={{ fontSize: 16, color: "#b86b1c", flexShrink: 0 }}>⌄</span>
                   </div>
-                </div>
-
-                <div
-                  style={{
-                    borderRadius: 18,
-                    border: "1px solid rgba(255,223,194,0.98)",
-                    background: "linear-gradient(180deg, rgba(255,255,255,0.995) 0%, rgba(255,249,244,0.98) 100%)",
-                    padding: "18px 16px 14px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 14,
-                    boxShadow: "0 10px 24px rgba(232,117,10,0.06), inset 0 1px 0 rgba(255,255,255,0.96)",
-                  }}
-                >
-                  <div style={{ fontSize: 16, color: "#6e4212", lineHeight: 1.65, fontWeight: 700, letterSpacing: "0.01em" }}>
-                    描述培训目的和目标，信息越清楚，题库越贴合。
-                  </div>
-                  <div style={{ borderTop: "1px dashed rgba(236,188,141,0.88)", paddingTop: 14 }}>
-                    <div className="flex items-center justify-between gap-3">
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, color: "#9b7752" }}>
-                        <span style={{ fontSize: 16, lineHeight: 1 }}>🗎</span>
-                        <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>如有相关培训资料，可点击上传</span>
-                      </div>
+                  <div className="flex items-center gap-3" style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 14, color: "#000000", lineHeight: 1.6, fontWeight: 400, flex: 1, minWidth: 0 }}>
+                      描述培训目的和目标，信息越清楚，题库越贴合。
+                    </div>
+                    <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+                      <span style={{ fontSize: 12, lineHeight: 1.4, color: "#8e6a46", whiteSpace: "nowrap" }}>资料可直接上传</span>
                       <button
                         onClick={() => trainingLaunchUploadRef.current?.click()}
                         style={{
                           border: "none",
                           borderRadius: 999,
-                          padding: "10px 24px",
+                          padding: "8px 18px",
                           background: "linear-gradient(135deg, #ff9a3c 0%, #e8750a 100%)",
                           color: "#ffffff",
                           fontSize: 13,
