@@ -644,6 +644,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     description: "本次培训涵盖茶水区台面清洁标准、服务礼仪要点、顾客投诉处理流程等核心知识点，预计完成时间 10 分钟。",
   };
 
+  const getTrainingIntroSummary = (task: TrainingCardData) => {
+    const coreDescription = task.description
+      .replace(/，预计完成时间\s*\d+\s*分钟。?/, "")
+      .replace(/。$/, "");
+
+    return `${coreDescription}。这一轮我会陪你把关键动作练清楚，答完更敢上手，面对顾客也会更从容。`;
+  };
+
   const TRAINING_INTRO_ITEMS: TrainingIntroItem[] = [
     {
       id: "goal",
@@ -667,6 +675,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       aiReply: `完成培训后，系统会自动记录你的学习结果，并把你的培训关系同步到 ${TRAINING_INVITE_CARD.orgName} 的组织结构中，后续新的培训任务也会继续发给你。`,
     },
   ];
+
+  const currentTrainingTask = trainingActiveTask ?? TRAINING_INVITE_CARD;
+  const currentTrainingIntroSummary = getTrainingIntroSummary(currentTrainingTask);
 
   const TRAINING_QUESTIONS: TrainingQuestion[] = [
     { id: 1, question: "茶水区台面清洁的标准是什么？", keyPoints: ["台面整洁无杂物", "无垃圾无灰尘", "热水器保持100℃"], hint: "参考答案要点：\n① 台面整洁无杂物、无垃圾、无灰尘\n② 热水器开启并保持100℃\n③ 台面必须有茶叶、茶水壶", aiIntro: "好的，我们开始第一道题！" },
@@ -1153,8 +1164,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         ))}
                       </div>
                       <div>
-                        <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>培训介绍</div>
-                        <div style={{ fontSize: 12, color: "#9a8a76", marginTop: 1 }}>开始答题前，先了解目标、方式与完成结果</div>
+                        <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{currentTrainingTask.taskTitle}</div>
+                        <div style={{ fontSize: 12, color: "#9a8a76", marginTop: 1 }}>{currentTrainingIntroSummary}</div>
                       </div>
                     </div>
                     <button
@@ -1368,9 +1379,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             </svg>
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040" }}>培训简介</div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040" }}>{msg.trainingCard.taskTitle}</div>
                             <div style={{ fontSize: 13, color: "#6f6254", marginTop: 2, lineHeight: 1.5 }}>
-                              本次「{msg.trainingCard.taskTitle}」将通过 AI 对话答题方式完成，帮助你快速掌握门店茶水区服务标准、接待礼仪与异常处理动作。
+                              {getTrainingIntroSummary(msg.trainingCard)}
                             </div>
                           </div>
                         </div>
@@ -2003,51 +2014,58 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           backdropFilter: "blur(4px)",
         }}>
           <div style={{
-            width: "100%", background: "#fff",
-            borderRadius: "20px 20px 0 0",
+            width: "100%",
+            background: "linear-gradient(180deg, rgba(255,251,246,0.98) 0%, rgba(255,246,236,0.98) 100%)",
+            borderRadius: "22px 22px 0 0",
             padding: "24px 20px 32px",
             animation: "slideUp 0.3s ease",
+            borderTop: "1px solid rgba(232,117,10,0.16)",
+            boxShadow: "0 -12px 32px rgba(113,63,18,0.10)",
           }}>
             {/* 顶部把手 */}
-            <div style={{ width: 36, height: 4, background: "#e0d8ec", borderRadius: 2, margin: "0 auto 20px" }}/>
+            <div style={{ width: 36, height: 4, background: "rgba(232,117,10,0.22)", borderRadius: 2, margin: "0 auto 20px" }}/>
             {/* 标题 */}
             <div style={{ textAlign: "center", marginBottom: 20 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: "#1a1a2e" }}>注册加入培训</div>
-              <div style={{ fontSize: 13, color: "#6a7a9a", marginTop: 4 }}>
-                由 <strong style={{ color: "#1a6bbf" }}>{TRAINING_INVITE_CARD.inviterName}</strong> 邀请加入 {TRAINING_INVITE_CARD.orgName}
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#2d2040" }}>注册加入培训</div>
+              <div style={{ fontSize: 13, color: "#8a6f58", marginTop: 4 }}>
+                由 <strong style={{ color: "#e8750a" }}>{TRAINING_INVITE_CARD.inviterName}</strong> 邀请加入 {TRAINING_INVITE_CARD.orgName}
               </div>
             </div>
             {/* 姓名输入 */}
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#4a5568", marginBottom: 6 }}>你的姓名</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 6 }}>你的姓名</div>
               <input
                 id="training-reg-name"
                 placeholder="请输入真实姓名"
                 style={{
                   width: "100%", padding: "12px 14px",
-                  border: "1.5px solid #e0d8ec", borderRadius: 12,
-                  fontSize: 15, color: "#1a1a2e", outline: "none",
+                  border: "1.5px solid rgba(232,117,10,0.18)", borderRadius: 14,
+                  fontSize: 15, color: "#2d2040", outline: "none",
                   boxSizing: "border-box",
+                  background: "rgba(255,255,255,0.88)",
+                  boxShadow: "inset 0 1px 2px rgba(232,117,10,0.04)",
                 }}
               />
             </div>
             {/* 手机号输入 */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#4a5568", marginBottom: 6 }}>手机号</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 6 }}>手机号</div>
               <input
                 id="training-reg-phone"
                 placeholder="请输入手机号"
                 style={{
                   width: "100%", padding: "12px 14px",
-                  border: "1.5px solid #e0d8ec", borderRadius: 12,
-                  fontSize: 15, color: "#1a1a2e", outline: "none",
+                  border: "1.5px solid rgba(232,117,10,0.18)", borderRadius: 14,
+                  fontSize: 15, color: "#2d2040", outline: "none",
                   boxSizing: "border-box",
+                  background: "rgba(255,255,255,0.88)",
+                  boxShadow: "inset 0 1px 2px rgba(232,117,10,0.04)",
                 }}
               />
             </div>
             {/* 我与邀请人的关系 */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#4a5568", marginBottom: 8 }}>我与邀请人的关系</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 8 }}>我与邀请人的关系</div>
               <div style={{ display: "flex", gap: 10 }}>
                 {["我是TA的下级（员工）", "我是TA的上级（管理者）"].map((label, i) => (
                   <button
@@ -2056,18 +2074,18 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     onClick={() => {
                       document.querySelectorAll("[id^='training-reg-rel-']").forEach((el, idx) => {
                         const btn = el as HTMLButtonElement;
-                        btn.style.background = idx === i ? "rgba(26,107,191,0.12)" : "rgba(240,240,250,0.8)";
-                        btn.style.borderColor = idx === i ? "#1a6bbf" : "#e0d8ec";
-                        btn.style.color = idx === i ? "#1a6bbf" : "#6a7a9a";
+                        btn.style.background = idx === i ? "rgba(232,117,10,0.12)" : "rgba(255,255,255,0.84)";
+                        btn.style.borderColor = idx === i ? "#e8750a" : "rgba(232,117,10,0.16)";
+                        btn.style.color = idx === i ? "#b85d08" : "#8a6f58";
                         btn.style.fontWeight = idx === i ? "700" : "500";
                       });
                     }}
                     style={{
                       flex: 1, padding: "10px 8px",
-                      background: i === 0 ? "rgba(26,107,191,0.12)" : "rgba(240,240,250,0.8)",
-                      border: `1.5px solid ${i === 0 ? "#1a6bbf" : "#e0d8ec"}`,
-                      borderRadius: 10,
-                      color: i === 0 ? "#1a6bbf" : "#6a7a9a",
+                      background: i === 0 ? "rgba(232,117,10,0.12)" : "rgba(255,255,255,0.84)",
+                      border: `1.5px solid ${i === 0 ? "#e8750a" : "rgba(232,117,10,0.16)"}`,
+                      borderRadius: 14,
+                      color: i === 0 ? "#b85d08" : "#8a6f58",
                       fontSize: 12.5, fontWeight: i === 0 ? 700 : 500,
                       cursor: "pointer", textAlign: "center",
                     }}
@@ -2086,11 +2104,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               }}
               style={{
                 width: "100%", padding: "13px",
-                background: "linear-gradient(135deg, #1a6bbf, #0d4fa0)",
-                border: "none", borderRadius: 12,
+                background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
+                border: "none", borderRadius: 14,
                 color: "#fff", fontSize: 16, fontWeight: 700,
                 cursor: "pointer",
-                boxShadow: "0 4px 16px rgba(26,107,191,0.35)",
+                boxShadow: "0 8px 20px rgba(232,117,10,0.26)",
                 marginBottom: 10,
               }}
             >
@@ -2100,8 +2118,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               onClick={() => setShowTrainingRegister(false)}
               style={{
                 width: "100%", padding: "11px",
-                background: "none", border: "1px solid rgba(200,190,220,0.5)",
-                borderRadius: 12, color: "#9a8aaa", fontSize: 14,
+                background: "rgba(255,255,255,0.7)", border: "1px solid rgba(232,117,10,0.16)",
+                borderRadius: 14, color: "#8a6f58", fontSize: 14,
                 cursor: "pointer",
               }}
             >
