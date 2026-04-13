@@ -318,6 +318,14 @@ interface TrainingQuestion {
   aiIntro: string;
 }
 
+interface TrainingIntroItem {
+  id: string;
+  badge: string;
+  title: string;
+  subtitle: string;
+  aiReply: string;
+}
+
 type Message = {
   id: number;
   role: "user" | "ai";
@@ -636,6 +644,30 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     description: "本次培训涵盖茶水区台面清洁标准、服务礼仪要点、顾客投诉处理流程等核心知识点，预计完成时间 10 分钟。",
   };
 
+  const TRAINING_INTRO_ITEMS: TrainingIntroItem[] = [
+    {
+      id: "goal",
+      badge: "目标",
+      title: "培训目标",
+      subtitle: "掌握茶水区服务标准、接待礼仪与异常处理动作。",
+      aiReply: `这次培训主要帮助你掌握 3 个重点：\n1. 茶水区台面与设备的日常标准\n2. 顾客点餐过程中的服务礼仪\n3. 顾客投诉出现时的第一响应动作`,
+    },
+    {
+      id: "method",
+      badge: "方式",
+      title: "培训方式",
+      subtitle: `通过 AI 对话答题完成，共 ${TRAINING_INVITE_CARD.totalQuestions} 道题，支持语音或文字作答。`,
+      aiReply: `你将通过 AI 对话完成本次培训，共 ${TRAINING_INVITE_CARD.totalQuestions} 道题。每道题都可以直接输入或按住说话回答；如果暂时没想起来，也可以先查看提示，再继续作答。`,
+    },
+    {
+      id: "result",
+      badge: "结果",
+      title: "完成后收获",
+      subtitle: "培训结果会自动归档，并同步到组织关系与后续任务中。",
+      aiReply: `完成培训后，系统会自动记录你的学习结果，并把你的培训关系同步到 ${TRAINING_INVITE_CARD.orgName} 的组织结构中，后续新的培训任务也会继续发给你。`,
+    },
+  ];
+
   const TRAINING_QUESTIONS: TrainingQuestion[] = [
     { id: 1, question: "茶水区台面清洁的标准是什么？", keyPoints: ["台面整洁无杂物", "无垃圾无灰尘", "热水器保持100℃"], hint: "参考答案要点：\n① 台面整洁无杂物、无垃圾、无灰尘\n② 热水器开启并保持100℃\n③ 台面必须有茶叶、茶水壶", aiIntro: "好的，我们开始第一道题！" },
     { id: 2, question: "服务员在顾客点餐时应该注意哪些礼仪要点？", keyPoints: ["微笑服务", "主动推荐", "复述确认订单"], hint: "参考答案要点：\n① 保持微笑，站姿端正\n② 主动介绍招牌菜和特色菜\n③ 点餐完成后复述确认，避免出错", aiIntro: "太棒了！第一题答得很好，继续加油！" },
@@ -657,7 +689,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           {
             id: newTrainingMsgId(),
             role: "ai",
-            text: `你好！👋 你通过 **${TRAINING_INVITE_CARD.inviterName}（${TRAINING_INVITE_CARD.inviterRole}）** 的邀请链接进入了智爱客小程序。\n\n以下是为你准备的培训任务，点击「立即培训」开始 👇`,
+            text: `你好！👋 你通过 **${TRAINING_INVITE_CARD.inviterName}（${TRAINING_INVITE_CARD.inviterRole}）** 的邀请链接进入了智爱客小程序。\n\n以下是为你准备的培训任务。你可以先查看上方的「培训介绍」，了解目标与培训方式，再点击「立即培训」开始 👇`,
           },
           {
             id: newTrainingMsgId(),
@@ -687,7 +719,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         { id: newTrainingMsgId(), role: "user", text: "立即培训" },
         { id: newTrainingMsgId(), role: "ai", text: `欢迎加入，${name}！🎉 你已成功注册并加入 **${TRAINING_INVITE_CARD.orgName}**。
 
-现在开始「${TRAINING_INVITE_CARD.taskTitle}」培训，共 ${TRAINING_INVITE_CARD.totalQuestions} 道题，加油！💪` },
+现在开始「${TRAINING_INVITE_CARD.taskTitle}」培训，共 ${TRAINING_INVITE_CARD.totalQuestions} 道题。` },
+        { id: newTrainingMsgId(), role: "ai", text: `开始前先提醒你一下：本次培训会通过对话问答推进；如果一时答不上来，可以先看提示，再继续作答。准备好后，我们直接进入第 1 题。` },
         { id: newTrainingMsgId(), role: "ai", text: `第 1 题：${q.question}`, isQuestion: true, questionIdx: 0 },
       ]);
     }, 300);
@@ -777,6 +810,20 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       evaluateTrainingAnswer(msg);
     }
   };
+
+  const handleTrainingIntroAction = (item: TrainingIntroItem) => {
+    setChatMode(true);
+    setMessages(prev => [
+      ...prev,
+      { id: newTrainingMsgId(), role: "user", text: `我想了解：${item.title}` },
+      { id: newTrainingMsgId(), role: "ai", text: item.aiReply },
+    ]);
+  };
+
+  const isTrainingConversation = fromTrainingScan || trainingRegistered || trainingIsActive || trainingIsFeedback || messages.some(
+    msg => msg.trainingCard || msg.isQuestion || msg.isTrainingDone,
+  );
+
   const inputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -1104,71 +1151,151 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         }}
       >
 
-            {/* 经营数据卡 */}
-            <div className="mx-3 mt-2.5 mb-2 rounded-xl p-2.5" style={{
-              background: "rgba(255,255,255,0.85)",
-              boxShadow: "0 2px 8px rgba(100,80,140,0.06)",
-              border: "1px solid rgba(220,210,240,0.3)",
-            }}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 22 }}>
-                    {[55, 80, 45, 90, 65].map((h, i) => (
-                      <div key={i} style={{
-                        width: 5, height: `${h}%`,
-                        background: `rgba(232,117,10,${0.25 + i * 0.16})`,
-                        borderRadius: 3,
-                      }}/>
-                    ))}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>问题清单</div>
-                    <div style={{ fontSize: 12, color: "#9a8aaa", marginTop: 1 }}>AI总结员工工作执行问题</div>
+            {isTrainingConversation ? (
+              <>
+                {/* 培训介绍卡 */}
+                <div className="mx-3 mt-2.5 mb-2 rounded-xl p-2.5" style={{
+                  background: "rgba(255,250,244,0.96)",
+                  boxShadow: "0 2px 8px rgba(232,117,10,0.10)",
+                  border: "1px solid rgba(255,186,120,0.42)",
+                }}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 22 }}>
+                        {[48, 72, 60, 82].map((h, i) => (
+                          <div key={i} style={{
+                            width: 5,
+                            height: `${h}%`,
+                            background: `rgba(232,117,10,${0.32 + i * 0.12})`,
+                            borderRadius: 3,
+                          }}/>
+                        ))}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>培训介绍</div>
+                        <div style={{ fontSize: 12, color: "#9a8a76", marginTop: 1 }}>开始答题前，先了解目标、方式与完成结果</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleTrainingIntroAction(TRAINING_INTRO_ITEMS[1])}
+                      style={{
+                        background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
+                        border: "none", borderRadius: 16,
+                        padding: "5px 11px", color: "#fff",
+                        fontSize: 13.5, fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        boxShadow: "0 2px 8px rgba(232,117,10,0.3)",
+                      }}
+                    >
+                      开始前须知
+                    </button>
                   </div>
                 </div>
-                <button
-                  onClick={() => openStoreModal("去查看")}
-                  style={{
-                    background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
-                    border: "none", borderRadius: 16,
-                    padding: "5px 11px", color: "#fff",
-                    fontSize: 13.5, fontWeight: 600,
-                    boxShadow: "0 2px 8px rgba(232,117,10,0.3)",
-                  }}
-                >
-                  去查看
-                </button>
-              </div>
-            </div>
 
-            {/* 问题列表：点击后联动发送到对话 */}
-            <div className="px-3 pb-2 flex flex-col gap-1.5">
-              {QUICK_QUESTIONS.map((q, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(q.text)}
-                  style={{
-                    width: "100%", display: "flex", alignItems: "center", gap: 9,
-                    padding: "8px 11px",
-                    background: "rgba(255,255,255,0.85)",
-                    border: "1px solid rgba(220,210,240,0.3)",
-                    borderRadius: 11,
-                    textAlign: "left",
-                    boxShadow: "0 1px 6px rgba(100,80,140,0.05)",
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,248,240,1)")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.96)")}
-                >
-                  {/* 问题图标 */}
-                  <div style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
-                    {q.icon}
+                <div className="px-3 pb-2 flex flex-col gap-1.5">
+                  {TRAINING_INTRO_ITEMS.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleTrainingIntroAction(item)}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 10,
+                        padding: "9px 11px",
+                        background: "rgba(255,255,255,0.92)",
+                        border: "1px solid rgba(255,211,176,0.9)",
+                        borderRadius: 11,
+                        textAlign: "left",
+                        boxShadow: "0 1px 6px rgba(232,117,10,0.06)",
+                        transition: "all 0.15s",
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,247,238,1)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.92)")}
+                    >
+                      <div style={{
+                        width: 32, height: 32, borderRadius: 10,
+                        background: "rgba(232,117,10,0.12)", color: "#e8750a",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 11.5, fontWeight: 700, flexShrink: 0,
+                      }}>
+                        {item.badge}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, color: "#2d2040", fontWeight: 600 }}>{item.title}</div>
+                        <div style={{ fontSize: 12, color: "#8f7d6c", marginTop: 2, lineHeight: 1.35 }}>{item.subtitle}</div>
+                      </div>
+                      <IcArrow />
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 经营数据卡 */}
+                <div className="mx-3 mt-2.5 mb-2 rounded-xl p-2.5" style={{
+                  background: "rgba(255,255,255,0.85)",
+                  boxShadow: "0 2px 8px rgba(100,80,140,0.06)",
+                  border: "1px solid rgba(220,210,240,0.3)",
+                }}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 22 }}>
+                        {[55, 80, 45, 90, 65].map((h, i) => (
+                          <div key={i} style={{
+                            width: 5, height: `${h}%`,
+                            background: `rgba(232,117,10,${0.25 + i * 0.16})`,
+                            borderRadius: 3,
+                          }}/>
+                        ))}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>问题清单</div>
+                        <div style={{ fontSize: 12, color: "#9a8aaa", marginTop: 1 }}>AI总结员工工作执行问题</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => openStoreModal("去查看")}
+                      style={{
+                        background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
+                        border: "none", borderRadius: 16,
+                        padding: "5px 11px", color: "#fff",
+                        fontSize: 13.5, fontWeight: 600,
+                        boxShadow: "0 2px 8px rgba(232,117,10,0.3)",
+                      }}
+                    >
+                      去查看
+                    </button>
                   </div>
-                  <span style={{ flex: 1, fontSize: 14, color: "#2d2040", fontWeight: 500 }}>{q.text}</span>
-                  <IcArrow />
-                </button>
-              ))}
-            </div>
+                </div>
+
+                {/* 问题列表：点击后联动发送到对话 */}
+                <div className="px-3 pb-2 flex flex-col gap-1.5">
+                  {QUICK_QUESTIONS.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(q.text)}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 9,
+                        padding: "8px 11px",
+                        background: "rgba(255,255,255,0.85)",
+                        border: "1px solid rgba(220,210,240,0.3)",
+                        borderRadius: 11,
+                        textAlign: "left",
+                        boxShadow: "0 1px 6px rgba(100,80,140,0.05)",
+                        transition: "all 0.15s",
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,248,240,1)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.96)")}
+                    >
+                      {/* 问题图标 */}
+                      <div style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+                        {q.icon}
+                      </div>
+                      <span style={{ flex: 1, fontSize: 14, color: "#2d2040", fontWeight: 500 }}>{q.text}</span>
+                      <IcArrow />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
 
             {/* 功能卡片行 */}
             <div className="flex gap-2 px-3 pb-2.5">
@@ -1832,7 +1959,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 value={inputText}
                 onChange={e => setInputText(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && (trainingIsActive || trainingIsFeedback ? handleTrainingSend() : handleSend())}
-                placeholder="发消息或按住说话..."
+                placeholder={isTrainingConversation && !trainingIsActive && !trainingIsFeedback ? "可先查看培训介绍，或点击任务卡片开始培训..." : "发消息或按住说话..."}
                 style={{
                   flex: 1, border: "none", outline: "none",
                   background: "transparent",
