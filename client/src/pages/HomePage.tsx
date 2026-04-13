@@ -1243,56 +1243,60 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               </>
             )}
 
-            {/* 功能卡片行 */}
-            <div className="flex gap-2 px-3 pb-2.5">
-              <button
-                onClick={() => onOpenVideo ? onOpenVideo() : toast.info("视频功能即将开放")}
-                style={{
-                  flex: 1, borderRadius: 11, padding: "8px 10px",
-                  background: "linear-gradient(135deg, rgba(200,230,255,0.7) 0%, rgba(180,215,255,0.6) 100%)",
-                  border: "none", backdropFilter: "blur(8px)",
-                  display: "flex", alignItems: "center", gap: 8,
-                }}
-              >
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-                  background: "rgba(255,255,255,0.85)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 2px 5px rgba(26,107,191,0.12)",
-                }}>
-                  <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
-                    <path d="M1 1l8 5-8 5V1z" fill="#1a6bbf"/>
-                  </svg>
+            {!isTrainingConversation && (
+              <>
+                {/* 功能卡片行 */}
+                <div className="flex gap-2 px-3 pb-2.5">
+                  <button
+                    onClick={() => onOpenVideo ? onOpenVideo() : toast.info("视频功能即将开放")}
+                    style={{
+                      flex: 1, borderRadius: 11, padding: "8px 10px",
+                      background: "linear-gradient(135deg, rgba(200,230,255,0.7) 0%, rgba(180,215,255,0.6) 100%)",
+                      border: "none", backdropFilter: "blur(8px)",
+                      display: "flex", alignItems: "center", gap: 8,
+                    }}
+                  >
+                    <div style={{
+                      width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                      background: "rgba(255,255,255,0.85)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      boxShadow: "0 2px 5px rgba(26,107,191,0.12)",
+                    }}>
+                      <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                        <path d="M1 1l8 5-8 5V1z" fill="#1a6bbf"/>
+                      </svg>
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 700, color: "#1a6bbf", whiteSpace: "nowrap" }}>一分钟看明白</div>
+                      <div style={{ fontSize: 10.5, color: "#5a9fd4", marginTop: 1, whiteSpace: "nowrap" }}>了解AI如何赋能餐饮</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => toast.info("培训报名即将开放")}
+                    style={{
+                      flex: 1, borderRadius: 11, padding: "8px 10px",
+                      background: "linear-gradient(135deg, rgba(255,235,200,0.7) 0%, rgba(255,220,170,0.6) 100%)",
+                      border: "none", backdropFilter: "blur(8px)",
+                      display: "flex", alignItems: "center", gap: 8,
+                    }}
+                  >
+                    <div style={{
+                      width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                      background: "rgba(255,255,255,0.85)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      boxShadow: "0 2px 6px rgba(232,117,10,0.14)",
+                      fontSize: 17,
+                    }}>
+                      🔥
+                    </div>
+                    <div style={{ textAlign: "left" }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#c45e00", whiteSpace: "nowrap" }}>9.9元餐饮AI培训</div>
+                      <div style={{ fontSize: 11, color: "#d4845a", marginTop: 1, whiteSpace: "nowrap" }}>快速上手AI赚錢</div>
+                    </div>
+                  </button>
                 </div>
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 700, color: "#1a6bbf", whiteSpace: "nowrap" }}>一分钟看明白</div>
-                  <div style={{ fontSize: 10.5, color: "#5a9fd4", marginTop: 1, whiteSpace: "nowrap" }}>了解AI如何赋能餐饮</div>
-                </div>
-              </button>
-              <button
-                onClick={() => toast.info("培训报名即将开放")}
-                style={{
-                  flex: 1, borderRadius: 11, padding: "8px 10px",
-                  background: "linear-gradient(135deg, rgba(255,235,200,0.7) 0%, rgba(255,220,170,0.6) 100%)",
-                  border: "none", backdropFilter: "blur(8px)",
-                  display: "flex", alignItems: "center", gap: 8,
-                }}
-              >
-                <div style={{
-                  width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-                  background: "rgba(255,255,255,0.85)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 2px 6px rgba(232,117,10,0.14)",
-                  fontSize: 17,
-                }}>
-                  🔥
-                </div>
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#c45e00", whiteSpace: "nowrap" }}>9.9元餐饮AI培训</div>
-                  <div style={{ fontSize: 11, color: "#d4845a", marginTop: 1, whiteSpace: "nowrap" }}>快速上手AI赚錢</div>
-                </div>
-              </button>
-            </div>
+              </>
+            )}
       </div>
       {/* ── 对话消息区（在统一滚动容器内） ── */}
       {chatMode && (
