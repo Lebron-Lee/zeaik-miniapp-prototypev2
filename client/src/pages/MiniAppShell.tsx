@@ -213,6 +213,7 @@ function StageSwitcher({
 export default function MiniAppShell() {
   const [stage, setStage] = useState<UserStage>(1);
   const [fromTrainingScan, setFromTrainingScan] = useState(false);
+  const [openTrainingCreateDirectly, setOpenTrainingCreateDirectly] = useState(false);
   const [appView, setAppView] = useState<AppView>("home");
   const [currentTaskInitialTab, setCurrentTaskInitialTab] = useState<string>("current");
   const [quotaDetailCode, setQuotaDetailCode] = useState<string>("BZ-102");
@@ -235,6 +236,7 @@ export default function MiniAppShell() {
       setAppView("daily-salary");
     } else if (loginTrigger === "碎片化培训" || loginTrigger === "培训智能体") {
       setFromTrainingScan(false);
+      setOpenTrainingCreateDirectly(true);
       setAppView("training-manager");
     } else if (loginTrigger === "产品体验" || loginTrigger === "免费体验" || loginTrigger === "视频体验") {
       setAppView("product");
@@ -243,6 +245,7 @@ export default function MiniAppShell() {
 
   const handleLogout = () => {
     setStage(1);
+    setOpenTrainingCreateDirectly(false);
     setAppView("home");
   };
 
@@ -253,6 +256,7 @@ export default function MiniAppShell() {
 
   const handleStageSwitch = (s: UserStage) => {
     setFromTrainingScan(false);
+    setOpenTrainingCreateDirectly(false);
     setStage(s);
     setAppView("home");
     setShowLoginModal(false);
@@ -287,8 +291,9 @@ export default function MiniAppShell() {
   };
 
   const handleOpenTraining = () => {
-    // 品牌体验路径：从首页点击“碎片化培训”后，直接进入管理端的“发起培训”功能页。
+    // 品牌体验路径：从首页点击“碎片化培训”后，直接进入管理端的“发起培训”子功能页。
     setFromTrainingScan(false);
+    setOpenTrainingCreateDirectly(true);
     setAppView("training-manager");
   };
 
@@ -448,8 +453,13 @@ export default function MiniAppShell() {
         )}
         {appView === "training-manager" && (
           <TrainingManagerPage
-            onBack={() => setAppView("home")}
+            onBack={() => {
+              setOpenTrainingCreateDirectly(false);
+              setAppView("home");
+            }}
             onOpenOrgTree={handleOpenOrgTree}
+            autoOpenCreate={openTrainingCreateDirectly}
+            onAutoOpenConsumed={() => setOpenTrainingCreateDirectly(false)}
           />
         )}
         {appView === "org-tree" && (
