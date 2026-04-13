@@ -305,16 +305,19 @@ export default function MiniAppShell() {
   };
 
   const bgColor = appView === "video" ? "#0d0d1a" : "#f2f3f7";
+  const showDemoSwitcher = false;
 
   const renderContent = () => (
     <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* 演示切换条 */}
-      <StageSwitcher
-        stage={stage}
-        onSwitch={handleStageSwitch}
-        onScanTraining={() => { setFromTrainingScan(true); setAppView("home"); }}
-        fromTrainingScan={fromTrainingScan}
-      />
+      {/* 顶部演示切换条先隐藏，后续如需演示多阶段切换可再恢复 */}
+      {showDemoSwitcher && (
+        <StageSwitcher
+          stage={stage}
+          onSwitch={handleStageSwitch}
+          onScanTraining={() => { setFromTrainingScan(true); setAppView("home"); }}
+          fromTrainingScan={fromTrainingScan}
+        />
+      )}
       {/* 主内容区 */}
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         {appView === "home" && (
@@ -334,6 +337,11 @@ export default function MiniAppShell() {
             onOpenStoreAiModel={() => setAppView("store-ai-model")}
             onOpenGroupAiModel={() => setAppView("group-ai-model")}
             onOpenTraining={handleOpenTraining}
+            onOpenTrainingConversation={() => {
+              setAppView("home");
+              setFromTrainingScan(false);
+              window.setTimeout(() => setFromTrainingScan(true), 0);
+            }}
             fromTrainingScan={fromTrainingScan}
             onExitTrainingScan={() => setFromTrainingScan(false)}
           />

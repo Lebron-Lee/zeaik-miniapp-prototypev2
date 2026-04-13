@@ -13,6 +13,7 @@ interface DrawerPageProps {
   userPhone: string;
   onClose: () => void;
   onLogout: () => void;
+  onOpenTrainingConversation?: () => void;
 }
 
 // ─── 线性 SVG 图标 ────────────────────────────────────────────────────────────
@@ -163,7 +164,7 @@ function SectionCard({ title, badge, items }: {
   );
 }
 
-export default function DrawerPage({ userPhone, onClose }: DrawerPageProps) {
+export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation }: DrawerPageProps) {
   const [chats, setChats] = useState(INITIAL_CHATS);
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -288,6 +289,32 @@ export default function DrawerPage({ userPhone, onClose }: DrawerPageProps) {
           boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
           overflow: "hidden",
         }}>
+          <button
+            onClick={() => onOpenTrainingConversation?.()}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: "12px 16px",
+              background: "linear-gradient(90deg, rgba(255,244,234,0.95), rgba(255,250,244,0.88))",
+              border: "none",
+              borderBottom: chats.length > 0 ? "1px solid rgba(232,117,10,0.08)" : "none",
+              textAlign: "left",
+            }}
+          >
+            <div style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: "linear-gradient(135deg, rgba(255,165,76,0.2), rgba(232,117,10,0.12))",
+              border: "1px solid rgba(232,117,10,0.18)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <IcTrain />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: "#2d2040" }}>培训会话</div>
+              <div style={{ fontSize: 11.5, color: "#b07b44", marginTop: 2 }}>打开邀请培训对话流，继续员工培训</div>
+            </div>
+            <IcChevronRight />
+          </button>
           {chats.length === 0 ? (
             <div style={{ padding: "28px 0", textAlign: "center", color: "#b0a0c0", fontSize: 13 }}>
               暂无对话记录

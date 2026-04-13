@@ -592,10 +592,11 @@ interface HomePageProps {
   onOpenStoreAiModel?: () => void;
   onOpenGroupAiModel?: () => void;
   onOpenTraining?: () => void;
+  onOpenTrainingConversation?: () => void;
   fromTrainingScan?: boolean; // 从培训二维码扫码进入
   onExitTrainingScan?: () => void; // 退出扫码培训模式
 }
-export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
+export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [inputText, setInputText] = useState("");
   const [sectionOpen, setSectionOpen] = useState(true);
@@ -946,7 +947,15 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           transition: "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
         }}
       >
-        <DrawerPage userPhone={userPhone} onClose={() => setDrawerOpen(false)} onLogout={onLogout} />
+        <DrawerPage
+          userPhone={userPhone}
+          onClose={() => setDrawerOpen(false)}
+          onLogout={onLogout}
+          onOpenTrainingConversation={() => {
+            setDrawerOpen(false);
+            onOpenTrainingConversation?.();
+          }}
+        />
       </div>
 
       {/* ── 状态栏 ── */}
