@@ -717,10 +717,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       setMessages(prev => [
         ...prev,
         { id: newTrainingMsgId(), role: "user", text: "立即培训" },
-        { id: newTrainingMsgId(), role: "ai", text: `欢迎加入，${name}！🎉 你已成功注册并加入 **${TRAINING_INVITE_CARD.orgName}**。
-
-现在开始「${TRAINING_INVITE_CARD.taskTitle}」培训，共 ${TRAINING_INVITE_CARD.totalQuestions} 道题。` },
-        { id: newTrainingMsgId(), role: "ai", text: `开始前先提醒你一下：本次培训会通过对话问答推进；如果一时答不上来，可以先看提示，再继续作答。准备好后，我们直接进入第 1 题。` },
         { id: newTrainingMsgId(), role: "ai", text: `第 1 题：${q.question}`, isQuestion: true, questionIdx: 0 },
       ]);
     }, 300);
@@ -1384,67 +1380,89 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   )}
                   {/* 消息内容 */}
                   {msg.trainingCard ? (
-                    /* 培训任务卡片 */
+                    /* 培训简介卡片 */
                     <div style={{ padding: "14px 14px 0" }}>
-                      {/* 卡片头部 */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                        <div style={{
-                          width: 36, height: 36, borderRadius: 10,
-                          background: "linear-gradient(135deg, #1a6bbf, #0d4fa0)",
-                          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                        }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                      <div style={{
+                        borderRadius: 14,
+                        padding: "14px",
+                        background: "linear-gradient(180deg, rgba(255,247,238,0.98) 0%, rgba(255,255,255,0.98) 100%)",
+                        border: "1px solid rgba(255,186,120,0.4)",
+                        boxShadow: "0 6px 18px rgba(232,117,10,0.08)",
+                        marginBottom: 14,
+                      }}>
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+                          <div style={{
+                            width: 36, height: 36, borderRadius: 10,
+                            background: "linear-gradient(135deg, #ffb066, #e8750a)",
+                            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                            boxShadow: "0 4px 10px rgba(232,117,10,0.18)",
+                          }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                              <path d="M12 3v18M4 12h16M7 7c1.6 1.4 3.1 2.1 5 2.1S15.4 8.4 17 7M7 17c1.6-1.4 3.1-2.1 5-2.1s3.4.7 5 2.1" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040" }}>培训简介</div>
+                            <div style={{ fontSize: 13, color: "#6f6254", marginTop: 2, lineHeight: 1.5 }}>
+                              本次「{msg.trainingCard.taskTitle}」将通过 AI 对话答题方式完成，帮助你快速掌握门店茶水区服务标准、接待礼仪与异常处理动作。
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e" }}>{msg.trainingCard.taskTitle}</div>
-                          <div style={{ fontSize: 12, color: "#6a7a9a", marginTop: 1 }}>{msg.trainingCard.orgName}</div>
+
+                        <div style={{ display: "grid", gap: 8, marginBottom: 12 }}>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.9)", borderRadius: 10, border: "1px solid rgba(255,214,179,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 3 }}>培训目标</div>
+                            <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>掌握茶水区台面清洁标准、服务礼仪要点，以及顾客投诉时的第一响应动作。</div>
+                          </div>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.9)", borderRadius: 10, border: "1px solid rgba(255,214,179,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 3 }}>培训方式</div>
+                            <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>共 {msg.trainingCard.totalQuestions} 道题，支持文字或语音作答；答题过程中可查看提示并继续完成培训。</div>
+                          </div>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.9)", borderRadius: 10, border: "1px solid rgba(255,214,179,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 3 }}>完成结果</div>
+                            <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>完成后将同步培训记录至 {msg.trainingCard.orgName}，由 {msg.trainingCard.inviterName} 发起的邀请会自动归档到对应组织。</div>
+                          </div>
                         </div>
-                      </div>
-                      {/* 卡片信息 */}
-                      <div style={{ fontSize: 13, color: "#4a5568", lineHeight: 1.7, marginBottom: 10 }}>
-                        {msg.trainingCard.description}
-                      </div>
-                      {/* 标签行 */}
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-                        <span style={{ padding: "3px 8px", background: "rgba(26,107,191,0.1)", borderRadius: 10, fontSize: 11, color: "#1a6bbf", fontWeight: 600 }}>
-                          📝 {msg.trainingCard.totalQuestions} 道题
-                        </span>
-                        <span style={{ padding: "3px 8px", background: "rgba(26,107,191,0.1)", borderRadius: 10, fontSize: 11, color: "#1a6bbf", fontWeight: 600 }}>
-                          ⏰ 截止 {msg.trainingCard.deadline}
-                        </span>
-                        <span style={{ padding: "3px 8px", background: "rgba(26,107,191,0.1)", borderRadius: 10, fontSize: 11, color: "#1a6bbf", fontWeight: 600 }}>
-                          👤 {msg.trainingCard.inviterName} 邀请
-                        </span>
-                      </div>
-                      {/* 立即培训按钮 */}
-                      {!trainingRegistered && (
-                        <button
-                          onClick={() => setShowTrainingRegister(true)}
-                          style={{
+
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                          <span style={{ padding: "3px 8px", background: "rgba(232,117,10,0.1)", borderRadius: 10, fontSize: 11, color: "#c96a12", fontWeight: 600 }}>
+                            📝 {msg.trainingCard.totalQuestions} 道题
+                          </span>
+                          <span style={{ padding: "3px 8px", background: "rgba(232,117,10,0.1)", borderRadius: 10, fontSize: 11, color: "#c96a12", fontWeight: 600 }}>
+                            ⏰ 截止 {msg.trainingCard.deadline}
+                          </span>
+                          <span style={{ padding: "3px 8px", background: "rgba(232,117,10,0.1)", borderRadius: 10, fontSize: 11, color: "#c96a12", fontWeight: 600 }}>
+                            👤 {msg.trainingCard.inviterName} 邀请
+                          </span>
+                        </div>
+
+                        {!trainingRegistered && (
+                          <button
+                            onClick={() => setShowTrainingRegister(true)}
+                            style={{
+                              width: "100%", padding: "11px",
+                              background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
+                              border: "none", borderRadius: 10,
+                              color: "#fff", fontSize: 15, fontWeight: 700,
+                              cursor: "pointer",
+                              boxShadow: "0 4px 16px rgba(232,117,10,0.28)",
+                            }}
+                          >
+                            立即培训
+                          </button>
+                        )}
+                        {trainingRegistered && (
+                          <div style={{
                             width: "100%", padding: "11px",
-                            background: "linear-gradient(135deg, #1a6bbf, #0d4fa0)",
-                            border: "none", borderRadius: 10,
-                            color: "#fff", fontSize: 15, fontWeight: 700,
-                            cursor: "pointer", marginBottom: 14,
-                            boxShadow: "0 4px 16px rgba(26,107,191,0.35)",
-                          }}
-                        >
-                          立即培训
-                        </button>
-                      )}
-                      {trainingRegistered && (
-                        <div style={{
-                          width: "100%", padding: "11px",
-                          background: "rgba(34,197,94,0.12)",
-                          border: "1px solid rgba(34,197,94,0.3)",
-                          borderRadius: 10, color: "#16a34a",
-                          fontSize: 14, fontWeight: 600, textAlign: "center", marginBottom: 14,
-                        }}>
-                          ✅ 已注册，培训进行中
-                        </div>
-                      )}
+                            background: "rgba(34,197,94,0.12)",
+                            border: "1px solid rgba(34,197,94,0.3)",
+                            borderRadius: 10, color: "#16a34a",
+                            fontSize: 14, fontWeight: 600, textAlign: "center",
+                          }}>
+                            ✅ 已注册，培训进行中
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : msg.isTrainingDone ? (
                     /* 培训完成卡片 */
