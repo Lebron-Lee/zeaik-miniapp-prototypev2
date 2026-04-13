@@ -647,12 +647,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     description: "本次培训涵盖茶水区台面清洁标准、服务礼仪要点、顾客投诉处理流程等核心知识点，预计完成时间 10 分钟。",
   };
 
-  const getTrainingIntroSummary = (task: TrainingCardData) => {
-    const coreDescription = task.description
-      .replace(/，预计完成时间\s*\d+\s*分钟。?/, "")
-      .replace(/。$/, "");
-
-    return `${coreDescription}。这一轮我会陪你把关键动作练清楚，答完更敢上手，面对顾客也会更从容。`;
+  const getTrainingIntroSummary = (_task: TrainingCardData) => {
+    return "10分钟陪你练熟关键动作，学完上手更稳，面对顾客也更有底气。";
   };
 
   const TRAINING_INTRO_ITEMS: TrainingIntroItem[] = [
@@ -1180,7 +1176,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       </div>
                       <div>
                         <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{currentTrainingTask.taskTitle}</div>
-                        <div style={{ fontSize: 12, color: "#9a8a76", marginTop: 1 }}>{currentTrainingIntroSummary}</div>
+                        <div style={{ fontSize: 12, color: "#9a8a76", marginTop: 1, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{currentTrainingIntroSummary}</div>
                       </div>
                     </div>
                     <button
@@ -1395,7 +1391,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040" }}>{msg.trainingCard.taskTitle}</div>
-                            <div style={{ fontSize: 13, color: "#6f6254", marginTop: 2, lineHeight: 1.5 }}>
+                            <div style={{ fontSize: 13, color: "#6f6254", marginTop: 2, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                               {getTrainingIntroSummary(msg.trainingCard)}
                             </div>
                           </div>
