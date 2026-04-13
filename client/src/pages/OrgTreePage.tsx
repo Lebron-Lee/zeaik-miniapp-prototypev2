@@ -1,6 +1,7 @@
 /**
  * 培训智能体 · 组织架构树页
- * 功能：可视化组织层级 + 角色权限标签 + 邀请成员入口 + 同层级多角色展示
+ * 当前页面设计提醒：遵循微信小程序式轻量会话流，顶部只保留返回与标题，围绕“选择培训对象后返回主页”这一主任务收敛交互。
+ * 功能：可视化组织层级 + 角色权限标签 + 同层级多角色展示
  * 设计规范：橙色主题，树形卡片，层级缩进，角色色彩区分
  */
 import React, { useState } from "react";
@@ -340,8 +341,15 @@ function MemberNode({
 export default function OrgTreePage({ onBack, onInvite }: OrgTreePageProps) {
   const { expanded, toggle } = useExpandState(new Set(["G1", "R1", "S1", "S1D1"]));
   const [showInvite, setShowInvite] = useState(false);
-  const [activeTab, setActiveTab] = useState<"tree" | "legend" | "growth" | "superior">("tree");
   const [growthAnimStep, setGrowthAnimStep] = useState(0);
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    onBack();
+  };
 
   // 模拟培训传播构建的时间线数据
   const GROWTH_TIMELINE = [
@@ -433,74 +441,22 @@ export default function OrgTreePage({ onBack, onInvite }: OrgTreePageProps) {
         background: "linear-gradient(135deg, #e8750a 0%, #ff9a3c 100%)",
         padding: "44px 16px 0", flexShrink: 0,
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <button onClick={onBack} style={{ background: "none", border: "none", padding: 4, cursor: "pointer" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <button onClick={handleBack} aria-label="返回上一页" style={{ background: "none", border: "none", padding: 4, cursor: "pointer" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" style={{ cursor: "pointer" }}>
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
           <span style={{ fontSize: 17, fontWeight: 700, color: "white" }}>组织架构</span>
-          <button
-            onClick={() => setShowInvite(true)}
-            style={{
-              background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 20,
-              padding: "6px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-              <line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
-            </svg>
-            <span style={{ fontSize: 12, color: "white", fontWeight: 700 }}>邀请成员</span>
-          </button>
-        </div>
-
-        {/* 统计行 */}
-        <div style={{
-          background: "rgba(255,255,255,0.15)", borderRadius: "14px 14px 0 0",
-          padding: "12px 16px", display: "flex", gap: 0,
-        }}>
-          {[
-            { label: "总成员", value: totalMembers, unit: "人" },
-            { label: "层级深度", value: 4, unit: "级" },
-            { label: "待激活", value: 2, unit: "人" },
-          ].map((item, i) => (
-            <div key={i} style={{ flex: 1, textAlign: "center", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.2)" : "none" }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "white" }}>
-                {item.value}<span style={{ fontSize: 12, fontWeight: 400, color: "rgba(255,255,255,0.7)" }}>{item.unit}</span>
-              </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>{item.label}</div>
-            </div>
-          ))}
+          <div style={{ width: 28, height: 28 }} />
         </div>
       </div>
 
-      {/* Tab */}
-      <div style={{ background: "white", display: "flex", borderBottom: "1px solid #F0F0F0", flexShrink: 0 }}>
-        {[
-          { key: "tree", label: "组织树" },
-          { key: "superior", label: "上级视角" },
-          { key: "growth", label: "传播记录" },
-          { key: "legend", label: "角色说明" },
-        ].map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key as any)}
-            style={{
-              flex: 1, border: "none", background: "none", padding: "13px 0",
-              fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 400,
-              color: activeTab === tab.key ? "#e8750a" : "#888",
-              borderBottom: activeTab === tab.key ? "2.5px solid #e8750a" : "2.5px solid transparent",
-              cursor: "pointer",
-            }}
-          >{tab.label}</button>
-        ))}
-      </div>
+      {/* 当前原型聚焦组织树选择流程，隐藏其余辅助视角按钮，降低导航噪音。 */}
 
       {/* 内容区 */}
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px 80px" }}>
-        {activeTab === "tree" && (
-          <>
+        <>
             {/* 层级图例 */}
             <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
               {LEVEL_CONFIG.map((lv, i) => (
@@ -559,9 +515,9 @@ export default function OrgTreePage({ onBack, onInvite }: OrgTreePageProps) {
               </button>
             </div>
           </>
-        )}
 
-        {activeTab === "superior" && (
+        {/* 以下视角内容暂保留原型代码，当前流程中隐藏入口，不在本轮交互中暴露。 */}
+        {false && (
           <>
             {/* 未绑定上级警告 */}
             <div style={{
@@ -657,7 +613,7 @@ export default function OrgTreePage({ onBack, onInvite }: OrgTreePageProps) {
           </>
         )}
 
-        {activeTab === "growth" && (
+        {false && (
           <>
             {/* 说明横幅 */}
             <div style={{
@@ -801,7 +757,7 @@ export default function OrgTreePage({ onBack, onInvite }: OrgTreePageProps) {
           </>
         )}
 
-        {activeTab === "legend" && (
+        {false && (
           <>
             <div style={{ fontSize: 13, color: "#aaa", marginBottom: 14 }}>
               每位成员拥有「层级」+「角色类型」两个维度的身份，共同决定其权限范围
