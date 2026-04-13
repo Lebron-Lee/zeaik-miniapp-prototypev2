@@ -207,7 +207,6 @@ function MemberNode({
   const hasChildren = member.children && member.children.length > 0;
   const isExpanded = expanded.has(member.id);
   const isCurrentUser = member.id === currentUserId;
-  const roleCfg = ROLE_CONFIG[member.roleType];
   const levelCfg = LEVEL_CONFIG[member.level] ?? LEVEL_CONFIG[3];
 
   // 同层级分组：找出和当前成员同层同父的其他职能角色（仅在 level<=1 时展示分组标签）
@@ -230,10 +229,10 @@ function MemberNode({
 
       <div style={{
         background: isCurrentUser ? "#FFF8F0" : "white",
-        borderRadius: 12, padding: "10px 12px", marginBottom: 6,
+        borderRadius: 12, padding: "8px 10px", marginBottom: 6,
         border: isCurrentUser ? "1.5px solid #e8750a" : isPending ? "1.5px dashed #FFB74D" : "1.5px solid #F0F0F0",
         boxShadow: isCurrentUser ? "0 2px 12px rgba(232,117,10,0.15)" : "0 1px 4px rgba(0,0,0,0.04)",
-        display: "flex", alignItems: "center", gap: 10, cursor: hasChildren ? "pointer" : "default",
+        display: "flex", alignItems: "center", gap: 8, cursor: hasChildren ? "pointer" : "default",
         position: "relative",
         opacity: isInvited ? 0.6 : 1,
       }}
@@ -241,12 +240,12 @@ function MemberNode({
       >
         {/* 头像 */}
         <div style={{
-          width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+          width: 32, height: 32, borderRadius: 10, flexShrink: 0,
           background: isInvited ? "#F5F5F5" :
             isCurrentUser ? "linear-gradient(135deg, #e8750a, #ff9a3c)" :
               `linear-gradient(135deg, ${levelCfg.color}33, ${levelCfg.color}22)`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, fontWeight: 700,
+          fontSize: 13, fontWeight: 700,
           color: isInvited ? "#bbb" : isCurrentUser ? "white" : levelCfg.color,
           border: isInvited ? "1.5px dashed #ddd" : "none",
         }}>
@@ -254,59 +253,44 @@ function MemberNode({
         </div>
 
         {/* 信息 */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-            <span style={{
-              fontSize: 14, fontWeight: isCurrentUser ? 800 : 600,
-              color: isInvited ? "#bbb" : "#1A1A1A",
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            }}>
-              {member.name}
-              {isCurrentUser && <span style={{ fontSize: 10, color: "#e8750a", marginLeft: 4 }}>（我）</span>}
+        <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{
+            fontSize: 14, fontWeight: isCurrentUser ? 800 : 600,
+            color: isInvited ? "#bbb" : "#1A1A1A",
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}>
+            {member.name}
+            {isCurrentUser && <span style={{ fontSize: 10, color: "#e8750a", marginLeft: 4 }}>（我）</span>}
+          </span>
+          <span style={{
+            fontSize: 11, color: "#888", flexShrink: 0,
+            display: "inline-flex", alignItems: "center", lineHeight: 1,
+          }}>
+            {member.jobTitle}
+          </span>
+          {isPending && (
+            <span style={{ fontSize: 10, color: "#F57C00", flexShrink: 0, marginLeft: 2 }}>
+              待完成
             </span>
-            {/* 角色标签 */}
-            <span style={{
-              fontSize: 9, padding: "2px 6px", borderRadius: 6, flexShrink: 0,
-              background: roleCfg.bg, color: roleCfg.text, fontWeight: 700,
-            }}>
-              {roleCfg.label}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 11, color: "#888" }}>{member.jobTitle}</span>
-            {member.trainingScore !== undefined && (
-              <span style={{
-                fontSize: 10, padding: "1px 6px", borderRadius: 6,
-                background: member.trainingScore >= 4 ? "#E8F5E9" : member.trainingScore >= 3 ? "#FFF3E0" : "#FFEBEE",
-                color: member.trainingScore >= 4 ? "#2E7D32" : member.trainingScore >= 3 ? "#E65100" : "#C62828",
-                fontWeight: 700,
-              }}>
-                {member.trainingScore}分
-              </span>
-            )}
-            {isPending && (
-              <span style={{ fontSize: 10, color: "#F57C00", background: "#FFF3E0", padding: "1px 6px", borderRadius: 6 }}>
-                待完成
-              </span>
-            )}
-            {isInvited && (
-              <button
-                onClick={e => { e.stopPropagation(); onInvite(); }}
-                style={{
-                  fontSize: 10, color: "#e8750a", background: "#FFF3E0", padding: "2px 8px",
-                  borderRadius: 6, border: "none", cursor: "pointer", fontWeight: 700,
-                }}
-              >
-                + 邀请
-              </button>
-            )}
-          </div>
+          )}
+          {isInvited && (
+            <button
+              onClick={e => { e.stopPropagation(); onInvite(); }}
+              style={{
+                marginLeft: "auto",
+                fontSize: 10, color: "#e8750a", background: "#FFF3E0", padding: "2px 8px",
+                borderRadius: 6, border: "none", cursor: "pointer", fontWeight: 700,
+              }}
+            >
+              + 邀请
+            </button>
+          )}
         </div>
 
         {/* 展开/收起 */}
         {hasChildren && (
           <div style={{
-            width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+            width: 20, height: 20, borderRadius: 6, flexShrink: 0,
             background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center",
           }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round"
