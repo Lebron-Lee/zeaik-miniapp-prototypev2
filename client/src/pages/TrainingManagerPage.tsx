@@ -207,9 +207,6 @@ function CreateTaskModal({ onClose, onSend }: { onClose: () => void; onSend: (da
                 background: "linear-gradient(180deg, #FFF9F3 0%, #FFFFFF 100%)",
                 border: "1px solid #F5D7BC", borderRadius: 14, padding: "12px 12px 6px", marginBottom: 12,
               }}>
-                <div style={{ fontSize: 12, color: "#8B6E56", lineHeight: 1.6, marginBottom: 10 }}>
-                  按组织架构展示，可直接选择组织架构节点并勾选该节点下的培训人员。
-                </div>
                 {[
                   { label: "前厅服务组", hint: "门店层级 · 服务岗", members: STAFF_STATS.filter(s => s.role === "服务员") },
                   { label: "后厨出品组", hint: "门店层级 · 后厨岗", members: STAFF_STATS.filter(s => s.role === "厨师") },
