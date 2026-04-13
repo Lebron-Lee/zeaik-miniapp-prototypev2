@@ -342,6 +342,7 @@ export default function MiniAppShell() {
               setFromTrainingScan(false);
               window.setTimeout(() => setFromTrainingScan(true), 0);
             }}
+            onOpenOrgTree={handleOpenOrgTree}
             fromTrainingScan={fromTrainingScan}
             onExitTrainingScan={() => setFromTrainingScan(false)}
           />

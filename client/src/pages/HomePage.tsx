@@ -678,10 +678,11 @@ interface HomePageProps {
   onOpenGroupAiModel?: () => void;
   onOpenTraining?: () => void;
   onOpenTrainingConversation?: () => void;
+  onOpenOrgTree?: () => void;
   fromTrainingScan?: boolean; // 从培训二维码扫码进入
   onExitTrainingScan?: () => void; // 退出扫码培训模式
 }
-export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
+export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, onOpenOrgTree, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [inputText, setInputText] = useState("");
   const [sectionOpen, setSectionOpen] = useState(true);
@@ -712,7 +713,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [trainingRegisterCustomPosition, setTrainingRegisterCustomPosition] = useState("");
   const [trainingLaunchStep, setTrainingLaunchStep] = useState<0 | 1 | 2 | 3>(0);
   const [selectedTrainingBankId, setSelectedTrainingBankId] = useState<string | null>(null);
-  const [selectedTrainingTargets, setSelectedTrainingTargets] = useState<Set<string>>(new Set());
+  const [selectedTrainingTargets, setSelectedTrainingTargets] = useState<Set<string>>(new Set(TRAINING_LAUNCH_GROUPS.flatMap(group => group.members.map(member => member.id))));
   const [trainingLaunchIntent, setTrainingLaunchIntent] = useState("");
   const [trainingLaunchGoal, setTrainingLaunchGoal] = useState("");
   const [trainingLaunchUploadedFiles, setTrainingLaunchUploadedFiles] = useState<Array<{ name: string; sizeLabel: string }>>([]);
@@ -772,6 +773,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const selectedTrainingGroupLabels = TRAINING_LAUNCH_GROUPS.filter(group =>
     group.members.some(member => selectedTrainingTargets.has(member.id)),
   ).map(group => group.label);
+  const createDefaultTrainingTargetSet = () => new Set(allTrainingLaunchMembers.map(member => member.id));
   const trainingLaunchActive = trainingLaunchStep > 0;
   const formatTrainingUploadSize = (size: number) => {
     if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
@@ -950,11 +952,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setChatMode(true);
     setTrainingLaunchStep(1);
     setSelectedTrainingBankId(null);
-    setSelectedTrainingTargets(new Set());
+    setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
-    setTrainingTargetPickerOpen(true);
+    setTrainingTargetPickerOpen(false);
 
     if (trainingLaunchActive) return;
 
@@ -964,7 +966,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {
         id: msgIdRef.current++,
         role: "ai",
-        text: "好的，我们分两步发起培训：先圈定培训对象，再描述培训目的，系统会自动推荐题库。",
+        text: "好的，我们分两步发起培训：默认先对全员发起，你也可以切换对象；再描述培训目的，系统会自动推荐题库。",
       },
     ]);
   };
@@ -997,6 +999,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     const nextFiles = files.map(file => ({ name: file.name, sizeLabel: formatTrainingUploadSize(file.size) }));
     setTrainingLaunchUploadedFiles(prev => [...prev, ...nextFiles].slice(0, 3));
     setSelectedTrainingBankId("upload-generated");
+    setTrainingLaunchStep(3);
     setMessages(prev => [
       ...prev,
       {
@@ -1007,7 +1010,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {
         id: msgIdRef.current++,
         role: "ai",
-        text: "已收到资料，我会根据文件内容自动整理题库，你只需补充培训目的和培训目标即可。",
+        text: "已收到资料，我会先根据文件内容自动整理题库；你也可以继续在对话里补充培训目的和培训目标。",
       },
     ]);
     event.target.value = "";
@@ -1016,11 +1019,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const resetTrainingLaunchFlow = () => {
     setTrainingLaunchStep(1);
     setSelectedTrainingBankId(null);
-    setSelectedTrainingTargets(new Set());
+    setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
-    setTrainingTargetPickerOpen(true);
+    setTrainingTargetPickerOpen(false);
     setMessages(prev => [
       ...prev,
       {
@@ -1213,10 +1216,13 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     if (!trainingLaunchActive) return null;
 
     const hasTargets = selectedTrainingTargets.size > 0;
-    const hasIntent = Boolean(trainingLaunchIntent.trim() || trainingLaunchGoal.trim() || trainingLaunchUploadedFiles.length > 0);
-    const targetSummary = hasTargets
-      ? `${selectedTrainingMembers.length}人 · ${selectedTrainingMembers.map(member => member.name).slice(0, 2).join('、')}${selectedTrainingMembers.length > 2 ? '等' : ''}`
-      : '暂未选择';
+    const hasIntent = Boolean(trainingLaunchUploadedFiles.length > 0 || trainingLaunchIntent.trim() || trainingLaunchGoal.trim());
+    const allSelected = selectedTrainingTargets.size === allTrainingLaunchMembers.length;
+    const targetSummary = allSelected
+      ? `全员培训 · ${allTrainingLaunchMembers.length}人`
+      : hasTargets
+        ? `${selectedTrainingMembers.length}人 · ${selectedTrainingMembers.map(member => member.name).slice(0, 2).join('、')}${selectedTrainingMembers.length > 2 ? '等' : ''}`
+        : '暂未选择';
 
     return (
       <div className="flex mb-3" style={{ justifyContent: "flex-start" }}>
@@ -1331,163 +1337,58 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   }}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div style={{ fontSize: 12, color: "#8a82a8" }}>本次培训对象</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040", marginTop: 4 }}>{targetSummary}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      <div
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 999,
+                          background: "rgba(108,89,247,0.1)",
+                          color: "#5d48e8",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 14,
+                          fontWeight: 800,
+                          flexShrink: 0,
+                        }}
+                      >
+                        1
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 12, color: "#8a82a8" }}>本次培训对象</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040", marginTop: 4 }}>{targetSummary}</div>
+                      </div>
                     </div>
                     <button
-                      onClick={() => setTrainingTargetPickerOpen(prev => !prev)}
+                      onClick={() => {
+                        if (onOpenOrgTree) onOpenOrgTree();
+                        else toast.info("请在组织架构页切换培训对象");
+                      }}
                       style={{
                         border: "none",
-                        borderRadius: 999,
-                        padding: "7px 12px",
-                        background: "rgba(108,89,247,0.1)",
+                        padding: 0,
+                        background: "transparent",
                         color: "#5d48e8",
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: 700,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        flexShrink: 0,
                       }}
                     >
-                      {hasTargets ? "切换" : "选择"}
+                      <span>{allSelected ? "切换" : "重新选择"}</span>
+                      <span style={{ color: "#a79fe0" }}>›</span>
                     </button>
                   </div>
-
-                  {(trainingTargetPickerOpen || !hasTargets) && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
-                      {TRAINING_LAUNCH_GROUPS.map(group => {
-                        const selectedCount = group.members.filter(member => selectedTrainingTargets.has(member.id)).length;
-                        const allSelected = group.members.length > 0 && selectedCount === group.members.length;
-                        return (
-                          <div
-                            key={group.id}
-                            style={{
-                              borderRadius: 14,
-                              border: allSelected ? "1.5px solid rgba(103,82,255,0.36)" : "1px solid rgba(232,226,245,0.94)",
-                              background: allSelected ? "rgba(242,239,255,0.98)" : "rgba(255,255,255,0.96)",
-                              padding: "10px",
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div>
-                                <div style={{ fontSize: 13.5, fontWeight: 700, color: "#2d2040" }}>{group.label}</div>
-                                <div style={{ fontSize: 11.5, color: "#8d84a5", marginTop: 3 }}>{group.hint}</div>
-                              </div>
-                              <button
-                                onClick={() => toggleTrainingGroup(group)}
-                                style={{
-                                  border: "none",
-                                  cursor: "pointer",
-                                  padding: "6px 10px",
-                                  borderRadius: 999,
-                                  background: allSelected ? "linear-gradient(135deg, #7d6bff, #5a45f5)" : "rgba(108,89,247,0.1)",
-                                  color: allSelected ? "#fff" : "#5d48e8",
-                                  fontSize: 11.5,
-                                  fontWeight: 700,
-                                }}
-                              >
-                                {allSelected ? "取消整组" : `整组选择 ${selectedCount}/${group.members.length}`}
-                              </button>
-                            </div>
-                            <div style={{ paddingTop: 10, display: "flex", flexWrap: "wrap", gap: 8 }}>
-                              {group.members.map(member => {
-                                const isSelected = selectedTrainingTargets.has(member.id);
-                                return (
-                                  <button
-                                    key={member.id}
-                                    onClick={() => toggleTrainingTarget(member.id)}
-                                    style={{
-                                      border: isSelected ? "1px solid #6c59f7" : "1px solid #eadffd",
-                                      background: isSelected ? "rgba(241,237,255,1)" : "white",
-                                      borderRadius: 999,
-                                      padding: "7px 10px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 6,
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        width: 18,
-                                        height: 18,
-                                        borderRadius: 999,
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        background: isSelected ? "linear-gradient(135deg, #7d6bff, #5a45f5)" : "#efeafd",
-                                        color: isSelected ? "white" : "#8a7b6c",
-                                        fontSize: 10,
-                                        fontWeight: 700,
-                                      }}
-                                    >
-                                      {isSelected ? "✓" : member.name[0]}
-                                    </span>
-                                    <span style={{ fontSize: 12, color: "#3b3027", fontWeight: 600 }}>{member.name}</span>
-                                    <span style={{ fontSize: 11, color: "#9b8877" }}>{member.role}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
                 </div>
 
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: "#2d2040", lineHeight: 1.55 }}>
-                    你可以描述你的培训目的和培训目标。
-                  </div>
-                  <div style={{ fontSize: 12.5, color: "#8a735f", marginTop: 6, lineHeight: 1.65 }}>
-                    例如：希望晚班服务员在 10 分钟内掌握闭店交接标准，减少漏项和返工。
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <input
-                    value={trainingLaunchIntent}
-                    onChange={event => {
-                      setTrainingLaunchIntent(event.target.value);
-                      if (selectedTrainingBankId !== "upload-generated") setSelectedTrainingBankId(null);
-                    }}
-                    placeholder="培训目的：这次培训想先解决什么问题？"
-                    style={{
-                      width: "100%",
-                      borderRadius: 14,
-                      border: "1px solid rgba(231,223,247,0.95)",
-                      background: "rgba(252,251,255,0.98)",
-                      padding: "12px 13px",
-                      fontSize: 13,
-                      color: "#2d2040",
-                      outline: "none",
-                    }}
-                  />
-                  <textarea
-                    value={trainingLaunchGoal}
-                    onChange={event => {
-                      setTrainingLaunchGoal(event.target.value);
-                      if (selectedTrainingBankId !== "upload-generated") setSelectedTrainingBankId(null);
-                    }}
-                    placeholder="培训目标：希望员工学会哪些关键动作或话术？"
-                    rows={4}
-                    style={{
-                      width: "100%",
-                      resize: "none",
-                      borderRadius: 16,
-                      border: "1px solid rgba(231,223,247,0.95)",
-                      background: "rgba(252,251,255,0.98)",
-                      padding: "12px 13px",
-                      fontSize: 13,
-                      lineHeight: 1.65,
-                      color: "#2d2040",
-                      outline: "none",
-                    }}
-                  />
-                </div>
 
                 <div
                   style={{
                     borderRadius: 16,
-                    border: "1px dashed rgba(108,89,247,0.26)",
+                    border: "1px dashed rgba(108,89,247,0.22)",
                     background: "rgba(245,242,255,0.92)",
                     padding: "12px 13px",
                     display: "flex",
@@ -1496,24 +1397,24 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   }}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#2d2040" }}>如有相关文件可以上传</div>
-                      <div style={{ fontSize: 11.5, color: "#81789b", marginTop: 4 }}>上传 SOP、巡检表或培训资料后，会自动形成题库。</div>
+                    <div style={{ fontSize: 13, color: "#2d2040", lineHeight: 1.6, flex: 1 }}>
+                      你可以描述你的培训目的和培训目标，如有相关文件也可直接上传，系统会自动形成题库。
                     </div>
                     <button
                       onClick={() => trainingLaunchUploadRef.current?.click()}
                       style={{
                         border: "none",
                         borderRadius: 999,
-                        padding: "9px 16px",
-                        background: "linear-gradient(135deg, #7d6bff, #5a45f5)",
-                        color: "#fff",
+                        padding: "8px 16px",
+                        background: "rgba(108,89,247,0.12)",
+                        color: "#5d48e8",
                         fontSize: 12.5,
                         fontWeight: 700,
-                        boxShadow: "0 8px 18px rgba(90,69,245,0.2)",
+                        boxShadow: "none",
+                        flexShrink: 0,
                       }}
                     >
-                      上传文件
+                      上传
                     </button>
                   </div>
                   <input
@@ -1546,41 +1447,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     </div>
                   )}
                 </div>
-
-                <div
-                  style={{
-                    borderRadius: 16,
-                    background: "linear-gradient(180deg, rgba(255,249,244,0.98) 0%, rgba(255,245,236,0.96) 100%)",
-                    border: "1px solid rgba(255,215,182,0.85)",
-                    padding: "12px 13px",
-                  }}
-                >
-                  <div style={{ fontSize: 12, color: "#9b7f69" }}>系统推荐题库</div>
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040", marginTop: 4 }}>{selectedTrainingBank?.title ?? '将根据你的描述自动推荐'}</div>
-                  <div style={{ fontSize: 12, color: "#8d7865", marginTop: 4, lineHeight: 1.6 }}>
-                    {selectedTrainingBank?.description ?? '补充培训目的后，这里会自动出现推荐题库。'}
-                  </div>
-                  {selectedTrainingBank && <div style={{ fontSize: 11.5, color: "#c16a12", marginTop: 7, fontWeight: 600 }}>{selectedTrainingBank.meta}</div>}
-                </div>
-
-                <button
-                  onClick={handleSubmitTrainingTargets}
-                  style={{
-                    width: "100%",
-                    border: "none",
-                    borderRadius: 16,
-                    padding: "12px 14px",
-                    background: hasTargets && hasIntent
-                      ? "linear-gradient(135deg, #ff9a3c, #e8750a)"
-                      : "rgba(230,220,210,0.95)",
-                    color: "#fff",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    boxShadow: hasTargets && hasIntent ? "0 10px 20px rgba(232,117,10,0.2)" : "none",
-                  }}
-                >
-                  生成题库并继续发起
-                </button>
               </div>
             ) : (
               <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: 10 }}>
