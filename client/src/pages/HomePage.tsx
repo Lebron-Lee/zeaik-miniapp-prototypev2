@@ -1234,13 +1234,13 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           >
             <div
               style={{
-                padding: "14px 15px 13px",
+                padding: "10px 14px 9px",
                 background: "linear-gradient(135deg, rgba(255,244,234,0.98) 0%, rgba(255,236,220,0.98) 58%, rgba(255,229,210,0.98) 100%)",
                 color: "#000000",
               }}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div style={{ fontSize: 12.5, lineHeight: 1.55, color: "#000000", paddingTop: 1 }}>
+              <div className="flex items-center justify-center gap-2">
+                <div style={{ fontSize: 12.5, lineHeight: 1.45, color: "#000000", textAlign: "center" }}>
                   告诉我培训需求，我来帮你快速配好题库。
                 </div>
                 <button
@@ -1250,13 +1250,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     background: "rgba(255,255,255,0.65)",
                     color: "#000",
                     borderRadius: 999,
-                    fontSize: 11.5,
+                    fontSize: 11,
                     fontWeight: 600,
-                    padding: "6px 10px",
+                    padding: "4px 9px",
+                    lineHeight: 1.2,
                     whiteSpace: "nowrap",
                   }}
                 >
-                  重置
+                  退出
                 </button>
               </div>
             </div>
