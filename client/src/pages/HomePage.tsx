@@ -630,6 +630,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [trainingIsFeedback, setTrainingIsFeedback] = useState(false);
   const [trainingShowHint, setTrainingShowHint] = useState(false);
   const [trainingIsThinking, setTrainingIsThinking] = useState(false);
+  const [trainingRegisterRelation, setTrainingRegisterRelation] = useState<"downward" | "upward" | null>(null);
+  const [trainingRegisterPosition, setTrainingRegisterPosition] = useState("");
   const trainingMsgIdRef = React.useRef(10000);
 
   // 培训 Mock 数据
@@ -678,6 +680,18 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
   const currentTrainingTask = trainingActiveTask ?? TRAINING_INVITE_CARD;
   const currentTrainingIntroSummary = getTrainingIntroSummary(currentTrainingTask);
+  const TRAINING_RELATION_OPTIONS = {
+    downward: {
+      label: "我是TA的下级",
+      helper: "系统会按邀请人所在门店，为你自动归入对应培训组织。",
+      positions: ["服务员", "迎宾", "收银员", "后厨员工"],
+    },
+    upward: {
+      label: "我是TA的上级",
+      helper: "系统会按管理关系自动归位，便于后续继续分发培训任务。",
+      positions: ["店长", "值班经理", "区域督导", "运营经理"],
+    },
+  } as const;
 
   const TRAINING_QUESTIONS: TrainingQuestion[] = [
     { id: 1, question: "茶水区台面清洁的标准是什么？", keyPoints: ["台面整洁无杂物", "无垃圾无灰尘", "热水器保持100℃"], hint: "参考答案要点：\n① 台面整洁无杂物、无垃圾、无灰尘\n② 热水器开启并保持100℃\n③ 台面必须有茶叶、茶水壶", aiIntro: "好的，我们开始第一道题！" },
@@ -1415,7 +1429,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
                         {!trainingRegistered && (
                           <button
-                            onClick={() => setShowTrainingRegister(true)}
+                            onClick={() => {
+                              setTrainingRegisterRelation(null);
+                              setTrainingRegisterPosition("");
+                              setShowTrainingRegister(true);
+                            }}
                             style={{
                               width: "100%", padding: "11px",
                               background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
@@ -2047,53 +2065,90 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 }}
               />
             </div>
-            {/* 手机号输入 */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 6 }}>手机号</div>
-              <input
-                id="training-reg-phone"
-                placeholder="请输入手机号"
-                style={{
-                  width: "100%", padding: "12px 14px",
-                  border: "1.5px solid rgba(232,117,10,0.18)", borderRadius: 14,
-                  fontSize: 15, color: "#2d2040", outline: "none",
-                  boxSizing: "border-box",
-                  background: "rgba(255,255,255,0.88)",
-                  boxShadow: "inset 0 1px 2px rgba(232,117,10,0.04)",
-                }}
-              />
-            </div>
             {/* 我与邀请人的关系 */}
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 8 }}>我与邀请人的关系</div>
               <div style={{ display: "flex", gap: 10 }}>
-                {["我是TA的下级（员工）", "我是TA的上级（管理者）"].map((label, i) => (
-                  <button
-                    key={i}
-                    id={`training-reg-rel-${i}`}
-                    onClick={() => {
-                      document.querySelectorAll("[id^='training-reg-rel-']").forEach((el, idx) => {
-                        const btn = el as HTMLButtonElement;
-                        btn.style.background = idx === i ? "rgba(232,117,10,0.12)" : "rgba(255,255,255,0.84)";
-                        btn.style.borderColor = idx === i ? "#e8750a" : "rgba(232,117,10,0.16)";
-                        btn.style.color = idx === i ? "#b85d08" : "#8a6f58";
-                        btn.style.fontWeight = idx === i ? "700" : "500";
-                      });
-                    }}
-                    style={{
-                      flex: 1, padding: "10px 8px",
-                      background: i === 0 ? "rgba(232,117,10,0.12)" : "rgba(255,255,255,0.84)",
-                      border: `1.5px solid ${i === 0 ? "#e8750a" : "rgba(232,117,10,0.16)"}`,
-                      borderRadius: 14,
-                      color: i === 0 ? "#b85d08" : "#8a6f58",
-                      fontSize: 12.5, fontWeight: i === 0 ? 700 : 500,
-                      cursor: "pointer", textAlign: "center",
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
+                {(["downward", "upward"] as const).map((relationKey) => {
+                  const option = TRAINING_RELATION_OPTIONS[relationKey];
+                  const isActive = trainingRegisterRelation === relationKey;
+
+                  return (
+                    <button
+                      key={relationKey}
+                      id={`training-reg-rel-${relationKey}`}
+                      data-testid={`training-reg-rel-${relationKey}`}
+                      onClick={() => {
+                        setTrainingRegisterRelation(relationKey);
+                        setTrainingRegisterPosition("");
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: "12px 10px",
+                        background: isActive ? "rgba(232,117,10,0.12)" : "rgba(255,255,255,0.84)",
+                        border: `1.5px solid ${isActive ? "#e8750a" : "rgba(232,117,10,0.16)"}`,
+                        borderRadius: 14,
+                        color: isActive ? "#b85d08" : "#8a6f58",
+                        fontSize: 13,
+                        fontWeight: isActive ? 700 : 500,
+                        cursor: "pointer",
+                        textAlign: "center",
+                        transition: "all 0.2s ease",
+                        boxShadow: isActive ? "0 6px 16px rgba(232,117,10,0.12)" : "none",
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
+
+              {trainingRegisterRelation && (
+                <div
+                  id="training-reg-position-panel"
+                  data-testid="training-reg-position-panel"
+                  style={{
+                    marginTop: 12,
+                    padding: 14,
+                    borderRadius: 16,
+                    background: "rgba(255,250,245,0.96)",
+                    border: "1px solid rgba(232,117,10,0.14)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 4 }}>你的岗位</div>
+                  <div style={{ fontSize: 12, lineHeight: 1.5, color: "#8a6f58", marginBottom: 10 }}>
+                    {TRAINING_RELATION_OPTIONS[trainingRegisterRelation].helper}
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {TRAINING_RELATION_OPTIONS[trainingRegisterRelation].positions.map((position) => {
+                      const isSelected = trainingRegisterPosition === position;
+                      return (
+                        <button
+                          key={position}
+                          type="button"
+                          id={`training-reg-position-${position}`}
+                          data-testid={`training-reg-position-${position}`}
+                          onClick={() => setTrainingRegisterPosition(position)}
+                          style={{
+                            padding: "9px 12px",
+                            borderRadius: 999,
+                            border: `1.5px solid ${isSelected ? "#e8750a" : "rgba(232,117,10,0.16)"}`,
+                            background: isSelected ? "rgba(232,117,10,0.12)" : "rgba(255,255,255,0.92)",
+                            color: isSelected ? "#b85d08" : "#8a6f58",
+                            fontSize: 12.5,
+                            fontWeight: isSelected ? 700 : 500,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          {position}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             {/* 确认按钮 */}
             <button
@@ -2115,7 +2170,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               确认注册，开始培训
             </button>
             <button
-              onClick={() => setShowTrainingRegister(false)}
+              onClick={() => {
+                setShowTrainingRegister(false);
+                setTrainingRegisterRelation(null);
+                setTrainingRegisterPosition("");
+              }}
               style={{
                 width: "100%", padding: "11px",
                 background: "rgba(255,255,255,0.7)", border: "1px solid rgba(232,117,10,0.16)",
