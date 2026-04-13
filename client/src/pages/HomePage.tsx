@@ -1217,6 +1217,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   {QUICK_QUESTIONS.map((q, i) => (
                     <button
                       key={i}
+                      id={`zeaik-question-item-${i + 1}`}
+                      data-testid={`zeaik-question-item-${i + 1}`}
                       onClick={() => handleSend(q.text)}
                       style={{
                         width: "100%", display: "flex", alignItems: "center", gap: 9,
@@ -1246,8 +1248,15 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             {!isTrainingConversation && (
               <>
                 {/* 功能卡片行 */}
-                <div className="flex gap-2 px-3 pb-2.5">
+                <div
+                  id="zeaik-home-action-row"
+                  data-testid="zeaik-home-action-row"
+                  className="flex gap-2 px-3 pb-2.5"
+                >
                   <button
+                    id="zeaik-home-video-entry"
+                    data-testid="zeaik-home-video-entry"
+                    aria-label="一分钟看明白"
                     onClick={() => onOpenVideo ? onOpenVideo() : toast.info("视频功能即将开放")}
                     style={{
                       flex: 1, borderRadius: 11, padding: "8px 10px",
@@ -1272,6 +1281,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     </div>
                   </button>
                   <button
+                    id="zeaik-home-training-entry"
+                    data-testid="zeaik-home-training-entry"
+                    aria-label="9.9元餐饮AI培训"
                     onClick={() => toast.info("培训报名即将开放")}
                     style={{
                       flex: 1, borderRadius: 11, padding: "8px 10px",
