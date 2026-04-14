@@ -1251,8 +1251,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 color: "#000000",
               }}
             >
-              <div className="flex items-center justify-center gap-2">
-                <div style={{ fontSize: 14, lineHeight: 1.5, color: "#000000", textAlign: "center" }}>
+              <div className="flex items-center justify-start gap-2">
+                <div style={{ fontSize: 14, lineHeight: 1.5, color: "#000000", textAlign: "left", paddingLeft: 0 }}>
                   告诉我培训需求，我来帮你快速配好题库。
                 </div>
                 <button
