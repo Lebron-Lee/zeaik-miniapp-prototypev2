@@ -2116,102 +2116,73 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       </div>
                     </div>
                   ) : msg.trainingLaunchReceiptCard ? (
-                    <div style={{ padding: "14px" }}>
+                    <div style={{ padding: "12px" }}>
                       <div style={{
-                        borderRadius: 14,
-                        padding: "14px",
+                        borderRadius: 13,
+                        padding: "12px",
                         background: "linear-gradient(180deg, rgba(255,247,238,0.98) 0%, rgba(255,255,255,0.98) 100%)",
                         border: "1px solid rgba(255,186,120,0.42)",
-                        boxShadow: "0 6px 18px rgba(232,117,10,0.08)",
+                        boxShadow: "0 4px 14px rgba(232,117,10,0.08)",
                       }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
-                          <div>
-                            <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040" }}>{msg.trainingLaunchReceiptCard.title}</div>
-                            <div style={{ fontSize: 12.5, color: "#6f6254", marginTop: 3, lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.bankTitle}</div>
-                          </div>
-                          <div style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11.5, fontWeight: 700 }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{msg.trainingLaunchReceiptCard.title}</div>
+                          <div style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11, fontWeight: 700 }}>
                             已发出
                           </div>
                         </div>
-
-                        <div style={{ padding: "10px 11px", borderRadius: 11, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(255,214,179,0.75)", marginBottom: 12 }}>
-                          <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 4 }}>培训对象</div>
-                          <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.targetSummary}</div>
+                        <div style={{ fontSize: 12.5, color: "#6f6254", lineHeight: 1.5, marginBottom: 9 }}>
+                          {msg.trainingLaunchReceiptCard.bankTitle} · {msg.trainingLaunchReceiptCard.targetSummary}
                         </div>
-
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11.5, fontWeight: 700 }}>
-                            已接收 {msg.trainingLaunchReceiptCard.acceptedCount} 人
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 9 }}>
+                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11, fontWeight: 700 }}>
+                            已接收 {msg.trainingLaunchReceiptCard.acceptedCount}
                           </span>
-                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(245,158,11,0.12)", color: "#b45309", fontSize: 11.5, fontWeight: 700 }}>
-                            待接收 {msg.trainingLaunchReceiptCard.pendingCount} 人
+                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(245,158,11,0.12)", color: "#b45309", fontSize: 11, fontWeight: 700 }}>
+                            待接收 {msg.trainingLaunchReceiptCard.pendingCount}
                           </span>
                         </div>
-
-                        <div style={{ display: "grid", gap: 8 }}>
-                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.9)", borderRadius: 10, border: "1px solid rgba(255,214,179,0.8)" }}>
-                            <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 3 }}>已接收培训</div>
-                            <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.acceptedNames.length ? msg.trainingLaunchReceiptCard.acceptedNames.join("、") : "暂无"}</div>
-                          </div>
-                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.9)", borderRadius: 10, border: "1px solid rgba(255,214,179,0.8)" }}>
-                            <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 3 }}>待接收培训</div>
-                            <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.pendingNames.length ? msg.trainingLaunchReceiptCard.pendingNames.join("、") : "全部已接收"}</div>
-                          </div>
+                        <div style={{ fontSize: 12, color: "#4f4135", lineHeight: 1.5 }}>
+                          {msg.trainingLaunchReceiptCard.pendingNames.length
+                            ? `待接收：${msg.trainingLaunchReceiptCard.pendingNames.join("、")}`
+                            : `已全部接收：${msg.trainingLaunchReceiptCard.acceptedNames.join("、")}`}
                         </div>
                       </div>
                     </div>
                   ) : msg.trainingLaunchCompletionCard ? (
-                    <div style={{ padding: "14px" }}>
+                    <div style={{ padding: "12px" }}>
                       <div style={{
-                        borderRadius: 14,
-                        padding: "14px",
+                        borderRadius: 13,
+                        padding: "12px",
                         background: "linear-gradient(180deg, rgba(239,247,255,0.98) 0%, rgba(255,255,255,0.98) 100%)",
                         border: "1px solid rgba(168,206,255,0.58)",
-                        boxShadow: "0 6px 18px rgba(26,107,191,0.08)",
+                        boxShadow: "0 4px 14px rgba(26,107,191,0.08)",
                       }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
-                          <div>
-                            <div style={{ fontSize: 15, fontWeight: 700, color: "#1a3760" }}>{msg.trainingLaunchCompletionCard.title}</div>
-                            <div style={{ fontSize: 12.5, color: "#5d6e87", marginTop: 3, lineHeight: 1.5 }}>
-                              已完成 {msg.trainingLaunchCompletionCard.completedCount}/{msg.trainingLaunchCompletionCard.totalCount} 人
-                            </div>
-                          </div>
-                          <div style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(26,107,191,0.12)", color: "#1a6bbf", fontSize: 11.5, fontWeight: 700 }}>
-                            持续同步
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 14.5, fontWeight: 700, color: "#1a3760" }}>{msg.trainingLaunchCompletionCard.title}</div>
+                          <div style={{ fontSize: 11.5, fontWeight: 700, color: "#1a6bbf" }}>
+                            {msg.trainingLaunchCompletionCard.completedCount}/{msg.trainingLaunchCompletionCard.totalCount}
                           </div>
                         </div>
-
-                        <div style={{ marginBottom: 12 }}>
-                          <div style={{ height: 8, borderRadius: 999, background: "rgba(26,107,191,0.12)", overflow: "hidden" }}>
+                        <div style={{ marginBottom: 9 }}>
+                          <div style={{ height: 7, borderRadius: 999, background: "rgba(26,107,191,0.12)", overflow: "hidden" }}>
                             <div style={{ width: `${Math.max(8, (msg.trainingLaunchCompletionCard.completedCount / Math.max(1, msg.trainingLaunchCompletionCard.totalCount)) * 100)}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #59a5ff, #1a6bbf)" }} />
                           </div>
                         </div>
-
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11.5, fontWeight: 700 }}>
-                            已完成 {msg.trainingLaunchCompletionCard.completedCount} 人
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 9 }}>
+                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11, fontWeight: 700 }}>
+                            完成 {msg.trainingLaunchCompletionCard.completedCount}
                           </span>
-                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(59,130,246,0.12)", color: "#1d4ed8", fontSize: 11.5, fontWeight: 700 }}>
-                            学习中 {msg.trainingLaunchCompletionCard.inProgressCount} 人
+                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(59,130,246,0.12)", color: "#1d4ed8", fontSize: 11, fontWeight: 700 }}>
+                            学习中 {msg.trainingLaunchCompletionCard.inProgressCount}
                           </span>
-                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(245,158,11,0.12)", color: "#b45309", fontSize: 11.5, fontWeight: 700 }}>
-                            待接收 {msg.trainingLaunchCompletionCard.pendingCount} 人
+                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(245,158,11,0.12)", color: "#b45309", fontSize: 11, fontWeight: 700 }}>
+                            未接收 {msg.trainingLaunchCompletionCard.pendingCount}
                           </span>
                         </div>
-
-                        <div style={{ display: "grid", gap: 8 }}>
-                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.92)", borderRadius: 10, border: "1px solid rgba(181,214,255,0.8)" }}>
-                            <div style={{ fontSize: 11.5, color: "#1a6bbf", fontWeight: 700, marginBottom: 3 }}>已完成培训</div>
-                            <div style={{ fontSize: 12.5, color: "#38506b", lineHeight: 1.5 }}>{msg.trainingLaunchCompletionCard.completedNames.length ? msg.trainingLaunchCompletionCard.completedNames.join("、") : "暂无"}</div>
-                          </div>
-                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.92)", borderRadius: 10, border: "1px solid rgba(181,214,255,0.8)" }}>
-                            <div style={{ fontSize: 11.5, color: "#1a6bbf", fontWeight: 700, marginBottom: 3 }}>进行中</div>
-                            <div style={{ fontSize: 12.5, color: "#38506b", lineHeight: 1.5 }}>{msg.trainingLaunchCompletionCard.inProgressNames.length ? msg.trainingLaunchCompletionCard.inProgressNames.join("、") : "暂无"}</div>
-                          </div>
-                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.92)", borderRadius: 10, border: "1px solid rgba(181,214,255,0.8)" }}>
-                            <div style={{ fontSize: 11.5, color: "#1a6bbf", fontWeight: 700, marginBottom: 3 }}>尚未接收</div>
-                            <div style={{ fontSize: 12.5, color: "#38506b", lineHeight: 1.5 }}>{msg.trainingLaunchCompletionCard.pendingNames.length ? msg.trainingLaunchCompletionCard.pendingNames.join("、") : "全部已进入学习"}</div>
-                          </div>
+                        <div style={{ fontSize: 12, color: "#38506b", lineHeight: 1.5 }}>
+                          {msg.trainingLaunchCompletionCard.completedNames.length
+                            ? `已完成：${msg.trainingLaunchCompletionCard.completedNames.join("、")}`
+                            : "目前还没有员工完成培训"}
                         </div>
                       </div>
                     </div>
