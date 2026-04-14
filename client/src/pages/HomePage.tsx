@@ -327,6 +327,27 @@ interface TrainingIntroItem {
   aiReply: string;
 }
 
+interface TrainingLaunchReceiptCard {
+  title: string;
+  bankTitle: string;
+  targetSummary: string;
+  acceptedCount: number;
+  pendingCount: number;
+  acceptedNames: string[];
+  pendingNames: string[];
+}
+
+interface TrainingLaunchCompletionCard {
+  title: string;
+  totalCount: number;
+  completedCount: number;
+  inProgressCount: number;
+  pendingCount: number;
+  completedNames: string[];
+  inProgressNames: string[];
+  pendingNames: string[];
+}
+
 type Message = {
   id: number;
   role: "user" | "ai";
@@ -340,6 +361,8 @@ type Message = {
   isCorrect?: boolean; // 答题结果
   isTrainingDone?: boolean; // 培训完成
   trainingScore?: number;
+  trainingLaunchReceiptCard?: TrainingLaunchReceiptCard;
+  trainingLaunchCompletionCard?: TrainingLaunchCompletionCard;
 };
 
 interface TrainingLaunchBankOption {
@@ -802,6 +825,48 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     return TRAINING_LAUNCH_BANKS.find(item => item.id === "service-standard") ?? TRAINING_LAUNCH_BANKS[0];
   };
   const selectedTrainingBank = getAutoRecommendedTrainingBank();
+  const buildTrainingLaunchReceiptCard = (
+    members: typeof selectedTrainingMembers,
+    bankTitle: string,
+    targetSummary: string,
+  ): TrainingLaunchReceiptCard => {
+    const totalCount = members.length;
+    const acceptedCount = totalCount <= 1 ? totalCount : Math.max(1, totalCount - 1);
+    const pendingCount = Math.max(0, totalCount - acceptedCount);
+
+    return {
+      title: "培训接收情况",
+      bankTitle,
+      targetSummary,
+      acceptedCount,
+      pendingCount,
+      acceptedNames: members.slice(0, acceptedCount).map(member => member.name),
+      pendingNames: members.slice(acceptedCount).map(member => member.name),
+    };
+  };
+
+  const buildTrainingLaunchCompletionCard = (
+    members: typeof selectedTrainingMembers,
+  ): TrainingLaunchCompletionCard => {
+    const totalCount = members.length;
+    const acceptedCount = totalCount <= 1 ? totalCount : Math.max(1, totalCount - 1);
+    const pendingCount = Math.max(0, totalCount - acceptedCount);
+    const completedCount = totalCount === 1 ? 0 : Math.min(acceptedCount, Math.max(1, Math.floor(acceptedCount / 2)));
+    const inProgressCount = Math.max(0, acceptedCount - completedCount);
+    const acceptedMembers = members.slice(0, acceptedCount);
+
+    return {
+      title: "培训完成情况",
+      totalCount,
+      completedCount,
+      inProgressCount,
+      pendingCount,
+      completedNames: acceptedMembers.slice(0, completedCount).map(member => member.name),
+      inProgressNames: acceptedMembers.slice(completedCount).map(member => member.name),
+      pendingNames: members.slice(acceptedCount).map(member => member.name),
+    };
+  };
+
   const TRAINING_RELATION_OPTIONS = {
     downward: {
       label: "我是TA的下级",
@@ -1059,8 +1124,59 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     ]);
   };
 
+  const handleLaunchTrainingInChat = () => {
+    if (selectedTrainingTargets.size === 0) {
+      toast.error("请先选择培训对象");
+      return;
+    }
+
+    const totalCount = selectedTrainingMembers.length;
+    const summaryNames = selectedTrainingMembers.map(member => member.name).join('、');
+    const targetSummary = `${summaryNames || `${totalCount}人`} · ${selectedTrainingGroupLabels.join(" / ") || "已选择"}`;
+    const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
+    const receiptCard = buildTrainingLaunchReceiptCard(selectedTrainingMembers, recommendedBankTitle, targetSummary);
+    const completionCard = buildTrainingLaunchCompletionCard(selectedTrainingMembers);
+    const intentSummary = trainingLaunchIntent.trim() || trainingLaunchGoal.trim() || "根据上传资料自动生成题库";
+
+    setChatMode(true);
+    setTrainingLaunchStep(0);
+    setSelectedTrainingBankId(null);
+    setSelectedTrainingTargets(createDefaultTrainingTargetSet());
+    setTrainingLaunchIntent("");
+    setTrainingLaunchGoal("");
+    setTrainingLaunchUploadedFiles([]);
+    setTrainingTargetPickerOpen(false);
+    setInputText("");
+
+    setMessages(prev => [
+      ...prev,
+      {
+        id: msgIdRef.current++,
+        role: "user",
+        text: `发起培训：${summaryNames || `${totalCount}人`}；题库：${recommendedBankTitle}`,
+      },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: `培训已发起成功。我已经把「${recommendedBankTitle}」发送给 ${summaryNames || `${totalCount}位员工`}，并会在当前会话里持续同步接收与完成情况。当前培训重点：${intentSummary}。`,
+      },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: "",
+        trainingLaunchReceiptCard: receiptCard,
+      },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: "",
+        trainingLaunchCompletionCard: completionCard,
+      },
+    ]);
+  };
+
   const isTrainingConversation = fromTrainingScan || trainingRegistered || trainingIsActive || trainingIsFeedback || messages.some(
-    msg => msg.trainingCard || msg.isQuestion || msg.isTrainingDone,
+    msg => msg.trainingCard || msg.isQuestion || msg.isTrainingDone || msg.trainingLaunchReceiptCard || msg.trainingLaunchCompletionCard,
   );
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1488,7 +1604,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     重新编辑
                   </button>
                   <button
-                    onClick={() => onOpenTraining?.()}
+                    onClick={handleLaunchTrainingInChat}
                     style={{
                       flex: 1.25,
                       borderRadius: 14,
@@ -1997,6 +2113,106 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             ✅ 已注册，培训进行中
                           </div>
                         )}
+                      </div>
+                    </div>
+                  ) : msg.trainingLaunchReceiptCard ? (
+                    <div style={{ padding: "14px" }}>
+                      <div style={{
+                        borderRadius: 14,
+                        padding: "14px",
+                        background: "linear-gradient(180deg, rgba(255,247,238,0.98) 0%, rgba(255,255,255,0.98) 100%)",
+                        border: "1px solid rgba(255,186,120,0.42)",
+                        boxShadow: "0 6px 18px rgba(232,117,10,0.08)",
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+                          <div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "#2d2040" }}>{msg.trainingLaunchReceiptCard.title}</div>
+                            <div style={{ fontSize: 12.5, color: "#6f6254", marginTop: 3, lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.bankTitle}</div>
+                          </div>
+                          <div style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11.5, fontWeight: 700 }}>
+                            已发出
+                          </div>
+                        </div>
+
+                        <div style={{ padding: "10px 11px", borderRadius: 11, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(255,214,179,0.75)", marginBottom: 12 }}>
+                          <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 4 }}>培训对象</div>
+                          <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.targetSummary}</div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11.5, fontWeight: 700 }}>
+                            已接收 {msg.trainingLaunchReceiptCard.acceptedCount} 人
+                          </span>
+                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(245,158,11,0.12)", color: "#b45309", fontSize: 11.5, fontWeight: 700 }}>
+                            待接收 {msg.trainingLaunchReceiptCard.pendingCount} 人
+                          </span>
+                        </div>
+
+                        <div style={{ display: "grid", gap: 8 }}>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.9)", borderRadius: 10, border: "1px solid rgba(255,214,179,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 3 }}>已接收培训</div>
+                            <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.acceptedNames.length ? msg.trainingLaunchReceiptCard.acceptedNames.join("、") : "暂无"}</div>
+                          </div>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.9)", borderRadius: 10, border: "1px solid rgba(255,214,179,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#e8750a", fontWeight: 700, marginBottom: 3 }}>待接收培训</div>
+                            <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{msg.trainingLaunchReceiptCard.pendingNames.length ? msg.trainingLaunchReceiptCard.pendingNames.join("、") : "全部已接收"}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : msg.trainingLaunchCompletionCard ? (
+                    <div style={{ padding: "14px" }}>
+                      <div style={{
+                        borderRadius: 14,
+                        padding: "14px",
+                        background: "linear-gradient(180deg, rgba(239,247,255,0.98) 0%, rgba(255,255,255,0.98) 100%)",
+                        border: "1px solid rgba(168,206,255,0.58)",
+                        boxShadow: "0 6px 18px rgba(26,107,191,0.08)",
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+                          <div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "#1a3760" }}>{msg.trainingLaunchCompletionCard.title}</div>
+                            <div style={{ fontSize: 12.5, color: "#5d6e87", marginTop: 3, lineHeight: 1.5 }}>
+                              已完成 {msg.trainingLaunchCompletionCard.completedCount}/{msg.trainingLaunchCompletionCard.totalCount} 人
+                            </div>
+                          </div>
+                          <div style={{ padding: "5px 9px", borderRadius: 999, background: "rgba(26,107,191,0.12)", color: "#1a6bbf", fontSize: 11.5, fontWeight: 700 }}>
+                            持续同步
+                          </div>
+                        </div>
+
+                        <div style={{ marginBottom: 12 }}>
+                          <div style={{ height: 8, borderRadius: 999, background: "rgba(26,107,191,0.12)", overflow: "hidden" }}>
+                            <div style={{ width: `${Math.max(8, (msg.trainingLaunchCompletionCard.completedCount / Math.max(1, msg.trainingLaunchCompletionCard.totalCount)) * 100)}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #59a5ff, #1a6bbf)" }} />
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(34,197,94,0.12)", color: "#15803d", fontSize: 11.5, fontWeight: 700 }}>
+                            已完成 {msg.trainingLaunchCompletionCard.completedCount} 人
+                          </span>
+                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(59,130,246,0.12)", color: "#1d4ed8", fontSize: 11.5, fontWeight: 700 }}>
+                            学习中 {msg.trainingLaunchCompletionCard.inProgressCount} 人
+                          </span>
+                          <span style={{ padding: "4px 9px", borderRadius: 999, background: "rgba(245,158,11,0.12)", color: "#b45309", fontSize: 11.5, fontWeight: 700 }}>
+                            待接收 {msg.trainingLaunchCompletionCard.pendingCount} 人
+                          </span>
+                        </div>
+
+                        <div style={{ display: "grid", gap: 8 }}>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.92)", borderRadius: 10, border: "1px solid rgba(181,214,255,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#1a6bbf", fontWeight: 700, marginBottom: 3 }}>已完成培训</div>
+                            <div style={{ fontSize: 12.5, color: "#38506b", lineHeight: 1.5 }}>{msg.trainingLaunchCompletionCard.completedNames.length ? msg.trainingLaunchCompletionCard.completedNames.join("、") : "暂无"}</div>
+                          </div>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.92)", borderRadius: 10, border: "1px solid rgba(181,214,255,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#1a6bbf", fontWeight: 700, marginBottom: 3 }}>进行中</div>
+                            <div style={{ fontSize: 12.5, color: "#38506b", lineHeight: 1.5 }}>{msg.trainingLaunchCompletionCard.inProgressNames.length ? msg.trainingLaunchCompletionCard.inProgressNames.join("、") : "暂无"}</div>
+                          </div>
+                          <div style={{ padding: "9px 10px", background: "rgba(255,255,255,0.92)", borderRadius: 10, border: "1px solid rgba(181,214,255,0.8)" }}>
+                            <div style={{ fontSize: 11.5, color: "#1a6bbf", fontWeight: 700, marginBottom: 3 }}>尚未接收</div>
+                            <div style={{ fontSize: 12.5, color: "#38506b", lineHeight: 1.5 }}>{msg.trainingLaunchCompletionCard.pendingNames.length ? msg.trainingLaunchCompletionCard.pendingNames.join("、") : "全部已进入学习"}</div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : msg.isTrainingDone ? (
