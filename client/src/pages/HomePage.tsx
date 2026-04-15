@@ -1084,14 +1084,20 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
     setTrainingTargetPickerOpen(false);
-    setMessages(prev => [
-      ...prev,
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: "好的，我们重新来过。先切换培训对象，再补充培训目的，我会重新为你整理题库。",
-      },
-    ]);
+    setMessages(prev => {
+      const filtered = prev.filter(
+        msg => !msg.trainingLaunchReceiptCard && !msg.trainingLaunchCompletionCard,
+      );
+
+      return [
+        ...filtered,
+        {
+          id: msgIdRef.current++,
+          role: "ai",
+          text: "好的，已退出当前培训发起流程。相关接收与完成卡片已收起；你可以重新选择培训对象并补充培训目的，我会重新为你整理题库。",
+        },
+      ];
+    });
   };
 
   const handleSubmitTrainingTargets = () => {
