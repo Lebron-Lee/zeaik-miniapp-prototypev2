@@ -2157,10 +2157,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         border: "1px solid rgba(241,214,190,0.92)",
                         boxShadow: "0 4px 14px rgba(232,117,10,0.08)",
                         display: "flex",
-                        flexDirection: "column",
+                        alignItems: "flex-end",
                         gap: 8,
                       }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
                           <div style={{
                             width: 86,
                             height: 86,
@@ -2190,7 +2190,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.48, fontWeight: 600 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
                           </div>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: -2 }}>
+                        <div style={{ display: "flex", alignItems: "flex-end", flexShrink: 0, paddingBottom: 2 }}>
                           <div style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700, lineHeight: 1.2 }}>
                             转发
                           </div>
