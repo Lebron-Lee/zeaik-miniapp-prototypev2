@@ -1397,7 +1397,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       background: "rgba(255,255,255,0.96)",
                     }}
                   >
-                    ⌘
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M5.5 19.2c1.6-2.7 4-4.2 6.5-4.2s4.9 1.5 6.5 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                   <div className="flex items-center justify-between gap-2" style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
