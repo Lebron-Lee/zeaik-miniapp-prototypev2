@@ -1014,48 +1014,20 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const startTrainingLaunchConversation = () => {
-    const defaultTargets = createDefaultTrainingTargetSet();
-    const defaultMembers = allTrainingLaunchMembers.filter(member => defaultTargets.has(member.id));
-    const defaultGroupLabels = TRAINING_LAUNCH_GROUPS.filter(group =>
-      group.members.some(member => defaultTargets.has(member.id)),
-    ).map(group => group.label);
-    const totalCount = defaultMembers.length;
-    const summaryNames = defaultMembers.map(member => member.name).join('、');
-    const targetSummary = `${summaryNames || `${totalCount}人`} · ${defaultGroupLabels.join(" / ") || "已选择"}`;
-    const recommendedBankTitle = (TRAINING_LAUNCH_BANKS.find(item => item.id === "service-standard") ?? TRAINING_LAUNCH_BANKS[0])?.title ?? "AI推荐题库";
-    const receiptCard = buildTrainingLaunchReceiptCard(defaultMembers, recommendedBankTitle, targetSummary);
-    const completionCard = buildTrainingLaunchCompletionCard(defaultMembers);
-
     setChatMode(true);
-    setTrainingLaunchStep(0);
+    setTrainingLaunchStep(1);
     setSelectedTrainingBankId(null);
-    setSelectedTrainingTargets(defaultTargets);
+    setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
     setTrainingTargetPickerOpen(false);
-    setInputText("");
+
+    if (trainingLaunchActive) return;
 
     setMessages(prev => [
       ...prev,
       { id: msgIdRef.current++, role: "user", text: "发起AI培训" },
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: `培训已发起成功。我已经把「${recommendedBankTitle}」发送给 ${summaryNames || `${totalCount}位员工`}，并会在当前会话里持续同步接收与完成情况。`,
-      },
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: "",
-        trainingLaunchReceiptCard: receiptCard,
-      },
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: "",
-        trainingLaunchCompletionCard: completionCard,
-      },
     ]);
   };
 
