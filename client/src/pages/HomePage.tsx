@@ -2156,12 +2156,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         background: "linear-gradient(180deg, rgba(255,251,246,0.98) 0%, rgba(255,255,255,0.98) 100%)",
                         border: "1px solid rgba(241,214,190,0.92)",
                         boxShadow: "0 4px 14px rgba(232,117,10,0.08)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 10,
                       }}>
-                        <div style={{ marginBottom: 10 }}>
-                          <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{msg.trainingLaunchQrCard.title}</div>
-                          <div style={{ fontSize: 12, color: "#8f6b47", marginTop: 3 }}>{msg.trainingLaunchQrCard.subtitle}</div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                           <div style={{
                             width: 94,
                             height: 94,
@@ -2187,16 +2186,12 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               )),
                             )}
                           </div>
-                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.targetSummary}</div>
-                            <div style={{ fontSize: 11.5, color: "#7e664f", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
+                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6, justifyContent: "center" }}>
+                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55, fontWeight: 600 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
                             <div style={{ fontSize: 11.5, color: "#8f6b47", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.tip}</div>
                           </div>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                          <div style={{ display: "inline-flex", alignItems: "center", padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
-                            {msg.trainingLaunchQrCard.codeLabel}
-                          </div>
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
                           <div style={{ padding: "5px 10px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
                             转发
                           </div>
