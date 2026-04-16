@@ -737,6 +737,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [trainingLaunchStep, setTrainingLaunchStep] = useState<0 | 1 | 2 | 3>(0);
   const [selectedTrainingBankId, setSelectedTrainingBankId] = useState<string | null>(null);
   const [selectedTrainingTargets, setSelectedTrainingTargets] = useState<Set<string>>(new Set(TRAINING_LAUNCH_GROUPS.flatMap(group => group.members.map(member => member.id))));
+  const [trainingTargetQuickKey, setTrainingTargetQuickKey] = useState<"all" | "group" | "management" | "store-manager" | "other" | null>("all");
   const [trainingLaunchIntent, setTrainingLaunchIntent] = useState("");
   const [trainingLaunchGoal, setTrainingLaunchGoal] = useState("");
   const [trainingLaunchUploadedFiles, setTrainingLaunchUploadedFiles] = useState<Array<{ name: string; sizeLabel: string }>>([]);
@@ -797,6 +798,26 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     group.members.some(member => selectedTrainingTargets.has(member.id)),
   ).map(group => group.label);
   const createDefaultTrainingTargetSet = () => new Set(allTrainingLaunchMembers.map(member => member.id));
+  const applyTrainingTargetQuickSelection = (key: "all" | "group" | "management" | "store-manager" | "other") => {
+    setTrainingTargetQuickKey(key);
+
+    if (key === "all") {
+      setSelectedTrainingTargets(createDefaultTrainingTargetSet());
+      return;
+    }
+
+    setSelectedTrainingTargets(new Set<string>());
+
+    const tipMap: Record<"group" | "management" | "store-manager" | "other", string> = {
+      group: "请在组织架构页细选集团对象",
+      management: "请在组织架构页细选管理层对象",
+      "store-manager": "请在组织架构页细选店长对象",
+      other: "请在组织架构页细选其它对象",
+    };
+
+    if (onOpenOrgTree) onOpenOrgTree();
+    else toast.info(tipMap[key]);
+  };
   const trainingLaunchActive = trainingLaunchStep > 0;
   const formatTrainingUploadSize = (size: number) => {
     if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
@@ -1017,6 +1038,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setChatMode(true);
     setTrainingLaunchStep(1);
     setSelectedTrainingBankId(null);
+    setTrainingTargetQuickKey("all");
     setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
@@ -1032,6 +1054,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const toggleTrainingTarget = (memberId: string) => {
+    setTrainingTargetQuickKey(null);
     setSelectedTrainingTargets(prev => {
       const next = new Set(prev);
       if (next.has(memberId)) next.delete(memberId);
@@ -1041,6 +1064,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const toggleTrainingGroup = (group: TrainingLaunchGroup) => {
+    setTrainingTargetQuickKey(null);
     setSelectedTrainingTargets(prev => {
       const next = new Set(prev);
       const allSelected = group.members.every(member => next.has(member.id));
@@ -1079,6 +1103,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const resetTrainingLaunchFlow = () => {
     setTrainingLaunchStep(1);
     setSelectedTrainingBankId(null);
+    setTrainingTargetQuickKey("all");
     setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
@@ -1147,6 +1172,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setChatMode(true);
     setTrainingLaunchStep(0);
     setSelectedTrainingBankId(null);
+    setTrainingTargetQuickKey("all");
     setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
@@ -1388,48 +1414,32 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       {
                         key: "all",
                         label: "全员",
-                        active: allSelected,
-                        onClick: () => {
-                          setSelectedTrainingTargets(prev => (
-                            prev.size === allTrainingLaunchMembers.length ? new Set<string>() : createDefaultTrainingTargetSet()
-                          ));
-                        },
+                        active: trainingTargetQuickKey === "all" || allSelected,
+                        onClick: () => applyTrainingTargetQuickSelection("all"),
                       },
                       {
                         key: "group",
                         label: "集团",
-                        active: false,
-                        onClick: () => {
-                          if (onOpenOrgTree) onOpenOrgTree();
-                          else toast.info("请在组织架构页细选集团对象");
-                        },
+                        active: trainingTargetQuickKey === "group",
+                        onClick: () => applyTrainingTargetQuickSelection("group"),
                       },
                       {
                         key: "management",
                         label: "管理层",
-                        active: false,
-                        onClick: () => {
-                          if (onOpenOrgTree) onOpenOrgTree();
-                          else toast.info("请在组织架构页细选管理层对象");
-                        },
+                        active: trainingTargetQuickKey === "management",
+                        onClick: () => applyTrainingTargetQuickSelection("management"),
                       },
                       {
                         key: "store-manager",
                         label: "店长",
-                        active: false,
-                        onClick: () => {
-                          if (onOpenOrgTree) onOpenOrgTree();
-                          else toast.info("请在组织架构页细选店长对象");
-                        },
+                        active: trainingTargetQuickKey === "store-manager",
+                        onClick: () => applyTrainingTargetQuickSelection("store-manager"),
                       },
                       {
                         key: "other",
                         label: "其它",
-                        active: false,
-                        onClick: () => {
-                          if (onOpenOrgTree) onOpenOrgTree();
-                          else toast.info("请在组织架构页细选其它对象");
-                        },
+                        active: trainingTargetQuickKey === "other",
+                        onClick: () => applyTrainingTargetQuickSelection("other"),
                       },
                     ].map(item => (
                       <button
