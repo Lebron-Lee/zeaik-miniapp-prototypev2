@@ -1372,7 +1372,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 10,
+                    gap: 8,
                     padding: "12px",
                     borderRadius: 18,
                     border: "1px solid rgba(242,223,206,0.92)",
@@ -1380,107 +1380,84 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     boxShadow: "0 8px 18px rgba(232,117,10,0.05), inset 0 1px 0 rgba(255,255,255,0.96)",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
-                    <div
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: 8,
-                        border: "1px solid rgba(232,117,10,0.18)",
-                        color: "#8f6b47",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        background: "rgba(255,255,255,0.96)",
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.96)",
-                      }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M5.5 19.2c1.6-2.7 4-4.2 6.5-4.2s4.9 1.5 6.5 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
-                        <span style={{ fontSize: 12, color: "#8f6b47", fontWeight: 600, letterSpacing: "0.02em" }}>对象</span>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                        {[
-                          {
-                            key: "all",
-                            label: "全员",
-                            active: allSelected,
-                            onClick: () => {
-                              setSelectedTrainingTargets(prev => (
-                                prev.size === allTrainingLaunchMembers.length ? new Set<string>() : createDefaultTrainingTargetSet()
-                              ));
-                            },
-                          },
-                          {
-                            key: "group",
-                            label: "集团",
-                            active: false,
-                            onClick: () => {
-                              if (onOpenOrgTree) onOpenOrgTree();
-                              else toast.info("请在组织架构页细选集团对象");
-                            },
-                          },
-                          {
-                            key: "management",
-                            label: "管理层",
-                            active: false,
-                            onClick: () => {
-                              if (onOpenOrgTree) onOpenOrgTree();
-                              else toast.info("请在组织架构页细选管理层对象");
-                            },
-                          },
-                          {
-                            key: "store-manager",
-                            label: "店长",
-                            active: false,
-                            onClick: () => {
-                              if (onOpenOrgTree) onOpenOrgTree();
-                              else toast.info("请在组织架构页细选店长对象");
-                            },
-                          },
-                          {
-                            key: "other",
-                            label: "其它",
-                            active: false,
-                            onClick: () => {
-                              if (onOpenOrgTree) onOpenOrgTree();
-                              else toast.info("请在组织架构页细选其它对象");
-                            },
-                          },
-                        ].map(item => (
-                          <button
-                            key={item.key}
-                            onClick={item.onClick}
-                            style={{
-                              border: item.active ? "1px solid rgba(232,117,10,0.32)" : "1px solid rgba(232,117,10,0.14)",
-                              borderRadius: 999,
-                              padding: "5px 10px",
-                              background: item.active ? "rgba(255,233,211,0.95)" : "rgba(255,255,255,0.92)",
-                              color: item.active ? "#c45e00" : "#8f6b47",
-                              fontSize: 12,
-                              fontWeight: item.active ? 600 : 500,
-                              lineHeight: 1.2,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {item.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+                    <span style={{ fontSize: 12, color: "#8f6b47", fontWeight: 600, letterSpacing: "0.02em" }}>对象</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    {[
+                      {
+                        key: "all",
+                        label: "全员",
+                        active: allSelected,
+                        onClick: () => {
+                          setSelectedTrainingTargets(prev => (
+                            prev.size === allTrainingLaunchMembers.length ? new Set<string>() : createDefaultTrainingTargetSet()
+                          ));
+                        },
+                      },
+                      {
+                        key: "group",
+                        label: "集团",
+                        active: false,
+                        onClick: () => {
+                          if (onOpenOrgTree) onOpenOrgTree();
+                          else toast.info("请在组织架构页细选集团对象");
+                        },
+                      },
+                      {
+                        key: "management",
+                        label: "管理层",
+                        active: false,
+                        onClick: () => {
+                          if (onOpenOrgTree) onOpenOrgTree();
+                          else toast.info("请在组织架构页细选管理层对象");
+                        },
+                      },
+                      {
+                        key: "store-manager",
+                        label: "店长",
+                        active: false,
+                        onClick: () => {
+                          if (onOpenOrgTree) onOpenOrgTree();
+                          else toast.info("请在组织架构页细选店长对象");
+                        },
+                      },
+                      {
+                        key: "other",
+                        label: "其它",
+                        active: false,
+                        onClick: () => {
+                          if (onOpenOrgTree) onOpenOrgTree();
+                          else toast.info("请在组织架构页细选其它对象");
+                        },
+                      },
+                    ].map(item => (
+                      <button
+                        key={item.key}
+                        onClick={item.onClick}
+                        style={{
+                          border: item.active ? "1px solid rgba(232,117,10,0.32)" : "1px solid rgba(232,117,10,0.14)",
+                          borderRadius: 999,
+                          padding: "5px 10px",
+                          background: item.active ? "rgba(255,233,211,0.95)" : "rgba(255,255,255,0.92)",
+                          color: item.active ? "#c45e00" : "#8f6b47",
+                          fontSize: 12,
+                          fontWeight: item.active ? 600 : 500,
+                          lineHeight: 1.2,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
+
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 10,
+                    gap: 8,
                     padding: "12px",
                     borderRadius: 18,
                     border: "1px solid rgba(242,223,206,0.92)",
@@ -1488,76 +1465,55 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     boxShadow: "0 8px 18px rgba(232,117,10,0.04), inset 0 1px 0 rgba(255,255,255,0.96)",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
-                    <div
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: 8,
-                        border: "1px solid rgba(232,117,10,0.18)",
-                        color: "#8f6b47",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        background: "rgba(255,255,255,0.96)",
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.96)",
-                      }}
-                    >
-                      ✦
-                    </div>
-                    <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center" }}>
-                        <span style={{ fontSize: 12, color: "#8f6b47", fontWeight: 600, letterSpacing: "0.02em" }}>内容</span>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-start" }}>
-                        {[
-                          { label: "资料库", onClick: () => toast.info("资料库功能即将开放") },
-                          { label: "录音", onClick: () => toast.info("录音功能即将开放") },
-                          { label: "上传", onClick: handleTrainingLaunchUploadTrigger },
-                        ].map(action => (
-                          <button
-                            key={action.label}
-                            onClick={action.onClick}
-                            style={{
-                              border: "1px solid rgba(232,117,10,0.14)",
-                              borderRadius: 999,
-                              padding: "5px 10px",
-                              background: "rgba(255,248,241,0.96)",
-                              color: "#8f6b47",
-                              fontSize: 12,
-                              fontWeight: 500,
-                              lineHeight: 1.2,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {action.label}
-                          </button>
-                        ))}
-                      </div>
-                      {trainingLaunchUploadedFiles.length > 0 && (
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 2 }}>
-                          {trainingLaunchUploadedFiles.map(file => (
-                            <div
-                              key={`${file.name}-${file.sizeLabel}`}
-                              style={{
-                                borderRadius: 999,
-                                background: "rgba(255,250,245,0.98)",
-                                border: "1px solid rgba(241,214,190,0.82)",
-                                padding: "7px 10px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 6,
-                              }}
-                            >
-                              <span style={{ fontSize: 12, color: "#000000", fontWeight: 500 }}>{file.name}</span>
-                              <span style={{ fontSize: 11, color: "#6b6b6b" }}>{file.sizeLabel}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <span style={{ fontSize: 12, color: "#8f6b47", fontWeight: 600, letterSpacing: "0.02em" }}>内容</span>
                   </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-start" }}>
+                    {[
+                      { label: "资料库", onClick: () => toast.info("资料库功能即将开放") },
+                      { label: "录音", onClick: () => toast.info("录音功能即将开放") },
+                      { label: "上传", onClick: handleTrainingLaunchUploadTrigger },
+                    ].map(action => (
+                      <button
+                        key={action.label}
+                        onClick={action.onClick}
+                        style={{
+                          border: "1px solid rgba(232,117,10,0.14)",
+                          borderRadius: 999,
+                          padding: "5px 10px",
+                          background: "rgba(255,248,241,0.96)",
+                          color: "#8f6b47",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          lineHeight: 1.2,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {action.label}
+                      </button>
+                    ))}
+                  </div>
+                  {trainingLaunchUploadedFiles.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 2 }}>
+                      {trainingLaunchUploadedFiles.map(file => (
+                        <div
+                          key={`${file.name}-${file.sizeLabel}`}
+                          style={{
+                            borderRadius: 999,
+                            background: "rgba(255,250,245,0.98)",
+                            border: "1px solid rgba(241,214,190,0.82)",
+                            padding: "7px 10px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                          }}
+                        >
+                          <span style={{ fontSize: 12, color: "#000000", fontWeight: 500 }}>{file.name}</span>
+                          <span style={{ fontSize: 11, color: "#6b6b6b" }}>{file.sizeLabel}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <input
                     ref={trainingLaunchUploadRef}
                     type="file"
