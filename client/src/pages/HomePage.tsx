@@ -352,6 +352,7 @@ interface TrainingLaunchQrCard {
   title: string;
   subtitle: string;
   targetSummary: string;
+  focusSummary: string;
   tip: string;
   codeLabel: string;
 }
@@ -874,11 +875,13 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const buildTrainingLaunchQrCard = (
     bankTitle: string,
     targetSummary: string,
+    intentSummary: string,
   ): TrainingLaunchQrCard => ({
     title: "本次培训小程序码",
-    subtitle: `微信扫码即可进入「${bankTitle}」培训`,
+    subtitle: `扫码即可进入「${bankTitle}」`,
     targetSummary,
-    tip: "员工扫码后可直接进入培训流程，系统会自动归入本次培训组织。",
+    focusSummary: `培训重点：${intentSummary}`,
+    tip: "员工扫码后即可开始培训并自动归位。",
     codeLabel: "Zeaik Training",
   });
   const buildTrainingLaunchReceiptCard = (
@@ -1202,8 +1205,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
     const receiptCard = buildTrainingLaunchReceiptCard(selectedTrainingMembers, recommendedBankTitle, targetSummary);
     const completionCard = buildTrainingLaunchCompletionCard(selectedTrainingMembers);
-    const qrCard = buildTrainingLaunchQrCard(recommendedBankTitle, targetSummary);
     const intentSummary = trainingLaunchIntent.trim() || trainingLaunchGoal.trim() || "根据上传资料自动生成题库";
+    const qrCard = buildTrainingLaunchQrCard(recommendedBankTitle, targetSummary, intentSummary);
 
     setChatMode(true);
     setTrainingLaunchStep(0);
@@ -1222,11 +1225,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         id: msgIdRef.current++,
         role: "user",
         text: `发起培训：${summaryNames || `${totalCount}人`}；题库：${recommendedBankTitle}`,
-      },
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: `培训已发起成功。我已经把「${recommendedBankTitle}」发送给 ${summaryNames || `${totalCount}位员工`}，并会在当前会话里持续同步接收与完成情况。当前培训重点：${intentSummary}。`,
       },
       {
         id: msgIdRef.current++,
@@ -2159,16 +2157,11 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         border: "1px solid rgba(241,214,190,0.92)",
                         boxShadow: "0 4px 14px rgba(232,117,10,0.08)",
                       }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
-                          <div>
-                            <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{msg.trainingLaunchQrCard.title}</div>
-                            <div style={{ fontSize: 12, color: "#8f6b47", marginTop: 3 }}>{msg.trainingLaunchQrCard.subtitle}</div>
-                          </div>
-                          <div style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
-                            立即转发
-                          </div>
+                        <div style={{ marginBottom: 10 }}>
+                          <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{msg.trainingLaunchQrCard.title}</div>
+                          <div style={{ fontSize: 12, color: "#8f6b47", marginTop: 3 }}>{msg.trainingLaunchQrCard.subtitle}</div>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
                           <div style={{
                             width: 94,
                             height: 94,
@@ -2194,12 +2187,18 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               )),
                             )}
                           </div>
-                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 7 }}>
+                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
                             <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.targetSummary}</div>
+                            <div style={{ fontSize: 11.5, color: "#7e664f", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
                             <div style={{ fontSize: 11.5, color: "#8f6b47", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.tip}</div>
-                            <div style={{ display: "inline-flex", alignItems: "center", alignSelf: "flex-start", padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
-                              {msg.trainingLaunchQrCard.codeLabel}
-                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                          <div style={{ display: "inline-flex", alignItems: "center", padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
+                            {msg.trainingLaunchQrCard.codeLabel}
+                          </div>
+                          <div style={{ padding: "5px 10px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
+                            转发
                           </div>
                         </div>
                       </div>
