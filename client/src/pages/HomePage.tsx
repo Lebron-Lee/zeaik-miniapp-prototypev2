@@ -1367,14 +1367,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             }}
           >
             {trainingLaunchStep !== 3 ? (
-              <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8, background: "#ffffff" }}>
+              <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 10, background: "#ffffff" }}>
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     gap: 10,
                     minWidth: 0,
-                    padding: "10px 12px",
+                    padding: "11px 12px",
                     borderRadius: 16,
                     border: "1px solid rgba(242,223,206,0.92)",
                     background: "rgba(255,251,247,0.96)",
@@ -1402,7 +1402,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       <path d="M5.5 19.2c1.6-2.7 4-4.2 6.5-4.2s4.9 1.5 6.5 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <div className="flex items-start gap-2" style={{ minWidth: 0, flex: 1 }}>
+                  <div className="flex items-start gap-2.5" style={{ minWidth: 0, flex: 1, paddingTop: 1 }}>
                     <span style={{ fontSize: 12, color: "#000000", fontWeight: 500, lineHeight: "28px", whiteSpace: "nowrap" }}>对象：</span>
                     <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", flex: 1 }}>
                       {[
@@ -1477,10 +1477,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     gap: 10,
                     minWidth: 0,
-                    padding: "10px 12px",
+                    padding: "11px 12px",
                     borderRadius: 16,
                     border: "1px solid rgba(242,223,206,0.92)",
                     background: "#ffffff",
@@ -1505,9 +1505,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   >
                     ✦
                   </div>
-                  <div className="flex items-center justify-between gap-2" style={{ minWidth: 0, flex: 1, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap", textAlign: "left" }}>内容：</span>
-                    <div className="flex items-center gap-2" style={{ marginLeft: "auto", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <div className="flex items-start gap-2.5" style={{ minWidth: 0, flex: 1, flexWrap: "wrap", paddingTop: 1 }}>
+                    <span style={{ fontSize: 12, lineHeight: "28px", color: "#000000", whiteSpace: "nowrap", textAlign: "left" }}>内容：</span>
+                    <div className="flex items-center gap-2" style={{ flexWrap: "wrap", justifyContent: "flex-start" }}>
                       <button
                         onClick={() => toast.info("资料库功能即将开放")}
                         style={{
@@ -1518,6 +1518,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           color: "#8f6b47",
                           fontSize: 12,
                           fontWeight: 500,
+                          lineHeight: 1.2,
                           flexShrink: 0,
                         }}
                       >
@@ -1533,6 +1534,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           color: "#8f6b47",
                           fontSize: 12,
                           fontWeight: 500,
+                          lineHeight: 1.2,
                           flexShrink: 0,
                         }}
                       >
@@ -1541,14 +1543,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       <button
                         onClick={handleTrainingLaunchUploadTrigger}
                         style={{
-                          border: "none",
+                          border: "1px solid rgba(232,117,10,0.14)",
                           borderRadius: 999,
-                          padding: "6px 14px",
-                          background: "rgba(255,233,211,0.95)",
-                          color: "#000000",
+                          padding: "5px 10px",
+                          background: "rgba(255,248,241,0.96)",
+                          color: "#8f6b47",
                           fontSize: 12,
-                          fontWeight: 600,
-                          boxShadow: "0 4px 10px rgba(232,117,10,0.06)",
+                          fontWeight: 500,
+                          lineHeight: 1.2,
                           flexShrink: 0,
                         }}
                       >
