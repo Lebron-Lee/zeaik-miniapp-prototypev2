@@ -2149,29 +2149,29 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       </div>
                     </div>
                   ) : msg.trainingLaunchQrCard ? (
-                    <div style={{ padding: "12px" }}>
+                    <div style={{ padding: "8px 10px 10px" }}>
                       <div style={{
                         borderRadius: 13,
-                        padding: "12px",
+                        padding: "10px",
                         background: "linear-gradient(180deg, rgba(255,251,246,0.98) 0%, rgba(255,255,255,0.98) 100%)",
                         border: "1px solid rgba(241,214,190,0.92)",
                         boxShadow: "0 4px 14px rgba(232,117,10,0.08)",
                         display: "flex",
                         flexDirection: "column",
-                        gap: 10,
+                        gap: 8,
                       }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div style={{
-                            width: 94,
-                            height: 94,
-                            padding: 8,
-                            borderRadius: 14,
+                            width: 86,
+                            height: 86,
+                            padding: 7,
+                            borderRadius: 12,
                             background: "#fff",
                             border: "1px solid rgba(226,213,199,0.9)",
                             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.96)",
                             display: "grid",
                             gridTemplateColumns: "repeat(14, 1fr)",
-                            gap: 2,
+                            gap: 1.5,
                             flexShrink: 0,
                           }}>
                             {TRAINING_LAUNCH_QR_MATRIX.flatMap((row, rowIndex) =>
@@ -2186,12 +2186,12 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               )),
                             )}
                           </div>
-                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55, fontWeight: 600 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
+                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", flex: 1 }}>
+                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.48, fontWeight: 600 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
                           </div>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                          <div style={{ padding: "5px 10px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: -2 }}>
+                          <div style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700, lineHeight: 1.2 }}>
                             转发
                           </div>
                         </div>
