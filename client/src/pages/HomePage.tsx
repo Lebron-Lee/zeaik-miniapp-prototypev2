@@ -1027,7 +1027,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
     setMessages(prev => [
       ...prev,
-      { id: msgIdRef.current++, role: "user", text: "发起碎片化培训" },
+      { id: msgIdRef.current++, role: "user", text: "发起AI培训" },
     ]);
   };
 
