@@ -880,7 +880,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     title: "本次培训小程序码",
     subtitle: `扫码即可进入「${bankTitle}」`,
     targetSummary,
-    focusSummary: `培训重点：${intentSummary}`,
+    focusSummary: intentSummary,
     tip: "员工扫码后即可开始培训并自动归位。",
     codeLabel: "Zeaik Training",
   });
@@ -2186,9 +2186,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               )),
                             )}
                           </div>
-                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6, justifyContent: "center" }}>
+                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                             <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55, fontWeight: 600 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
-                            <div style={{ fontSize: 11.5, color: "#8f6b47", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.tip}</div>
                           </div>
                         </div>
                         <div style={{ display: "flex", justifyContent: "flex-end" }}>
