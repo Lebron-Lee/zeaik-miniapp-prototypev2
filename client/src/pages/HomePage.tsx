@@ -1402,9 +1402,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       </svg>
                     </div>
                     <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
                         <span style={{ fontSize: 12, color: "#8f6b47", fontWeight: 600, letterSpacing: "0.02em" }}>对象</span>
-                        <span style={{ fontSize: 12, color: "#7d6b59", lineHeight: 1.5 }}>{targetSummary}</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                         {[
@@ -1508,9 +1507,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       ✦
                     </div>
                     <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
                         <span style={{ fontSize: 12, color: "#8f6b47", fontWeight: 600, letterSpacing: "0.02em" }}>内容</span>
-                        <span style={{ fontSize: 12, color: "#7d6b59", lineHeight: 1.5 }}>选择资料来源后即可生成培训内容</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-start" }}>
                         {[
