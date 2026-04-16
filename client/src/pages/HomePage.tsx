@@ -1367,76 +1367,141 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             }}
           >
             {trainingLaunchStep !== 3 ? (
-              <div style={{ padding: 0, display: "flex", flexDirection: "column", gap: 0, background: "#ffffff" }}>
-                <div className="flex items-center justify-between gap-3" style={{ minWidth: 0, padding: "13px 14px 10px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
-                    <div
+              <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8, background: "#ffffff" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    minWidth: 0,
+                    padding: "10px 12px",
+                    borderRadius: 16,
+                    border: "1px solid rgba(242,223,206,0.92)",
+                    background: "rgba(255,251,247,0.96)",
+                    boxShadow: "0 6px 14px rgba(232,117,10,0.04), inset 0 1px 0 rgba(255,255,255,0.96)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: 7,
+                      border: "1px solid rgba(232,117,10,0.18)",
+                      color: "#8f6b47",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 11,
+                      fontWeight: 800,
+                      flexShrink: 0,
+                      background: "rgba(255,255,255,0.96)",
+                    }}
+                  >
+                    ⌘
+                  </div>
+                  <div className="flex items-center justify-between gap-2" style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 12, color: "#000000", fontWeight: 500 }}>对象：</span>
+                      <span style={{ fontSize: 12.5, color: "#5c58e9", fontWeight: 500 }}>{targetSummary}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (onOpenOrgTree) onOpenOrgTree();
+                        else toast.info("请在组织架构页切换培训对象");
+                      }}
                       style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: 999,
-                        border: "1.5px solid rgba(232,117,10,0.22)",
+                        border: "none",
+                        padding: "0 2px",
+                        background: "transparent",
                         color: "#8f6b47",
+                        fontSize: 12,
+                        fontWeight: 500,
                         display: "inline-flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 13,
-                        fontWeight: 800,
+                        gap: 4,
                         flexShrink: 0,
-                        background: "rgba(255,255,255,0.92)",
+                        textDecoration: "underline",
+                        textUnderlineOffset: 2,
                       }}
                     >
-                      ⌘
-                    </div>
-                    <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 13, color: "#000000", fontWeight: 500 }}>培训对象</span>
-                      <span style={{ fontSize: 13, color: "#5c58e9", fontWeight: 500 }}>{targetSummary}</span>
-                      <button
-                        onClick={() => {
-                          if (onOpenOrgTree) onOpenOrgTree();
-                          else toast.info("请在组织架构页切换培训对象");
-                        }}
-                        style={{
-                          border: "none",
-                          padding: "0 2px",
-                          background: "transparent",
-                          color: "#8f6b47",
-                          fontSize: 13,
-                          fontWeight: 500,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
-                          flexShrink: 0,
-                          textDecoration: "underline",
-                          textUnderlineOffset: 2,
-                        }}
-                      >
-                        <span style={{ fontSize: 12, lineHeight: 1 }}>↗</span>
-                        <span>切换</span>
-                      </button>
-                    </div>
+                      <span style={{ fontSize: 11, lineHeight: 1 }}>↗</span>
+                      <span>切换</span>
+                    </button>
                   </div>
                 </div>
                 <div
                   style={{
-                    borderRadius: 18,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    minWidth: 0,
+                    padding: "10px 12px",
+                    borderRadius: 16,
                     border: "1px solid rgba(242,223,206,0.92)",
                     background: "#ffffff",
-                    padding: "10px 14px",
                     boxShadow: "0 6px 14px rgba(232,117,10,0.04), inset 0 1px 0 rgba(255,255,255,0.96)",
                   }}
                 >
-                  <div className="flex items-center justify-between gap-2" style={{ minWidth: 0 }}>
-                    <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap", textAlign: "left" }}>如有相关文件资料可直接上传</span>
-                    <button
+                  <div
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: 7,
+                      border: "1px solid rgba(232,117,10,0.18)",
+                      color: "#8f6b47",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 11,
+                      fontWeight: 800,
+                      flexShrink: 0,
+                      background: "rgba(255,255,255,0.96)",
+                    }}
+                  >
+                    ✦
+                  </div>
+                  <div className="flex items-center justify-between gap-2" style={{ minWidth: 0, flex: 1, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 12, lineHeight: 1.4, color: "#000000", whiteSpace: "nowrap", textAlign: "left" }}>内容：</span>
+                    <div className="flex items-center gap-2" style={{ marginLeft: "auto", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      <button
+                        onClick={() => toast.info("资料库功能即将开放")}
+                        style={{
+                          border: "1px solid rgba(232,117,10,0.14)",
+                          borderRadius: 999,
+                          padding: "5px 10px",
+                          background: "rgba(255,248,241,0.96)",
+                          color: "#8f6b47",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          flexShrink: 0,
+                        }}
+                      >
+                        资料库
+                      </button>
+                      <button
+                        onClick={() => toast.info("录音功能即将开放")}
+                        style={{
+                          border: "1px solid rgba(232,117,10,0.14)",
+                          borderRadius: 999,
+                          padding: "5px 10px",
+                          background: "rgba(255,248,241,0.96)",
+                          color: "#8f6b47",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          flexShrink: 0,
+                        }}
+                      >
+                        录音
+                      </button>
+                      <button
                         onClick={handleTrainingLaunchUploadTrigger}
                         style={{
                           border: "none",
                           borderRadius: 999,
-                          padding: "6px 16px",
+                          padding: "6px 14px",
                           background: "rgba(255,233,211,0.95)",
                           color: "#000000",
-                          fontSize: 12.5,
+                          fontSize: 12,
                           fontWeight: 600,
                           boxShadow: "0 4px 10px rgba(232,117,10,0.06)",
                           flexShrink: 0,
@@ -1444,6 +1509,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       >
                         上传
                       </button>
+                    </div>
                   </div>
                   <input
                     ref={trainingLaunchUploadRef}
