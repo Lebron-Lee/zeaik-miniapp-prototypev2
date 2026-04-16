@@ -348,6 +348,14 @@ interface TrainingLaunchCompletionCard {
   pendingNames: string[];
 }
 
+interface TrainingLaunchQrCard {
+  title: string;
+  subtitle: string;
+  targetSummary: string;
+  tip: string;
+  codeLabel: string;
+}
+
 type Message = {
   id: number;
   role: "user" | "ai";
@@ -363,6 +371,7 @@ type Message = {
   trainingScore?: number;
   trainingLaunchReceiptCard?: TrainingLaunchReceiptCard;
   trainingLaunchCompletionCard?: TrainingLaunchCompletionCard;
+  trainingLaunchQrCard?: TrainingLaunchQrCard;
 };
 
 interface TrainingLaunchBankOption {
@@ -846,6 +855,32 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     return TRAINING_LAUNCH_BANKS.find(item => item.id === "service-standard") ?? TRAINING_LAUNCH_BANKS[0];
   };
   const selectedTrainingBank = getAutoRecommendedTrainingBank();
+  const TRAINING_LAUNCH_QR_MATRIX = [
+    "1111111001101",
+    "1000001010101",
+    "1011101011101",
+    "1011101000101",
+    "1011101011101",
+    "1000001000001",
+    "1111111011111",
+    "0001000010010",
+    "1110111010111",
+    "1000100010001",
+    "1111101110111",
+    "1000001000101",
+    "1011101011101",
+    "1111111001111",
+  ];
+  const buildTrainingLaunchQrCard = (
+    bankTitle: string,
+    targetSummary: string,
+  ): TrainingLaunchQrCard => ({
+    title: "本次培训小程序码",
+    subtitle: `微信扫码即可进入「${bankTitle}」培训`,
+    targetSummary,
+    tip: "员工扫码后可直接进入培训流程，系统会自动归入本次培训组织。",
+    codeLabel: "Zeaik Training",
+  });
   const buildTrainingLaunchReceiptCard = (
     members: typeof selectedTrainingMembers,
     bankTitle: string,
@@ -1111,7 +1146,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingTargetPickerOpen(false);
     setMessages(prev => {
       const filtered = prev.filter(
-        msg => !msg.trainingLaunchReceiptCard && !msg.trainingLaunchCompletionCard,
+        msg => !msg.trainingLaunchReceiptCard && !msg.trainingLaunchCompletionCard && !msg.trainingLaunchQrCard,
       );
 
       return [
@@ -1167,6 +1202,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
     const receiptCard = buildTrainingLaunchReceiptCard(selectedTrainingMembers, recommendedBankTitle, targetSummary);
     const completionCard = buildTrainingLaunchCompletionCard(selectedTrainingMembers);
+    const qrCard = buildTrainingLaunchQrCard(recommendedBankTitle, targetSummary);
     const intentSummary = trainingLaunchIntent.trim() || trainingLaunchGoal.trim() || "根据上传资料自动生成题库";
 
     setChatMode(true);
@@ -1196,6 +1232,12 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         id: msgIdRef.current++,
         role: "ai",
         text: "",
+        trainingLaunchQrCard: qrCard,
+      },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: "",
         trainingLaunchReceiptCard: receiptCard,
       },
       {
@@ -1208,7 +1250,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const isTrainingConversation = fromTrainingScan || trainingRegistered || trainingIsActive || trainingIsFeedback || messages.some(
-    msg => msg.trainingCard || msg.isQuestion || msg.isTrainingDone || msg.trainingLaunchReceiptCard || msg.trainingLaunchCompletionCard,
+    msg => msg.trainingCard || msg.isQuestion || msg.isTrainingDone || msg.trainingLaunchReceiptCard || msg.trainingLaunchCompletionCard || msg.trainingLaunchQrCard,
   );
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -2106,6 +2148,60 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             ✅ 已注册，培训进行中
                           </div>
                         )}
+                      </div>
+                    </div>
+                  ) : msg.trainingLaunchQrCard ? (
+                    <div style={{ padding: "12px" }}>
+                      <div style={{
+                        borderRadius: 13,
+                        padding: "12px",
+                        background: "linear-gradient(180deg, rgba(255,251,246,0.98) 0%, rgba(255,255,255,0.98) 100%)",
+                        border: "1px solid rgba(241,214,190,0.92)",
+                        boxShadow: "0 4px 14px rgba(232,117,10,0.08)",
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+                          <div>
+                            <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{msg.trainingLaunchQrCard.title}</div>
+                            <div style={{ fontSize: 12, color: "#8f6b47", marginTop: 3 }}>{msg.trainingLaunchQrCard.subtitle}</div>
+                          </div>
+                          <div style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
+                            立即转发
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{
+                            width: 94,
+                            height: 94,
+                            padding: 8,
+                            borderRadius: 14,
+                            background: "#fff",
+                            border: "1px solid rgba(226,213,199,0.9)",
+                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.96)",
+                            display: "grid",
+                            gridTemplateColumns: "repeat(14, 1fr)",
+                            gap: 2,
+                            flexShrink: 0,
+                          }}>
+                            {TRAINING_LAUNCH_QR_MATRIX.flatMap((row, rowIndex) =>
+                              row.split("").map((cell, cellIndex) => (
+                                <div
+                                  key={`${rowIndex}-${cellIndex}`}
+                                  style={{
+                                    borderRadius: 1.5,
+                                    background: cell === "1" ? "#1f1f1f" : "transparent",
+                                  }}
+                                />
+                              )),
+                            )}
+                          </div>
+                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 7 }}>
+                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.targetSummary}</div>
+                            <div style={{ fontSize: 11.5, color: "#8f6b47", lineHeight: 1.55 }}>{msg.trainingLaunchQrCard.tip}</div>
+                            <div style={{ display: "inline-flex", alignItems: "center", alignSelf: "flex-start", padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c45e00", fontSize: 11, fontWeight: 700 }}>
+                              {msg.trainingLaunchQrCard.codeLabel}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : msg.trainingLaunchReceiptCard ? (
