@@ -1402,34 +1402,76 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       <path d="M5.5 19.2c1.6-2.7 4-4.2 6.5-4.2s4.9 1.5 6.5 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <div className="flex items-center justify-between gap-2" style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 12, color: "#000000", fontWeight: 500 }}>对象：</span>
-                      <span style={{ fontSize: 12.5, color: "#5c58e9", fontWeight: 500 }}>{targetSummary}</span>
+                  <div className="flex items-start gap-2" style={{ minWidth: 0, flex: 1 }}>
+                    <span style={{ fontSize: 12, color: "#000000", fontWeight: 500, lineHeight: "28px", whiteSpace: "nowrap" }}>对象：</span>
+                    <div style={{ minWidth: 0, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", flex: 1 }}>
+                      {[
+                        {
+                          key: "all",
+                          label: "全员",
+                          active: allSelected,
+                          onClick: () => {
+                            setSelectedTrainingTargets(prev => (
+                              prev.size === allTrainingLaunchMembers.length ? new Set<string>() : createDefaultTrainingTargetSet()
+                            ));
+                          },
+                        },
+                        {
+                          key: "group",
+                          label: "集团",
+                          active: false,
+                          onClick: () => {
+                            if (onOpenOrgTree) onOpenOrgTree();
+                            else toast.info("请在组织架构页细选集团对象");
+                          },
+                        },
+                        {
+                          key: "management",
+                          label: "管理层",
+                          active: false,
+                          onClick: () => {
+                            if (onOpenOrgTree) onOpenOrgTree();
+                            else toast.info("请在组织架构页细选管理层对象");
+                          },
+                        },
+                        {
+                          key: "store-manager",
+                          label: "店长",
+                          active: false,
+                          onClick: () => {
+                            if (onOpenOrgTree) onOpenOrgTree();
+                            else toast.info("请在组织架构页细选店长对象");
+                          },
+                        },
+                        {
+                          key: "other",
+                          label: "其它",
+                          active: false,
+                          onClick: () => {
+                            if (onOpenOrgTree) onOpenOrgTree();
+                            else toast.info("请在组织架构页细选其它对象");
+                          },
+                        },
+                      ].map(item => (
+                        <button
+                          key={item.key}
+                          onClick={item.onClick}
+                          style={{
+                            border: item.active ? "1px solid rgba(232,117,10,0.3)" : "1px solid rgba(232,117,10,0.14)",
+                            borderRadius: 999,
+                            padding: "5px 10px",
+                            background: item.active ? "rgba(255,233,211,0.95)" : "rgba(255,248,241,0.96)",
+                            color: item.active ? "#c45e00" : "#8f6b47",
+                            fontSize: 12,
+                            fontWeight: item.active ? 600 : 500,
+                            lineHeight: 1.2,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
                     </div>
-                    <button
-                      onClick={() => {
-                        if (onOpenOrgTree) onOpenOrgTree();
-                        else toast.info("请在组织架构页切换培训对象");
-                      }}
-                      style={{
-                        border: "none",
-                        padding: "0 2px",
-                        background: "transparent",
-                        color: "#8f6b47",
-                        fontSize: 12,
-                        fontWeight: 500,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4,
-                        flexShrink: 0,
-                        textDecoration: "underline",
-                        textUnderlineOffset: 2,
-                      }}
-                    >
-                      <span style={{ fontSize: 11, lineHeight: 1 }}>↗</span>
-                      <span>切换</span>
-                    </button>
                   </div>
                 </div>
                 <div
