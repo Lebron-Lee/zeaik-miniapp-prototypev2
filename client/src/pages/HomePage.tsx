@@ -177,7 +177,7 @@ const SHORTCUT_BTNS = [
   { Icon: IcInspect,  label: "AI巡检" },
   { Icon: IcService,  label: "服务检测" },
   { Icon: IcIntercom, label: "智能对讲" },
-  { Icon: IcTraining, label: "碎片化培训" },
+  { Icon: IcTraining, label: "AI培训" },
 ];
 
 // 问题列表：每条问题配独立icon和颜色（蚂蚁阿福风格）
@@ -2506,7 +2506,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               <button
                 key={i}
                 onClick={() => {
-                  if (!isLoggedIn && label !== "碎片化培训" && label !== "培训智能体") {
+                  if (!isLoggedIn && label !== "AI培训" && label !== "碎片化培训" && label !== "培训智能体") {
                     // 第一阶段：未登录，触发登录提示
                     onRequestLogin?.(label);
                   } else if (label === "工资日结") {
@@ -2523,7 +2523,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     onOpenStoreAiModel?.();
                   } else if (label === "集团AI") {
                     onOpenGroupAiModel?.();
-                  } else if (label === "碎片化培训" || label === "培训智能体") {
+                  } else if (label === "AI培训" || label === "碎片化培训" || label === "培训智能体") {
                     startTrainingLaunchConversation();
                   } else {
                     toast.info(`${label}功能即将开放`);
