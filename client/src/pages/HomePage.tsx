@@ -1361,79 +1361,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               borderRadius: "4px 20px 20px 20px",
               overflow: "hidden",
               background: "rgba(255,255,255,0.98)",
-              border: "1px solid rgba(241,208,175,0.72)",
-              boxShadow: "0 10px 20px rgba(232,117,10,0.08), inset 0 1px 0 rgba(255,255,255,0.88)",
-              backdropFilter: "blur(18px)",
-            }}
-          >
-            <div
-              style={{
-                padding: "10px 14px 9px",
-                background: "linear-gradient(135deg, rgba(255,244,234,0.98) 0%, rgba(255,236,220,0.98) 58%, rgba(255,229,210,0.98) 100%)",
-                color: "#000000",
-              }}
-            >
-              <div className="flex items-center justify-start gap-2">
-                <div style={{ fontSize: 14, lineHeight: 1.5, color: "#000000", textAlign: "left", paddingLeft: 0 }}>
-                  告诉我培训需求，我来帮你快速配好题库。
-                </div>
-                <button
-                  onClick={resetTrainingLaunchFlow}
-                  style={{
-                    border: "1px solid rgba(232,117,10,0.18)",
-                    background: "rgba(255,255,255,0.65)",
-                    color: "#000",
-                    borderRadius: 999,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    padding: "4px 9px",
-                    lineHeight: 1.2,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  退出
-                </button>
-              </div>
-            </div>
-
-            <div style={{ padding: "14px", background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,251,247,0.98) 100%)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                {[
-                  { index: 1, title: "选择培训对象", done: hasTargets || trainingLaunchStep === 3 },
-                  { index: 2, title: "描述目的并自动成题库", done: hasIntent || trainingLaunchStep === 3 },
-                ].map((item, idx) => (
-                  <React.Fragment key={item.index}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 999,
-                          background: item.done ? "rgba(255,227,200,0.95)" : "rgba(248,238,229,0.95)",
-                          color: "#000",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {item.done ? "✓" : `0${item.index}`}
-                      </div>
-                      <div style={{ fontSize: 13, fontWeight: 400, color: "#000000" }}>{item.title}</div>
-                    </div>
-                    {idx === 0 && <div style={{ fontSize: 18, color: "#c7b4a1" }}>›</div>}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              borderRadius: "4px 20px 20px 20px",
-              overflow: "hidden",
-              background: "rgba(255,255,255,0.98)",
               border: "1px solid rgba(241,214,190,0.82)",
               boxShadow: "0 10px 22px rgba(232,117,10,0.06), inset 0 1px 0 rgba(255,255,255,0.92)",
               backdropFilter: "blur(18px)",
@@ -1806,17 +1733,18 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       </div>
 
       {/* ── 今日经营卡片 ── */}
-      <div
-        className="mx-3 mt-2 rounded-2xl"
-        style={{
-          background: "rgba(255,255,255,0.92)",
-          backdropFilter: "blur(20px)",
-          boxShadow: "0 4px 20px rgba(100,80,140,0.08), 0 1px 4px rgba(0,0,0,0.04)",
-          border: "1px solid rgba(220,210,240,0.4)",
-          position: "relative", zIndex: 30,
-          overflow: "hidden",
-        }}
-      >
+      {!trainingLaunchActive && (
+        <div
+          className="mx-3 mt-2 rounded-2xl"
+          style={{
+            background: "rgba(255,255,255,0.92)",
+            backdropFilter: "blur(20px)",
+            boxShadow: "0 4px 20px rgba(100,80,140,0.08), 0 1px 4px rgba(0,0,0,0.04)",
+            border: "1px solid rgba(220,210,240,0.4)",
+            position: "relative", zIndex: 30,
+            overflow: "hidden",
+          }}
+        >
 
             {isTrainingConversation ? (
               <>
@@ -1995,7 +1923,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                 </div>
               </>
             )}
-      </div>
+        </div>
+      )}
       {/* ── 对话消息区（在统一滚动容器内） ── */}
       {chatMode && (
         <div className="px-3 py-3">
