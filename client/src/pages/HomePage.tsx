@@ -1365,7 +1365,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const handleTrainingLaunchUploadTrigger = () => {
-    const simulatedIntent = "培训场景：门店晨会前，用 10 分钟完成服务标准快速培训";
+    const simulatedIntent = "用 10 分钟完成服务标准快速培训";
     const simulatedGoal = "培训需求：让新入职服务员掌握迎宾话术、点单确认与异常情况第一时间上报流程。";
 
     setTrainingLaunchIntent(prev => prev.trim() || simulatedIntent);
@@ -2186,8 +2186,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               )),
                             )}
                           </div>
-                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", flex: 1 }}>
-                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.48, fontWeight: 600 }}>{msg.trainingLaunchQrCard.focusSummary}</div>
+                          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, paddingRight: 6 }}>
+                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.38, fontWeight: 600, whiteSpace: "nowrap" }}>{msg.trainingLaunchQrCard.focusSummary}</div>
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "flex-end", flexShrink: 0, paddingBottom: 2 }}>
