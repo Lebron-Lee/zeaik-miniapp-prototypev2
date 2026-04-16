@@ -2191,8 +2191,26 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "flex-end", flexShrink: 0, paddingBottom: 2 }}>
-                          <div style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700, lineHeight: 1.2 }}>
-                            转发
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 999, background: "rgba(232,117,10,0.12)", color: "#c45e00", fontSize: 11, fontWeight: 700, lineHeight: 1.2 }}>
+                            <span
+                              aria-hidden="true"
+                              style={{
+                                width: 14,
+                                height: 14,
+                                borderRadius: 999,
+                                background: "#07c160",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0,
+                              }}
+                            >
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 6.5C5.96243 6.5 3.5 8.52944 3.5 11.0323C3.5 12.4486 4.29174 13.713 5.52942 14.5382L5.03024 16.8277C4.95983 17.1508 5.2959 17.4066 5.58482 17.2472L8.11654 15.8504C8.40407 15.9006 8.69885 15.9274 9 15.9274C12.0376 15.9274 14.5 13.898 14.5 11.3952C14.5 8.89235 12.0376 6.8629 9 6.8629V6.5Z" fill="white"/>
+                                <path d="M15.2 8.8C18.067 8.8 20.4 10.6449 20.4 12.9248C20.4 14.2112 19.6534 15.3595 18.4724 16.1205L18.9036 18.0969C18.9682 18.3933 18.6613 18.6279 18.3955 18.4811L16.2005 17.2702C15.8757 17.329 15.5418 17.36 15.2 17.36C12.3331 17.36 10 15.5151 10 13.2352C10 10.9554 12.3331 9.11048 15.2 9.11048V8.8Z" fill="white" opacity="0.92"/>
+                              </svg>
+                            </span>
+                            <span>转发</span>
                           </div>
                         </div>
                       </div>
