@@ -14,6 +14,7 @@ interface DrawerPageProps {
   onClose: () => void;
   onLogout: () => void;
   onOpenTrainingConversation?: () => void;
+  onOpenCurrentTrainingTask?: (task: TrainingTask) => void;
 }
 
 // ─── 线性 SVG 图标 ────────────────────────────────────────────────────────────
@@ -49,7 +50,7 @@ const IcChatBubble = () => (
 
 type TrainingTaskGroup = "我发起的" | "我参加的";
 
-interface TrainingTask {
+export interface TrainingTask {
   id: number;
   title: string;
   time: string;
@@ -101,7 +102,7 @@ const CHAT_RECORDS: ChatRecord[] = [
   },
 ];
 
-export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation }: DrawerPageProps) {
+export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation, onOpenCurrentTrainingTask }: DrawerPageProps) {
   const [showAllTrainingTasks, setShowAllTrainingTasks] = useState(false);
 
   const initiatedTasks = TRAINING_TASKS.filter(task => task.group === "我发起的");
@@ -231,11 +232,7 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
                 <button
                   key={task.id}
                   onClick={() => {
-                    if (task.group === "我发起的") {
-                      onOpenTrainingConversation?.();
-                    } else {
-                      toast.info(`${task.title}详情即将开放`);
-                    }
+                    onOpenCurrentTrainingTask?.(task);
                   }}
                   style={{
                     width: "100%",
@@ -332,7 +329,7 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
               key={chat.id}
               onClick={() => {
                 if (chat.isTrainingRelated) {
-                  onOpenTrainingConversation?.();
+                  onOpenCurrentTrainingTask?.(TRAINING_TASKS[0]);
                 } else {
                   toast.info(`${chat.title}会话详情即将开放`);
                 }

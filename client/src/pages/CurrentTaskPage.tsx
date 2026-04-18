@@ -6,6 +6,7 @@
  */
 import React, { useState } from "react";
 import TaskDrawerPage from "./TaskDrawerPage";
+import type { TrainingTask as DrawerTrainingTask } from "./DrawerPage";
 
 // ── 当前工作数据 ──
 interface Task {
@@ -121,6 +122,7 @@ const TABS = [
 interface CurrentTaskPageProps {
   onBack: () => void;
   initialTab?: string;
+  selectedTrainingTask?: DrawerTrainingTask | null;
   onOpenQuotaDetail?: (code: string) => void;
 }
 
@@ -142,14 +144,14 @@ function SendIcon() {
   );
 }
 
-export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail }: CurrentTaskPageProps) {
+export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTask, onOpenQuotaDetail }: CurrentTaskPageProps) {
   const [activeTab, setActiveTab] = useState<string>(initialTab ?? "current");
   const [tasks, setTasks] = useState<Task[]>(CURRENT_TASKS);
   const [submittedIds, setSubmittedIds] = useState<number[]>([]);
   const [pendingExpanded, setPendingExpanded] = useState(true);
   const [doneExpanded, setDoneExpanded] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [trainingPanelOpen, setTrainingPanelOpen] = useState(false);
+  const [trainingPanelOpen, setTrainingPanelOpen] = useState(Boolean(selectedTrainingTask));
   const [trainingStarted, setTrainingStarted] = useState(false);
   const [trainingFinished, setTrainingFinished] = useState(false);
   const [trainingQuestionIndex, setTrainingQuestionIndex] = useState(0);
@@ -168,7 +170,20 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
     },
   ]);
 
-  const trainingTask = tasks.find((task) => task.isTraining) ?? CURRENT_TASKS[CURRENT_TASKS.length - 1];
+  const resolvedTrainingTask = selectedTrainingTask ?? {
+    id: 1,
+    title: "学习培训",
+    time: "待安排",
+    progress: "预计 10 分钟完成服务标准快速培训",
+    group: "我发起的" as const,
+  };
+  const trainingTaskCode = `TR-${String(resolvedTrainingTask.id).padStart(4, "0")}`;
+  const displayTasks = tasks.map((task) => (
+    task.isTraining
+      ? { ...task, name: resolvedTrainingTask.title, code: trainingTaskCode }
+      : task
+  ));
+  const trainingTask = displayTasks.find((task) => task.isTraining) ?? displayTasks[displayTasks.length - 1];
 
   const handleSubmit = (taskId: number) => {
     setSubmittedIds((prev) => [...prev, taskId]);
@@ -348,10 +363,10 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
                       <div style={{ fontSize: 11, fontWeight: 700, color: "#3B5BDB", letterSpacing: 0.2 }}>培训任务</div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A", marginTop: 4 }}>{trainingTask.name}</div>
                     </div>
-                    <span style={{ fontSize: 11, color: "#3B5BDB", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>{trainingTask.code}</span>
+                    <span style={{ fontSize: 11, color: "#3B5BDB", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>{trainingTaskCode}</span>
                   </div>
                   <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 12, background: "#F5F8FF", color: "#50608F", fontSize: 12.5, lineHeight: 1.65 }}>
-                    本次培训聚焦服务员迎宾话术、点单复述确认与异常上报动作，预计用时 10 分钟，完成后自动计入当前工作。
+                    {`当前任务来自“${resolvedTrainingTask.group}”，最近进展为“${resolvedTrainingTask.progress}”。培训完成后会自动计入当前工作，你也可以随时回来继续本条任务。`}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 12 }}>
                     <div style={{ fontSize: 11.5, color: "#7D8CB8" }}>会话中只展示该培训任务相关内容</div>
@@ -398,7 +413,7 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
   const renderCurrentWork = () => (
     <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 0" }}>
       <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-        {tasks.map((task, index) => {
+        {displayTasks.map((task, index) => {
           const isTrainingTask = Boolean(task.isTraining);
           const actionLabel = isTrainingTask
             ? trainingFinished ? "回看" : trainingStarted ? "继续" : "进入"

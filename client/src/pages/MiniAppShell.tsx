@@ -26,6 +26,7 @@ import OrgTreePage from "./OrgTreePage";
 import OrgRegisterPage from "./OrgRegisterPage";
 import type { TrainingTask } from "./TrainingPage";
 import type { TrainingResult } from "./TrainingAnswerPage";
+import type { TrainingTask as DrawerTrainingTask } from "./DrawerPage";
 
 // ── 全局阶段类型 ─────────────────────────────────────────────────────────────
 export type UserStage = 1 | 2 | 3;
@@ -215,6 +216,7 @@ export default function MiniAppShell() {
   const [fromTrainingScan, setFromTrainingScan] = useState(false);
   const [appView, setAppView] = useState<AppView>("home");
   const [currentTaskInitialTab, setCurrentTaskInitialTab] = useState<string>("current");
+  const [currentDrawerTrainingTask, setCurrentDrawerTrainingTask] = useState<DrawerTrainingTask | null>(null);
   const [quotaDetailCode, setQuotaDetailCode] = useState<string>("BZ-102");
   const [trainingTask, setTrainingTask] = useState<TrainingTask | null>(null);
   const [trainingResult, setTrainingResult] = useState<TrainingResult | null>(null);
@@ -271,8 +273,9 @@ export default function MiniAppShell() {
     setAppView("product");
   };
 
-  const handleOpenCurrentTask = (tab?: string) => {
+  const handleOpenCurrentTask = (tab?: string, drawerTrainingTask?: DrawerTrainingTask | null) => {
     setCurrentTaskInitialTab(tab ?? "current");
+    setCurrentDrawerTrainingTask(drawerTrainingTask ?? null);
     setAppView("current-task");
   };
 
@@ -345,6 +348,7 @@ export default function MiniAppShell() {
             onEnterStage3={handleEnterStage3}
             onOpenProduct={handleOpenProduct}
             onOpenCurrentTask={handleOpenCurrentTask}
+            onOpenCurrentTrainingTask={(task) => handleOpenCurrentTask("current", task)}
             onOpenDailySalary={handleOpenDailySalary}
             onOpenInspection={handleOpenInspection}
             onOpenAiMenu={() => setAppView("ai-menu")}
@@ -394,6 +398,7 @@ export default function MiniAppShell() {
           <CurrentTaskPage
             onBack={() => setAppView("home")}
             initialTab={currentTaskInitialTab}
+            selectedTrainingTask={currentDrawerTrainingTask}
             onOpenQuotaDetail={handleOpenQuotaDetail}
           />
         )}

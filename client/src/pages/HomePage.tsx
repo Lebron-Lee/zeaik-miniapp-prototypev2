@@ -13,6 +13,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import DrawerPage, { TRAINING_DRAWER_BADGE_COUNT } from "./DrawerPage";
+import type { TrainingTask as DrawerTrainingTask } from "./DrawerPage";
 
 const EXPERT_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663518710373/QXycpLBxSeowbm34BVNxpL/zeaik_expert_nobg_f210d4f5.png";
 
@@ -1066,6 +1067,7 @@ interface HomePageProps {
   onEnterStage3?: () => void;
    onOpenProduct?: () => void;
   onOpenCurrentTask?: (tab?: string) => void;
+  onOpenCurrentTrainingTask?: (task: DrawerTrainingTask) => void;
   onOpenDailySalary?: () => void;
   onOpenInspection?: () => void;
   onOpenAiMenu?: () => void;
@@ -1079,7 +1081,7 @@ interface HomePageProps {
   fromTrainingScan?: boolean; // 从培训二维码扫码进入
   onExitTrainingScan?: () => void; // 退出扫码培训模式
 }
-export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, onOpenOrgTree, orgTreeSelectedMemberIds = [], orgTreeSelectionVersion = 0, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
+export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenCurrentTrainingTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, onOpenOrgTree, orgTreeSelectedMemberIds = [], orgTreeSelectionVersion = 0, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [inputText, setInputText] = useState("");
   const [sectionOpen, setSectionOpen] = useState(true);
@@ -2693,6 +2695,10 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
           onOpenTrainingConversation={() => {
             setDrawerOpen(false);
             onOpenTrainingConversation?.();
+          }}
+          onOpenCurrentTrainingTask={(task) => {
+            setDrawerOpen(false);
+            onOpenCurrentTrainingTask?.(task);
           }}
         />
       </div>
