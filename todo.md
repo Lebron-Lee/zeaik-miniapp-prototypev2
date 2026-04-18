@@ -353,3 +353,6 @@
 - [ ] CurrentTaskPage：将两个辅助按钮移动到“思路是对的，但还差一个关键点，再想想？”这一类答错反馈卡片内部
 - [ ] CurrentTaskPage：确保只有回答不正确时才展示这两个提醒按钮
 - [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查培训结束前最后提示文案是否仍为旧版本
+- [ ] CurrentTaskPage：将“太棒了，培训题目已经全部完成。最后请简单说说这次培训对你有没有帮助？”改为“太棒了，最后一题。最后请简单说说这次培训对你有没有帮助？”
+- [ ] CurrentTaskPage：完成文案修正后执行 TypeScript 校验并创建新的检查点

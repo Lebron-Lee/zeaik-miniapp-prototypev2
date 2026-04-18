@@ -316,7 +316,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
       {
         id: newTrainingMessageId(),
         role: "ai",
-        text: "太棒了，培训题目已经全部完成。最后请简单说说这次培训对你有没有帮助？",
+        text: "太棒了，最后一题。最后请简单说说这次培训对你有没有帮助？",
       },
     ]);
     setTrainingAttempts(0);
