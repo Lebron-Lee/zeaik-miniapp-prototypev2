@@ -2383,7 +2383,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {/* ── 对话消息区（在统一滚动容器内） ── */}
       {chatMode && (
         <div className="px-3 py-3">
-          {renderTrainingLaunchCard()}
           {messages.map(msg => (
             <div
               key={msg.id}
@@ -3033,6 +3032,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               </div>
             </div>
           ))}
+          {renderTrainingLaunchCard()}
           <div ref={chatEndRef} />
         </div>
       )}
