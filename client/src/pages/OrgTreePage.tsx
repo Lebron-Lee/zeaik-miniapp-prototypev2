@@ -964,8 +964,7 @@ export default function OrgTreePage({
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: "#1f2430" }}>小程序二维码分享注册</div>
-                <div style={{ fontSize: 12, color: "#8f97a8", marginTop: 4 }}>转发给企业或成员，扫码后将按邀请关系自动归位</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: "#1f2430" }}>分享注册</div>
               </div>
               <button
                 onClick={() => setShowInviteDialog(false)}
@@ -979,21 +978,7 @@ export default function OrgTreePage({
               <QrPreview />
             </div>
 
-            <div
-              style={{
-                borderRadius: 18,
-                background: "rgba(232,117,10,0.08)",
-                padding: "12px 14px",
-                color: "#8b5b2a",
-                fontSize: 12,
-                lineHeight: 1.6,
-                marginBottom: 14,
-              }}
-            >
-              通用邀请链接不区分上下级，接收者可自行选择与邀请人的关系；完成注册后将自动进入对应组织结构。
-            </div>
-
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex" }}>
               <button
                 onClick={() => toast.success("已生成二维码，可转发到微信")}
                 style={{
@@ -1010,22 +995,6 @@ export default function OrgTreePage({
                 }}
               >
                 转发二维码
-              </button>
-              <button
-                onClick={onInvite}
-                style={{
-                  flex: 1,
-                  border: "1px solid rgba(232,117,10,0.18)",
-                  borderRadius: 16,
-                  padding: "13px 14px",
-                  background: "#fff",
-                  color: "#c76605",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                完善邀请信息
               </button>
             </div>
           </div>
