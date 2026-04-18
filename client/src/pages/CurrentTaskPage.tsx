@@ -241,7 +241,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
         {
           id: newTrainingMessageId(),
           role: "ai",
-          text: "收到你的反馈啦，辛苦你认真完成整个培训！你的参与很重要，也给团队带来了很好的示范。接下来培训就圆满结束啦，你可以顺手为这次培训打个分，我们也会继续把内容做得更实用。",
+          text: "收到你的反馈啦，辛苦你认真完成整个培训！",
         },
         {
           id: newTrainingMessageId(),
