@@ -363,6 +363,7 @@ interface VoiceKnowledgeConfirmCard {
   recordingName: string;
   durationLabel: string;
   recognizedText: string;
+  parsingSteps: string[];
   analysisSummary: string;
   archiveName: string;
   bankTitle: string;
@@ -1498,6 +1499,23 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       "已拆解为晨会口径、岗位动作、风险提醒 3 个解析模块，并生成 5 道培训题。",
       "已整理为门店执行要点、管理要求、顾客沟通话术 3 类题目素材，并生成 6 道题库条目。",
     ];
+    const parsingStepPresets = [
+      [
+        "第 1 步：抽取晨会口径中的服务动作关键词，如“迎宾先微笑”“点单要复述”。",
+        "第 2 步：识别风险与时效要求，将“异常情况 30 秒内上报”单独归类为异常处置规范。",
+        "第 3 步：把服务动作与异常要求转为可考核的情境问答题。",
+      ],
+      [
+        "第 1 步：识别高峰期场景中的岗位分工要求，拆分出收银与迎宾两类职责。",
+        "第 2 步：提取“排队超过两分钟”这一服务阈值，作为题目判断条件。",
+        "第 3 步：根据协作与阈值要求生成多道现场应对题。",
+      ],
+      [
+        "第 1 步：识别“后厨出餐慢”这一异常场景，并锁定前厅的首要沟通动作。",
+        "第 2 步：提炼“安抚顾客 + 同步预计等待时间”的连续动作逻辑。",
+        "第 3 步：围绕顾客沟通、等待预期和追加反馈输出题目。",
+      ],
+    ];
     const questionPresets = [
       [
         "顾客进店后，迎宾动作的第一步应该是什么？",
@@ -1517,6 +1535,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     ];
     const contentIndex = Math.floor(Math.random() * voiceSnippets.length);
     const recognized = voiceSnippets[contentIndex];
+    const parsingSteps = parsingStepPresets[contentIndex];
     const analysis = analysisSummaries[contentIndex];
     const questionPreview = questionPresets[contentIndex];
     const durationSeconds = Math.max(8, Math.round((durationMs ?? 26000) / 1000));
@@ -1544,6 +1563,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           recordingName,
           durationLabel: `${durationSeconds}秒 · 语音解析`,
           recognizedText: recognized,
+          parsingSteps,
           analysisSummary: analysis,
           archiveName,
           bankTitle: recommendedBankTitle,
@@ -2540,9 +2560,20 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.6 }}>{msg.voiceKnowledgeConfirmCard.recognizedText}</div>
                         </div>
                         <div style={{ borderRadius: 13, background: "rgba(255,248,241,0.9)", border: "1px solid rgba(241,214,190,0.68)", padding: "10px 10px 9px", marginBottom: 10 }}>
-                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析结果</div>
-                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6, marginBottom: 8 }}>{msg.voiceKnowledgeConfirmCard.analysisSummary}</div>
-                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>题目预览</div>
+                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析过程</div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 10 }}>
+                            {msg.voiceKnowledgeConfirmCard.parsingSteps.map((step, index) => (
+                              <div key={`${msg.id}-step-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
+                                <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(255,154,60,0.14)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                  {index + 1}
+                                </span>
+                                <span style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55 }}>{step}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析结论</div>
+                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6, marginBottom: 10 }}>{msg.voiceKnowledgeConfirmCard.analysisSummary}</div>
+                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>输出题目</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                             {msg.voiceKnowledgeConfirmCard.questionPreview.map((question, index) => (
                               <div key={`${msg.id}-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
