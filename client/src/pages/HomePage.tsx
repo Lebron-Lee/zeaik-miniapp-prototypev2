@@ -2523,6 +2523,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         border: "1px solid rgba(241,214,190,0.92)",
                         boxShadow: "0 8px 20px rgba(232,117,10,0.08)",
                       }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 10, padding: "4px 8px", borderRadius: 999, background: "rgba(255,154,60,0.12)", color: "#c15f08", fontSize: 11, fontWeight: 700, animation: "thinkingFade 0.5s ease both" }}>
+                          <span style={{ display: "inline-flex", gap: 3, alignItems: "center" }}>
+                            <span style={{ width: 5, height: 5, borderRadius: 999, background: "currentColor", animation: "thinkingDot 1s ease-in-out infinite" }} />
+                            <span style={{ width: 5, height: 5, borderRadius: 999, background: "currentColor", animation: "thinkingDot 1s ease-in-out 0.18s infinite" }} />
+                            <span style={{ width: 5, height: 5, borderRadius: 999, background: "currentColor", animation: "thinkingDot 1s ease-in-out 0.36s infinite" }} />
+                          </span>
+                          <span>正在整理录音内容</span>
+                        </div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
                           <div style={{ minWidth: 0 }}>
                             <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{msg.voiceKnowledgeConfirmCard.title}</div>
@@ -2553,15 +2561,15 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             题库：{msg.voiceKnowledgeConfirmCard.bankTitle}
                           </span>
                         </div>
-                        <div style={{ borderRadius: 13, background: "rgba(255,255,255,0.9)", border: "1px solid rgba(241,214,190,0.72)", padding: "10px 10px 9px", marginBottom: 10 }}>
+                        <div style={{ borderRadius: 13, background: "rgba(255,255,255,0.9)", border: "1px solid rgba(241,214,190,0.72)", padding: "10px 10px 9px", marginBottom: 10, animation: "thinkingFade 0.45s ease 0.08s both" }}>
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>识别文本</div>
                           <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.6 }}>{msg.voiceKnowledgeConfirmCard.recognizedText}</div>
                         </div>
-                        <div style={{ borderRadius: 13, background: "rgba(255,248,241,0.9)", border: "1px solid rgba(241,214,190,0.68)", padding: "10px 10px 9px", marginBottom: 10 }}>
+                        <div style={{ borderRadius: 13, background: "rgba(255,248,241,0.9)", border: "1px solid rgba(241,214,190,0.68)", padding: "10px 10px 9px", marginBottom: 10, animation: "thinkingFade 0.45s ease 0.22s both" }}>
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析过程</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 10 }}>
                             {msg.voiceKnowledgeConfirmCard.parsingSteps.map((step, index) => (
-                              <div key={`${msg.id}-step-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
+                              <div key={`${msg.id}-step-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start", animation: `thinkingFade 0.4s ease ${0.36 + index * 0.12}s both` }}>
                                 <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(255,154,60,0.14)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                   {index + 1}
                                 </span>
@@ -2574,7 +2582,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>输出题目</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                             {msg.voiceKnowledgeConfirmCard.questionPreview.map((question, index) => (
-                              <div key={`${msg.id}-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
+                              <div key={`${msg.id}-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start", animation: `thinkingFade 0.4s ease ${0.82 + index * 0.12}s both` }}>
                                 <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                   {index + 1}
                                 </span>
@@ -3398,6 +3406,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         @keyframes voiceWave {
           0%, 100% { transform: scaleY(0.45); opacity: 0.52; }
           50% { transform: scaleY(1.18); opacity: 1; }
+        }
+        @keyframes thinkingFade {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes thinkingDot {
+          0%, 80%, 100% { transform: scale(0.72); opacity: 0.45; }
+          40% { transform: scale(1); opacity: 1; }
         }
       `}</style>
 
