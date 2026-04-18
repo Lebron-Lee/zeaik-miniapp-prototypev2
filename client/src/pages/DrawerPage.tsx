@@ -58,6 +58,14 @@ interface TrainingTask {
   hasUpdate?: boolean;
 }
 
+interface ChatRecord {
+  id: number;
+  title: string;
+  preview: string;
+  time: string;
+  isTrainingRelated?: boolean;
+}
+
 export const TRAINING_TASKS: TrainingTask[] = [
   { id: 1, title: "茶水区服务标准培训", time: "今天 09:41", progress: "新增 3 人完成，完成率 72%", group: "我发起的", hasUpdate: true },
   { id: 2, title: "门店开档检查培训", time: "昨天 18:20", progress: "新增 1 条待完成提醒", group: "我发起的", hasUpdate: true },
@@ -70,6 +78,28 @@ export const TRAINING_TASKS: TrainingTask[] = [
 export const TRAINING_DRAWER_BADGE_COUNT = TRAINING_TASKS.filter(
   task => task.group === "我发起的" && task.hasUpdate,
 ).length;
+
+const CHAT_RECORDS: ChatRecord[] = [
+  {
+    id: 1,
+    title: "茶水区服务标准培训",
+    preview: "已进入培训会话，可继续查看题目与完成情况。",
+    time: "今天 09:41",
+    isTrainingRelated: true,
+  },
+  {
+    id: 2,
+    title: "扬州大煮干丝介绍",
+    preview: "已为你生成菜品介绍，并支持语音播报。",
+    time: "昨天 20:16",
+  },
+  {
+    id: 3,
+    title: "门店收银高峰怎么排班",
+    preview: "已给出岗位安排建议与高峰应对提醒。",
+    time: "昨天 11:28",
+  },
+];
 
 export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation }: DrawerPageProps) {
   const [showAllTrainingTasks, setShowAllTrainingTasks] = useState(false);
@@ -280,6 +310,88 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
           >
             {showAllTrainingTasks ? "收起培训任务" : "展开查看全部培训任务"}
           </button>
+        </div>
+      </div>
+
+      <div className="px-3 pb-6">
+        <div className="flex items-center justify-between px-1 mb-2">
+          <span style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>会话记录</span>
+          <span style={{ fontSize: 11.5, color: "#b0a0c0" }}>{CHAT_RECORDS.length} 条记录</span>
+        </div>
+
+        <div style={{
+          background: "rgba(255,255,255,0.78)",
+          backdropFilter: "blur(12px)",
+          borderRadius: 16,
+          border: "1px solid rgba(255,255,255,0.9)",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+          overflow: "hidden",
+        }}>
+          {CHAT_RECORDS.map((chat, index) => (
+            <button
+              key={chat.id}
+              onClick={() => {
+                if (chat.isTrainingRelated) {
+                  onOpenTrainingConversation?.();
+                } else {
+                  toast.info(`${chat.title}会话详情即将开放`);
+                }
+              }}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "12px 16px",
+                background: "none",
+                border: "none",
+                borderBottom: index < CHAT_RECORDS.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none",
+                textAlign: "left",
+              }}
+            >
+              <div style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: chat.isTrainingRelated ? "rgba(232,117,10,0.1)" : "rgba(255,210,160,0.22)",
+                border: "1px solid rgba(232,117,10,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}>
+                <IcChatBubble />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: 13.5,
+                    fontWeight: 600,
+                    color: "#2d2040",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    minWidth: 0,
+                    flex: 1,
+                  }}>{chat.title}</div>
+                  {chat.isTrainingRelated && (
+                    <span style={{
+                      flexShrink: 0,
+                      padding: "1px 6px",
+                      borderRadius: 999,
+                      background: "rgba(232,117,10,0.12)",
+                      color: "#e8750a",
+                      fontSize: 10.5,
+                      fontWeight: 700,
+                    }}>培训</span>
+                  )}
+                </div>
+                <div style={{ fontSize: 11.5, color: "#8f7b9f", marginTop: 2 }}>{chat.preview}</div>
+                <div style={{ fontSize: 11, color: "#b7a7c6", marginTop: 3 }}>{chat.time}</div>
+              </div>
+              <IcChevronRight />
+            </button>
+          ))}
         </div>
       </div>
     </div>
