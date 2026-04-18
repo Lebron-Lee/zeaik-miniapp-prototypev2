@@ -342,3 +342,6 @@
 - [ ] HomePage：对照首页立即培训的会话启动逻辑，确认当前工作页缺失的步骤与状态卡片
 - [ ] CurrentTaskPage：如可视化编辑未生效，则手动补齐培训发起成功回复、培训接收进展与培训完成会话卡片
 - [ ] CurrentTaskPage：完成一致性修正后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查当前工作页培训会话气泡与首页“立即培训”会话卡片的样式差异
+- [ ] CurrentTaskPage：统一 AI、用户、结果卡片及辅助按钮的视觉样式，使其与首页培训会话保持一致
+- [ ] CurrentTaskPage：完成样式统一后执行 TypeScript 校验并创建新的检查点

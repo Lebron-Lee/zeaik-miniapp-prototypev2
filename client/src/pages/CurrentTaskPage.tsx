@@ -429,24 +429,33 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
 
             if (message.type === "result") {
               return (
-                <div key={message.id} style={{ padding: "4px 2px 0" }}>
-                  <div style={{ background: "linear-gradient(135deg, #1a6bbf, #0d4fa0)", borderRadius: 16, padding: "16px 14px", color: "#fff", boxShadow: "0 10px 20px rgba(26,107,191,0.18)" }}>
-                    <div style={{ textAlign: "center", marginBottom: 12 }}>
-                      <div style={{ fontSize: 16, fontWeight: 800 }}>培训完成</div>
-                      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.78)", marginTop: 4 }}>你已完成「{trainingTask.name}」</div>
+                <div key={message.id} style={{ padding: "16px 14px" }}>
+                  <div style={{ textAlign: "center", marginBottom: 12 }}>
+                    <div style={{ fontSize: 36, marginBottom: 4 }}>🎊</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: "#1a1a2e" }}>培训完成！</div>
+                    <div style={{ fontSize: 12, color: "#6a7a9a", marginTop: 4 }}>你已完成「{trainingTask.name}」</div>
+                  </div>
+                  <div style={{
+                    background: "linear-gradient(135deg, #1a6bbf, #0d4fa0)",
+                    borderRadius: 14,
+                    padding: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 12,
+                    marginBottom: 12,
+                  }}>
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>{message.trainingScore ?? 4.6}</div>
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", marginTop: 2 }}>综合得分</div>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
-                      <div style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: 28, fontWeight: 900 }}>{message.trainingScore ?? 4.6}</div>
-                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.72)" }}>综合得分</div>
-                      </div>
-                      <div style={{ width: 1, alignSelf: "stretch", background: "rgba(255,255,255,0.22)" }} />
-                      <div style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: "#FFE082" }}>良好</div>
-                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.72)" }}>培训记录已归档</div>
-                      </div>
+                    <div style={{ width: 1, height: 36, background: "rgba(255,255,255,0.25)" }} />
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: "#ffd700" }}>{"★".repeat(Math.round(message.trainingScore ?? 4.6))}{"☆".repeat(5 - Math.round(message.trainingScore ?? 4.6))}</div>
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", marginTop: 2 }}>{(message.trainingScore ?? 4.6) >= 4.5 ? "优秀" : (message.trainingScore ?? 4.6) >= 4 ? "良好" : "合格"}</div>
                     </div>
                   </div>
+                  <div style={{ fontSize: 12, color: "#6a7a9a", textAlign: "center" }}>培训记录已同步至当前培训任务档案</div>
                 </div>
               );
             }
@@ -457,26 +466,28 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
               <React.Fragment key={message.id}>
                 <div style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start" }}>
                   <div style={{
-                    maxWidth: "86%",
-                    background: isUser ? "#3B5BDB" : "#fff",
-                    color: isUser ? "#fff" : "#24345F",
-                    borderRadius: isUser ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                    padding: "10px 12px",
-                    fontSize: 12.5,
-                    lineHeight: 1.7,
-                    whiteSpace: "pre-line",
-                    boxShadow: isUser ? "0 4px 10px rgba(59,91,219,0.18)" : "0 1px 4px rgba(59,91,219,0.08)",
-                    border: isUser ? "none" : "1px solid rgba(59,91,219,0.1)",
+                    maxWidth: "80%",
+                    borderRadius: isUser ? "18px 4px 18px 18px" : "4px 18px 18px 18px",
+                    background: isUser ? "linear-gradient(135deg, #ff9a3c, #e8750a)" : "rgba(255,255,255,0.95)",
+                    color: isUser ? "#fff" : "#2d2040",
+                    boxShadow: isUser
+                      ? "0 2px 10px rgba(232,117,10,0.18)"
+                      : "0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,1)",
+                    backdropFilter: "blur(12px)",
+                    border: isUser ? "none" : "1px solid rgba(230,220,245,0.7)",
+                    overflow: "hidden",
                   }}>
-                    {!isUser && (
-                      <div style={{ fontSize: 10.5, fontWeight: 700, color: message.isCorrect ? "#15803d" : "#3B5BDB", marginBottom: 4 }}>{message.isCorrect ? "培训助手 · 已通过" : "培训助手"}</div>
-                    )}
-                    {message.text}
+                    <div style={{ padding: "10px 13px", fontSize: 12.5, lineHeight: 1.7, whiteSpace: "pre-line" }}>
+                      {!isUser && (
+                        <div style={{ fontSize: 10.5, fontWeight: 700, color: message.isCorrect ? "#15803d" : "#e8750a", marginBottom: 4 }}>{message.isCorrect ? "培训助手 · 已通过" : "培训助手"}</div>
+                      )}
+                      {message.text}
+                    </div>
                   </div>
                 </div>
                 {isCurrentQuestion && trainingAttempts > 0 && (
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 6 }}>
-                    <button onClick={() => setTrainingShowHint((prev) => !prev)} style={{ border: "1px solid rgba(59,91,219,0.16)", background: "#fff", color: "#3B5BDB", borderRadius: 999, padding: "5px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{trainingShowHint ? "收起提示" : "查看提示"}</button>
+                    <button onClick={() => setTrainingShowHint((prev) => !prev)} style={{ padding: "6px 12px", borderRadius: 16, background: "none", border: "1.5px dashed #e8750a", color: "#e8750a", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>{trainingShowHint ? "收起提示" : "查看提示"}</button>
                     <button onClick={() => {
                       const nextIndex = trainingQuestionIndex + 1;
                       setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "user", text: "跳过此题" }, { id: newTrainingMessageId(), role: "ai", text: `已跳过第 ${trainingQuestionIndex + 1} 题，建议课后回看提示再复习。` }]);
@@ -490,13 +501,13 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                         setTrainingIsFeedback(true);
                         setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "ai", text: "题目部分已经结束，请说说这次培训对你有没有帮助？" }]);
                       }
-                    }} style={{ border: "none", background: "rgba(59,91,219,0.12)", color: "#3B5BDB", borderRadius: 999, padding: "5px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>跳过此题</button>
+                    }} style={{ padding: "6px 12px", borderRadius: 16, background: "none", border: "1.5px dashed #9a8aaa", color: "#9a8aaa", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>跳过此题</button>
                   </div>
                 )}
                 {isCurrentQuestion && trainingShowHint && (
-                  <div style={{ marginTop: 8, marginLeft: 8, marginRight: 22, background: "rgba(255,255,255,0.92)", borderRadius: 14, border: "1px solid rgba(59,91,219,0.12)", padding: "10px 12px" }}>
-                    <div style={{ fontSize: 11.5, fontWeight: 700, color: "#3B5BDB", marginBottom: 4 }}>参考提示</div>
-                    <div style={{ fontSize: 12, lineHeight: 1.65, color: "#4A5A7A" }}>{TRAINING_QUESTIONS[trainingQuestionIndex]?.hint}</div>
+                  <div style={{ margin: "0 14px 12px", padding: "10px 12px", background: "rgba(232,117,10,0.06)", border: "1px solid rgba(232,117,10,0.2)", borderRadius: 10 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#e8750a", marginBottom: 4 }}>💡 参考提示</div>
+                    <div style={{ fontSize: 12.5, lineHeight: 1.7, color: "#5a4a6a" }}>{TRAINING_QUESTIONS[trainingQuestionIndex]?.hint}</div>
                   </div>
                 )}
               </React.Fragment>
