@@ -2,6 +2,7 @@
  * CurrentTaskPage.tsx
  * 复刻墨刀原型「首页-当前任务」页面
  * 三个Tab：当前工作 / 任务状态（待执行+已完成分组）/ 任务大厅（计划任务列表）
+ * 设计提醒：培训流程已迁移到当前工作页内部，需保持蓝白工作台风格，不再沿用首页培训卡片主题。
  */
 import React, { useState } from "react";
 import TaskDrawerPage from "./TaskDrawerPage";
@@ -14,6 +15,7 @@ interface Task {
   name: string;
   code: string;
   canSubmit: boolean;
+  isTraining?: boolean;
 }
 
 const CURRENT_TASKS: Task[] = [
@@ -23,7 +25,7 @@ const CURRENT_TASKS: Task[] = [
   { id: 4, time: "10:30", isNow: false, name: "切牛肉块", code: "BZ-1412", canSubmit: false },
   { id: 5, time: "11:30", isNow: false, name: "备桌-凯德麓语", code: "BZ-2195", canSubmit: false },
   { id: 6, time: "12:30", isNow: false, name: "翻台-大厅A区A1", code: "BZ-9677", canSubmit: false },
-  { id: 7, time: "", isNow: false, name: "学习培训", code: "BZ-0011", canSubmit: false },
+  { id: 7, time: "", isNow: false, name: "学习培训", code: "BZ-0011", canSubmit: false, isTraining: true },
 ];
 
 // ── 任务状态数据 ──
@@ -75,11 +77,46 @@ const HALL_TASKS: HallTask[] = [
   { id: 10, seq: 10, time: "14:00", name: "大明虾解冻", code: "BZ-87" },
 ];
 
+interface TrainingQuestion {
+  id: number;
+  question: string;
+  aiIntro: string;
+  hint: string;
+}
+
+interface TrainingMessage {
+  id: number;
+  role: "ai" | "user";
+  text: string;
+  type?: "task" | "question" | "result";
+}
+
+const TRAINING_QUESTIONS: TrainingQuestion[] = [
+  {
+    id: 1,
+    question: "顾客进店后，迎宾动作的第一步应该是什么？",
+    aiIntro: "我们先从迎宾动作开始，回答越贴近门店实际越好。",
+    hint: "先微笑问候，再确认人数与用餐需求。",
+  },
+  {
+    id: 2,
+    question: "当顾客点完单后，服务员为什么必须复述一次关键信息？",
+    aiIntro: "第二题聚焦点单确认流程，尽量说出动作目的。",
+    hint: "为了确认菜品、份数和特殊要求，避免出错与返工。",
+  },
+  {
+    id: 3,
+    question: "遇到异常情况时，应在多长时间内同步值班经理？",
+    aiIntro: "最后一题是异常上报标准，答完就算完成本次培训。",
+    hint: "第一时间同步，原则上不超过 1 分钟。",
+  },
+];
+
 const TABS = [
   { key: "status", label: "任务状态", count: 25 },
-  { key: "current", label: "工作清单", count: 7 },
+  { key: "current", label: "当前工作", count: 7 },
   { key: "hall", label: "任务大厅", count: 13 },
-];
+] as const;
 
 interface CurrentTaskPageProps {
   onBack: () => void;
@@ -96,40 +133,125 @@ function LightningIcon({ color = "#3B5BDB" }: { color?: string }) {
   );
 }
 
-// ── 三点图标 ──
-function DotsIcon() {
+function SendIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <circle cx="3" cy="8" r="1.5" fill="#aaa" />
-      <circle cx="8" cy="8" r="1.5" fill="#aaa" />
-      <circle cx="13" cy="8" r="1.5" fill="#aaa" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" />
+      <path d="M22 2L15 22l-4-9-9-4 20-7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail }: CurrentTaskPageProps) {
-  const [activeTab, setActiveTab] = useState(initialTab ?? "current");
+  const [activeTab, setActiveTab] = useState<string>(initialTab ?? "current");
   const [tasks, setTasks] = useState<Task[]>(CURRENT_TASKS);
   const [submittedIds, setSubmittedIds] = useState<number[]>([]);
   const [pendingExpanded, setPendingExpanded] = useState(true);
   const [doneExpanded, setDoneExpanded] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [trainingPanelOpen, setTrainingPanelOpen] = useState(false);
+  const [trainingStarted, setTrainingStarted] = useState(false);
+  const [trainingFinished, setTrainingFinished] = useState(false);
+  const [trainingQuestionIndex, setTrainingQuestionIndex] = useState(0);
+  const [trainingInput, setTrainingInput] = useState("");
+  const [trainingMessages, setTrainingMessages] = useState<TrainingMessage[]>([
+    {
+      id: 1,
+      role: "ai",
+      text: "你今天有 1 项服务流程培训待完成，建议在空档时间完成，培训结果会自动同步到当前工作记录。",
+    },
+    {
+      id: 2,
+      role: "ai",
+      text: "",
+      type: "task",
+    },
+  ]);
+
+  const trainingTask = tasks.find((task) => task.isTraining) ?? CURRENT_TASKS[CURRENT_TASKS.length - 1];
 
   const handleSubmit = (taskId: number) => {
     setSubmittedIds((prev) => [...prev, taskId]);
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, canSubmit: false } : t))
-    );
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, canSubmit: false } : t)));
+  };
+
+  const openTrainingPanel = () => {
+    setActiveTab("current");
+    setTrainingPanelOpen(true);
+  };
+
+  const pushMessage = (message: TrainingMessage) => {
+    setTrainingMessages((prev) => [...prev, message]);
+  };
+
+  const handleStartTraining = () => {
+    if (trainingStarted) return;
+    const firstQuestion = TRAINING_QUESTIONS[0];
+    setTrainingPanelOpen(true);
+    setTrainingStarted(true);
+    pushMessage({
+      id: Date.now(),
+      role: "ai",
+      text: `${firstQuestion.aiIntro}\n\n第 1 题：${firstQuestion.question}`,
+      type: "question",
+    });
+  };
+
+  const handleSendTrainingAnswer = () => {
+    if (!trainingStarted || trainingFinished) return;
+    const value = trainingInput.trim();
+    if (!value) return;
+
+    const currentQuestion = TRAINING_QUESTIONS[trainingQuestionIndex];
+    const nextIndex = trainingQuestionIndex + 1;
+
+    setTrainingMessages((prev) => [
+      ...prev,
+      { id: Date.now(), role: "user", text: value },
+    ]);
+    setTrainingInput("");
+
+    if (nextIndex < TRAINING_QUESTIONS.length) {
+      const nextQuestion = TRAINING_QUESTIONS[nextIndex];
+      setTrainingMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: "ai",
+          text: `收到，这题我先按完成记录。参考要点：${currentQuestion.hint}\n\n${nextQuestion.aiIntro}\n\n第 ${nextIndex + 1} 题：${nextQuestion.question}`,
+          type: "question",
+        },
+      ]);
+      setTrainingQuestionIndex(nextIndex);
+      return;
+    }
+
+    setTrainingMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 2,
+        role: "ai",
+        text: `本次培训已完成，我已为你记录本次学习结果。你的培训重点包括：迎宾动作、点单复述与异常上报。接下来这条培训任务会继续保留在“当前工作”里，方便你随时回看。`,
+        type: "result",
+      },
+    ]);
+    setTrainingFinished(true);
+    setTasks((prev) => prev.map((task) => (
+      task.isTraining ? { ...task, isNow: true } : task
+    )));
   };
 
   // ── 状态栏 + 导航栏（共用） ──
   const renderHeader = () => (
     <>
-      {/* 状态栏 */}
       <div style={{
-        height: 44, background: "#3B5BDB", display: "flex",
-        alignItems: "center", justifyContent: "space-between",
-        padding: "0 16px", flexShrink: 0,
+        height: 44,
+        background: "#3B5BDB",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 16px",
+        flexShrink: 0,
       }}>
         <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>12:00</span>
         <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
@@ -152,28 +274,22 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
         </div>
       </div>
 
-      {/* 导航栏 */}
       <div style={{
-        height: 44, background: "#3B5BDB", display: "flex",
-        alignItems: "center", justifyContent: "space-between",
-        padding: "0 16px", flexShrink: 0,
+        height: 44,
+        background: "#3B5BDB",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 16px",
+        flexShrink: 0,
       }}>
-        {/* 左侧：返回按钮 + 汉堡菜单 */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {/* 返回按钮 */}
-          <button onClick={onBack} style={{
-            background: "none", border: "none", cursor: "pointer",
-            padding: 4, display: "flex", alignItems: "center",
-          }}>
+          <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 18l-6-6 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          {/* 汉堡菜单 → 打开抽屉 */}
-          <button onClick={() => setDrawerOpen(true)} style={{
-            background: "none", border: "none", cursor: "pointer",
-            padding: 4, display: "flex", flexDirection: "column", gap: 4,
-          }}>
+          <button onClick={() => setDrawerOpen(true)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 1 }} />
             <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 1 }} />
             <span style={{ display: "block", width: 20, height: 2, background: "#fff", borderRadius: 1 }} />
@@ -182,9 +298,12 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>服务员：曹敏</span>
           <span style={{
-            background: "rgba(255,255,255,0.25)", color: "#fff",
-            fontSize: 11, padding: "1px 6px", borderRadius: 10,
-          }}></span>
+            background: "rgba(255,255,255,0.25)",
+            color: "#fff",
+            fontSize: 11,
+            padding: "1px 6px",
+            borderRadius: 10,
+          }} />
         </div>
         <button style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -204,196 +323,194 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
     </>
   );
 
+  const renderTrainingPanel = () => {
+    if (!trainingPanelOpen) return null;
+
+    return (
+      <div style={{ marginTop: 12, background: "#EAF0FF", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(59,91,219,0.08)" }}>
+        <div style={{ padding: "12px 14px", borderBottom: "1px solid rgba(59,91,219,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1F2A5A" }}>当前培训</div>
+            <div style={{ fontSize: 11.5, color: "#6B7AAE", marginTop: 2 }}>会话窗口仅保留本条培训任务</div>
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#3B5BDB", background: "rgba(255,255,255,0.7)", padding: "3px 8px", borderRadius: 999 }}>
+            {trainingFinished ? "已完成" : trainingStarted ? "进行中" : "待开始"}
+          </span>
+        </div>
+
+        <div style={{ padding: "12px", display: "flex", flexDirection: "column", gap: 10 }}>
+          {trainingMessages.map((message) => {
+            if (message.type === "task") {
+              return (
+                <div key={message.id} style={{ background: "#fff", borderRadius: 14, padding: 14, border: "1px solid rgba(59,91,219,0.12)", boxShadow: "0 1px 3px rgba(59,91,219,0.06)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#3B5BDB", letterSpacing: 0.2 }}>培训任务</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A", marginTop: 4 }}>{trainingTask.name}</div>
+                    </div>
+                    <span style={{ fontSize: 11, color: "#3B5BDB", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>{trainingTask.code}</span>
+                  </div>
+                  <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 12, background: "#F5F8FF", color: "#50608F", fontSize: 12.5, lineHeight: 1.65 }}>
+                    本次培训聚焦服务员迎宾话术、点单复述确认与异常上报动作，预计用时 10 分钟，完成后自动计入当前工作。
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 12 }}>
+                    <div style={{ fontSize: 11.5, color: "#7D8CB8" }}>会话中只展示该培训任务相关内容</div>
+                    <button
+                      onClick={handleStartTraining}
+                      style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 16, padding: "7px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(59,91,219,0.22)" }}
+                    >
+                      {trainingStarted ? "继续培训" : "立即培训"}
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            const isUser = message.role === "user";
+            return (
+              <div key={message.id} style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start" }}>
+                <div style={{
+                  maxWidth: "86%",
+                  background: isUser ? "#3B5BDB" : "#fff",
+                  color: isUser ? "#fff" : "#24345F",
+                  borderRadius: isUser ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                  padding: "10px 12px",
+                  fontSize: 12.5,
+                  lineHeight: 1.7,
+                  whiteSpace: "pre-line",
+                  boxShadow: isUser ? "0 4px 10px rgba(59,91,219,0.18)" : "0 1px 4px rgba(59,91,219,0.08)",
+                  border: isUser ? "none" : "1px solid rgba(59,91,219,0.1)",
+                }}>
+                  {!isUser && (
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: "#3B5BDB", marginBottom: 4 }}>培训助手</div>
+                  )}
+                  {message.text}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   // ── 当前工作内容 ──
   const renderCurrentWork = () => (
     <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 0" }}>
-      <div style={{
-        background: "#fff", borderRadius: 12, overflow: "hidden",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-      }}>
-        {tasks.map((task, index) => (
-          <div key={task.id} style={{
-            display: "flex", alignItems: "center",
-            padding: "14px 14px",
-            borderBottom: index < tasks.length - 1 ? "1px solid #F0F0F0" : "none",
-            gap: 8,
-          }}>
-            <span style={{
-              width: 20, height: 20, borderRadius: "50%",
-              background: task.isNow ? "#3B5BDB" : "#E8EAED",
-              color: task.isNow ? "#fff" : "#888",
-              fontSize: 11, fontWeight: 600,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0,
-            }}>{task.id}</span>
-            <span style={{
-              width: 36, fontSize: 12,
-              color: "#878787",
-              fontWeight: task.isNow ? 600 : 400,
-              flexShrink: 0, textAlign: "center",
-            }}>{task.time || "—"}</span>
-            <span style={{ flex: 1, fontSize: 14, color: "#1A1A1A", fontWeight: 500 }}>
-              {task.name}
-            </span>
-            <span
-              onClick={() => onOpenQuotaDetail?.(task.code)}
-              style={{ fontSize: 12, color: "#3B5BDB", marginRight: 6, flexShrink: 0,
-                fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2,
-                cursor: "pointer" }}
+      <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        {tasks.map((task, index) => {
+          const isTrainingTask = Boolean(task.isTraining);
+          const actionLabel = isTrainingTask
+            ? trainingFinished ? "回看" : trainingStarted ? "继续" : "进入"
+            : submittedIds.includes(task.id) ? "已提交" : "申诉";
+
+          return (
+            <div
+              key={task.id}
+              onClick={isTrainingTask ? openTrainingPanel : undefined}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "14px 14px",
+                borderBottom: index < tasks.length - 1 ? "1px solid #F0F0F0" : "none",
+                gap: 8,
+                background: isTrainingTask && trainingPanelOpen ? "#F5F8FF" : "transparent",
+                cursor: isTrainingTask ? "pointer" : "default",
+              }}
             >
-              {task.code}
-            </span>
-            {task.canSubmit && !submittedIds.includes(task.id) ? (
-              <button
-                onClick={() => handleSubmit(task.id)}
-                style={{
-                  background: "#3b5bdb", color: "#fff", border: "none",
-                  borderRadius: 14, padding: "4px 12px",
-                  fontSize: 12, fontWeight: 600, cursor: "pointer",
-                  flexShrink: 0, whiteSpace: "nowrap",
+              <span style={{
+                width: 20,
+                height: 20,
+                borderRadius: "50%",
+                background: task.isNow || isTrainingTask ? "#3B5BDB" : "#E8EAED",
+                color: task.isNow || isTrainingTask ? "#fff" : "#888",
+                fontSize: 11,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}>{task.id}</span>
+              <span style={{ width: 36, fontSize: 12, color: "#878787", fontWeight: task.isNow ? 600 : 400, flexShrink: 0, textAlign: "center" }}>{task.time || "—"}</span>
+              <span style={{ flex: 1, fontSize: 14, color: "#1A1A1A", fontWeight: isTrainingTask ? 700 : 500 }}>
+                {task.name}
+              </span>
+              <span
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onOpenQuotaDetail?.(task.code);
                 }}
-              >申诉</button>
-            ) : submittedIds.includes(task.id) ? (
-              <span style={{ fontSize: 11, color: "#52C41A", flexShrink: 0 }}>已提交</span>
-            ) : (
-              <button
-                style={{
-                  background: "#3b5bdb", color: "#fff", border: "none",
-                  borderRadius: 14, padding: "4px 10px",
-                  fontSize: 12, fontWeight: 600, cursor: "pointer",
-                  flexShrink: 0, whiteSpace: "nowrap",
-                }}
-              >申诉</button>
-            )}
-          </div>
-        ))}
+                style={{ fontSize: 12, color: "#3B5BDB", marginRight: 6, flexShrink: 0, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2, cursor: "pointer" }}
+              >
+                {task.code}
+              </span>
+              {isTrainingTask ? (
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openTrainingPanel();
+                  }}
+                  style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
+                >
+                  {actionLabel}
+                </button>
+              ) : task.canSubmit && !submittedIds.includes(task.id) ? (
+                <button
+                  onClick={() => handleSubmit(task.id)}
+                  style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
+                >申诉</button>
+              ) : submittedIds.includes(task.id) ? (
+                <span style={{ fontSize: 11, color: "#52C41A", flexShrink: 0 }}>已提交</span>
+              ) : (
+                <button style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>申诉</button>
+              )}
+            </div>
+          );
+        })}
       </div>
+      {renderTrainingPanel()}
     </div>
   );
 
   // ── 任务状态内容 ──
   const renderTaskStatus = () => (
     <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 0" }}>
-      {/* 待执行任务 */}
-      <div style={{
-        background: "#EEF2FF", borderRadius: 14, overflow: "hidden",
-        marginBottom: 16,
-      }}>
-        {/* 分组标题 */}
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 14px 10px",
-        }}>
+      <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 10px" }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>待执行任务</span>
-          <button
-            onClick={() => setPendingExpanded(!pendingExpanded)}
-            style={{
-              background: "#3B5BDB", color: "#fff", border: "none",
-              borderRadius: 20, padding: "4px 14px",
-              fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}
-          >{pendingExpanded ? "收起" : "展开"}</button>
+          <button onClick={() => setPendingExpanded(!pendingExpanded)} style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 20, padding: "4px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{pendingExpanded ? "收起" : "展开"}</button>
         </div>
-        {/* 任务列表 */}
         {pendingExpanded && (
           <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
             {PENDING_TASKS.map((task, index) => (
-              <div key={task.id} style={{
-                display: "flex", alignItems: "center",
-                padding: "12px 14px",
-                borderBottom: index < PENDING_TASKS.length - 1 ? "1px solid #F5F5F5" : "none",
-                gap: 8,
-              }}>
-                <span style={{
-                  width: 20, height: 20, borderRadius: "50%",
-                  background: "#E8EAED", color: "#666",
-                  fontSize: 11, fontWeight: 600,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}>{task.seq}</span>
-                <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>
-                  {task.time}
-                </span>
-                <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>
-                  {task.name}
-                </span>
-                <span
-                  onClick={() => onOpenQuotaDetail?.(task.code)}
-                  style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4,
-                    fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2,
-                    cursor: "pointer" }}
-                >
-                  {task.code}
-                </span>
+              <div key={task.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: index < PENDING_TASKS.length - 1 ? "1px solid #F5F5F5" : "none", gap: 8 }}>
+                <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
+                <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
+                <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
+                <span onClick={() => onOpenQuotaDetail?.(task.code)} style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2, cursor: "pointer" }}>{task.code}</span>
                 <LightningIcon />
-                <button style={{
-                  background: "#3b5bdb", color: "#fff", border: "none",
-                  borderRadius: 14, padding: "4px 10px",
-                  fontSize: 12, fontWeight: 600, cursor: "pointer",
-                  flexShrink: 0, whiteSpace: "nowrap",
-                }}>申诉</button>
+                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>申诉</button>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* 已完成任务 */}
-      <div style={{
-        background: "#EEF2FF", borderRadius: 14, overflow: "hidden",
-        marginBottom: 16,
-      }}>
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 14px 10px",
-        }}>
+      <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 10px" }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>已完成任务</span>
-          <button
-            onClick={() => setDoneExpanded(!doneExpanded)}
-            style={{
-              background: "#3B5BDB", color: "#fff", border: "none",
-              borderRadius: 20, padding: "4px 14px",
-              fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}
-          >{doneExpanded ? "收起" : "展开"}</button>
+          <button onClick={() => setDoneExpanded(!doneExpanded)} style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 20, padding: "4px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{doneExpanded ? "收起" : "展开"}</button>
         </div>
         {doneExpanded && (
           <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
             {DONE_TASKS.map((task, index) => (
-              <div key={task.id} style={{
-                display: "flex", alignItems: "center",
-                padding: "12px 14px",
-                borderBottom: index < DONE_TASKS.length - 1 ? "1px solid #F5F5F5" : "none",
-                gap: 8,
-              }}>
-                <span style={{
-                  width: 20, height: 20, borderRadius: "50%",
-                  background: "#E8EAED", color: "#666",
-                  fontSize: 11, fontWeight: 600,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}>{task.seq}</span>
-                <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>
-                  {task.time}
-                </span>
-                <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>
-                  {task.name}
-                </span>
-                <span
-                  onClick={() => onOpenQuotaDetail?.(task.code)}
-                  style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4,
-                    fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2,
-                    cursor: "pointer" }}
-                >
-                  {task.code}
-                </span>
+              <div key={task.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: index < DONE_TASKS.length - 1 ? "1px solid #F5F5F5" : "none", gap: 8 }}>
+                <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
+                <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
+                <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
+                <span onClick={() => onOpenQuotaDetail?.(task.code)} style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2, cursor: "pointer" }}>{task.code}</span>
                 {task.hasView ? (
-                  <button style={{
-                    background: "#3B5BDB", color: "#fff", border: "none",
-                    borderRadius: 14, padding: "3px 10px",
-                    fontSize: 11, fontWeight: 600, cursor: "pointer",
-                    flexShrink: 0, marginRight: 2,
-                  }}>查看</button>
+                  <button style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "3px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer", flexShrink: 0, marginRight: 2 }}>查看</button>
                 ) : null}
                 <LightningIcon />
               </div>
@@ -407,10 +524,7 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
   // ── 任务大厅内容 ──
   const renderTaskHall = () => (
     <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 0" }}>
-      <div style={{
-        background: "#EEF2FF", borderRadius: 14, overflow: "hidden",
-      }}>
-        {/* 大厅标题 */}
+      <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden" }}>
         <div style={{ padding: "12px 14px 8px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>计划任务</span>
@@ -418,55 +532,21 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
             <div style={{ display: "flex", gap: 8 }}>
-              <span style={{
-                fontSize: 12, color: "#3B5BDB", background: "#DBEAFE",
-                padding: "2px 8px", borderRadius: 10, fontWeight: 500,
-              }}>大厅A区</span>
-              <span style={{
-                fontSize: 12, color: "#3B5BDB", background: "#DBEAFE",
-                padding: "2px 8px", borderRadius: 10, fontWeight: 500,
-              }}>大厅A区</span>
+              <span style={{ fontSize: 12, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 500 }}>大厅A区</span>
+              <span style={{ fontSize: 12, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 500 }}>大厅A区</span>
             </div>
             <span style={{ fontSize: 12, color: "#888" }}>净工时：7.5小时</span>
           </div>
         </div>
-        {/* 任务列表 */}
         <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
           {HALL_TASKS.map((task, index) => (
-            <div key={task.id} style={{
-              display: "flex", alignItems: "center",
-              padding: "12px 14px",
-              borderBottom: index < HALL_TASKS.length - 1 ? "1px solid #F5F5F5" : "none",
-              gap: 8,
-            }}>
-              <span style={{
-                width: 20, height: 20, borderRadius: "50%",
-                background: "#E8EAED", color: "#666",
-                fontSize: 11, fontWeight: 600,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}>{task.seq}</span>
-              <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>
-                {task.time}
-              </span>
-              <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>
-                {task.name}
-              </span>
-              <span
-                onClick={() => onOpenQuotaDetail?.(task.code)}
-                style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4,
-                  fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2,
-                  cursor: "pointer" }}
-              >
-                {task.code}
-              </span>
+            <div key={task.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: index < HALL_TASKS.length - 1 ? "1px solid #F5F5F5" : "none", gap: 8 }}>
+              <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
+              <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
+              <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
+              <span onClick={() => onOpenQuotaDetail?.(task.code)} style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2, cursor: "pointer" }}>{task.code}</span>
               <LightningIcon />
-              <button style={{
-                background: "#3b5bdb", color: "#fff", border: "none",
-                borderRadius: 14, padding: "4px 10px",
-                fontSize: 12, fontWeight: 600, cursor: "pointer",
-                flexShrink: 0, whiteSpace: "nowrap",
-              }}>申诉</button>
+              <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>申诉</button>
             </div>
           ))}
         </div>
@@ -474,82 +554,42 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
     </div>
   );
 
+  const trainingInputEnabled = activeTab === "current" && trainingPanelOpen && trainingStarted && !trainingFinished;
+  const inputPlaceholder = trainingInputEnabled
+    ? "输入你的培训回答..."
+    : activeTab === "current" && trainingPanelOpen
+      ? trainingFinished ? "培训已完成，可回看本次记录" : "点击“立即培训”后在这里继续作答"
+      : "说点什么...";
+
   return (
-    <div style={{
-      width: "100%", height: "100%",
-      display: "flex", flexDirection: "column",
-      background: "#F2F3F7",
-      fontFamily: "'PingFang SC', 'Helvetica Neue', Arial, sans-serif",
-      overflow: "hidden",
-    }}>
-      {/* 状态栏 + 导航栏 */}
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#F2F3F7", fontFamily: "'PingFang SC', 'Helvetica Neue', Arial, sans-serif", overflow: "hidden" }}>
       {renderHeader()}
 
-      {/* 内容区 */}
       {activeTab === "current" && renderCurrentWork()}
       {activeTab === "status" && renderTaskStatus()}
       {activeTab === "hall" && renderTaskHall()}
 
-      {/* ── 底部 Tab ── */}
-      <div style={{
-        height: 48, background: "#fff",
-        borderTop: "1px solid #EBEBEB",
-        display: "flex", alignItems: "stretch",
-        flexShrink: 0,
-      }}>
+      <div style={{ height: 48, background: "#fff", borderTop: "1px solid #EBEBEB", display: "flex", alignItems: "stretch", flexShrink: 0 }}>
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              style={{
-                flex: 1, border: "none", cursor: "pointer",
-                background: isActive ? "#EEF2FF" : "transparent",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                gap: 4, padding: 0,
-                borderRadius: isActive ? 0 : 0,
-                transition: "background 0.15s",
-              }}
+              style={{ flex: 1, border: "none", cursor: "pointer", background: isActive ? "#EEF2FF" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: 0, transition: "background 0.15s" }}
             >
-              <span style={{
-                fontSize: 13, fontWeight: isActive ? 700 : 400,
-                color: isActive ? "#3B5BDB" : "#888",
-              }}>{tab.label}</span>
-              <span style={{
-                fontSize: 11, fontWeight: 700,
-                color: isActive ? "#3B5BDB" : "#aaa",
-                background: isActive ? "rgba(59,91,219,0.12)" : "#F0F0F0",
-                padding: "1px 5px", borderRadius: 10,
-                minWidth: 18, textAlign: "center",
-              }}>{tab.count}</span>
-              {tab.key !== "current" && (
-                <LightningIcon color={isActive ? "#3B5BDB" : "#ccc"} />
-              )}
+              <span style={{ fontSize: 13, fontWeight: isActive ? 700 : 400, color: isActive ? "#3B5BDB" : "#888" }}>{tab.label}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: isActive ? "#3B5BDB" : "#aaa", background: isActive ? "rgba(59,91,219,0.12)" : "#F0F0F0", padding: "1px 5px", borderRadius: 10, minWidth: 18, textAlign: "center" }}>{tab.count}</span>
+              {tab.key !== "current" && <LightningIcon color={isActive ? "#3B5BDB" : "#ccc"} />}
             </button>
           );
         })}
       </div>
 
-        {/* 抽屉侧边栏 */}
       {drawerOpen && (
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 200,
-          display: "flex",
-        }}>
-          {/* 遮罩 */}
-          <div
-            onClick={() => setDrawerOpen(false)}
-            style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }}
-          />
-          {/* 抽屉内容 */}
-          <div style={{
-            position: "relative", zIndex: 1,
-            width: "80%", maxWidth: 300, height: "100%",
-            background: "#fff", overflowY: "auto",
-            boxShadow: "4px 0 24px rgba(0,0,0,0.18)",
-            animation: "slideInLeft 0.22s ease",
-          }}>
+        <div style={{ position: "absolute", inset: 0, zIndex: 200, display: "flex" }}>
+          <div onClick={() => setDrawerOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+          <div style={{ position: "relative", zIndex: 1, width: "80%", maxWidth: 300, height: "100%", background: "#fff", overflowY: "auto", boxShadow: "4px 0 24px rgba(0,0,0,0.18)", animation: "slideInLeft 0.22s ease" }}>
             <TaskDrawerPage
               onClose={() => setDrawerOpen(false)}
               onOpenQuotaDetail={(code) => {
@@ -561,26 +601,26 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
         </div>
       )}
 
-      {/* 底部输入栏 ── */}
-      <div style={{
-        height: 52, background: "#fff",
-        borderTop: "1px solid #F0F0F0",
-        display: "flex", alignItems: "center",
-        padding: "0 12px", gap: 10,
-        flexShrink: 0,
-      }}>
+      <div style={{ height: 52, background: "#fff", borderTop: "1px solid #F0F0F0", display: "flex", alignItems: "center", padding: "0 12px", gap: 10, flexShrink: 0 }}>
         <button style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <rect x="2" y="4" width="20" height="16" rx="3" stroke="#888" strokeWidth="1.5" />
             <path d="M7 9h10M7 13h6" stroke="#888" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </button>
-        <div style={{
-          flex: 1, height: 32, background: "#F5F5F5",
-          borderRadius: 16, display: "flex", alignItems: "center",
-          padding: "0 12px",
-        }}>
-          <span style={{ fontSize: 13, color: "#bbb" }}>说点什么...</span>
+        <div style={{ flex: 1, height: 32, background: "#F5F5F5", borderRadius: 16, display: "flex", alignItems: "center", padding: "0 12px" }}>
+          <input
+            value={trainingInput}
+            onChange={(event) => setTrainingInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleSendTrainingAnswer();
+              }
+            }}
+            disabled={!trainingInputEnabled}
+            placeholder={inputPlaceholder}
+            style={{ width: "100%", border: "none", outline: "none", background: "transparent", fontSize: 13, color: trainingInputEnabled ? "#1A1A1A" : "#BBB" }}
+          />
         </div>
         <button style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -595,17 +635,17 @@ export default function CurrentTaskPage({ onBack, initialTab, onOpenQuotaDetail 
             <path d="M12 8v8M8 12h8" stroke="#888" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </button>
-        <button style={{
-          width: 32, height: 32, borderRadius: "50%",
-          background: "#FF6B35", border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0, boxShadow: "0 2px 8px rgba(255,107,53,0.4)",
-        }}>
-          <svg width="14" height="16" viewBox="0 0 24 24" fill="none">
-            <rect x="8" y="2" width="8" height="13" rx="4" fill="white" />
-            <path d="M5 11a7 7 0 0014 0" stroke="white" strokeWidth="2" strokeLinecap="round" />
-            <path d="M12 18v4M9 22h6" stroke="white" strokeWidth="2" strokeLinecap="round" />
-          </svg>
+        <button
+          onClick={handleSendTrainingAnswer}
+          style={{ width: 32, height: 32, borderRadius: "50%", background: "#3B5BDB", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 8px rgba(59,91,219,0.35)" }}
+        >
+          {trainingInputEnabled && trainingInput.trim() ? <SendIcon /> : (
+            <svg width="14" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="8" y="2" width="8" height="13" rx="4" fill="white" />
+              <path d="M5 11a7 7 0 0014 0" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <path d="M12 18v4M9 22h6" stroke="white" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          )}
         </button>
       </div>
     </div>
