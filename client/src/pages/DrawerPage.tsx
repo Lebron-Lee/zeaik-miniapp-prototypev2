@@ -91,7 +91,7 @@ interface TrainingTask {
   hasUpdate?: boolean;
 }
 
-const TRAINING_TASKS: TrainingTask[] = [
+export const TRAINING_TASKS: TrainingTask[] = [
   { id: 1, title: "茶水区服务标准培训", time: "今天 09:41", progress: "新增 3 人完成，完成率 72%", group: "我发起的", hasUpdate: true },
   { id: 2, title: "门店开档检查培训", time: "昨天 18:20", progress: "新增 1 条待完成提醒", group: "我发起的", hasUpdate: true },
   { id: 3, title: "新品推荐话术培训", time: "昨天 11:08", progress: "培训已发起，待 5 人接收", group: "我发起的" },
@@ -168,12 +168,16 @@ function SectionCard({ title, badge, items }: {
   );
 }
 
+export const TRAINING_DRAWER_BADGE_COUNT = TRAINING_TASKS.filter(
+  task => task.group === "我发起的" && task.hasUpdate,
+).length;
+
 export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation }: DrawerPageProps) {
   const [showAllTrainingTasks, setShowAllTrainingTasks] = useState(false);
 
   const initiatedTasks = TRAINING_TASKS.filter(task => task.group === "我发起的");
   const joinedTasks = TRAINING_TASKS.filter(task => task.group === "我参加的");
-  const initiatedUpdateCount = initiatedTasks.filter(task => task.hasUpdate).length;
+  const initiatedUpdateCount = TRAINING_DRAWER_BADGE_COUNT;
 
   const visibleInitiatedTasks = showAllTrainingTasks ? initiatedTasks : initiatedTasks.slice(0, 2);
   const visibleJoinedTasks = showAllTrainingTasks ? joinedTasks : joinedTasks.slice(0, 2);

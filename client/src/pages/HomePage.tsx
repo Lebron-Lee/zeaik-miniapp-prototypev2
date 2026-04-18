@@ -12,7 +12,7 @@
  */
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import DrawerPage from "./DrawerPage";
+import DrawerPage, { TRAINING_DRAWER_BADGE_COUNT } from "./DrawerPage";
 
 const EXPERT_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663518710373/QXycpLBxSeowbm34BVNxpL/zeaik_expert_nobg_f210d4f5.png";
 
@@ -1178,6 +1178,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
   const currentTrainingTask = trainingActiveTask ?? TRAINING_INVITE_CARD;
   const currentTrainingIntroSummary = getTrainingIntroSummary(currentTrainingTask);
+  const trainingMenuBadgeCount = TRAINING_DRAWER_BADGE_COUNT;
   const allTrainingLaunchMembers = TRAINING_LAUNCH_GROUPS.flatMap(group =>
     group.members.map(member => ({ ...member, groupId: group.id, groupLabel: group.label })),
   );
@@ -2858,8 +2859,45 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
       {/* ── 顶部导航 ── */}
       <div className="flex items-center justify-between px-4 py-2" style={{ position: "relative", zIndex: 10 }}>
         {/* 左：汉堡菜单 */}
-        <button onClick={() => setDrawerOpen(true)} style={{ padding: 6, background: "none", border: "none" }}>
+        <button
+          onClick={() => setDrawerOpen(true)}
+          style={{
+            padding: 6,
+            background: "none",
+            border: "none",
+            position: "relative",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <IcMenu />
+          {trainingMenuBadgeCount > 0 && (
+            <span
+              style={{
+                position: "absolute",
+                top: -2,
+                right: -2,
+                minWidth: 16,
+                height: 16,
+                padding: "0 4px",
+                borderRadius: 999,
+                background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
+                color: "#ffffff",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 10,
+                fontWeight: 800,
+                lineHeight: 1,
+                boxShadow: "0 4px 10px rgba(232,117,10,0.28)",
+                border: "1.5px solid rgba(255,255,255,0.92)",
+              }}
+              aria-label={`培训任务新增 ${trainingMenuBadgeCount} 条进展`}
+            >
+              {trainingMenuBadgeCount > 99 ? "99+" : trainingMenuBadgeCount}
+            </span>
+          )}
         </button>
 
         {/* 右：官方网站 + 更多 */}
