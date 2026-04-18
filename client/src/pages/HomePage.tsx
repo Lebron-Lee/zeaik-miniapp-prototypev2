@@ -207,6 +207,19 @@ const QUICK_QUESTIONS = [
   },
 ];
 
+const DISH_INTROS: Record<string, string> = {
+  "淮扬狮子头": "淮扬狮子头是扬州著名三头宴之首，历史悠久，曾作为开国第一宴的主菜，也是周总理生前很喜爱的一道菜。此菜讲究刀工、火候及配料，选用肥瘦四六开的猪肉，手工切成石榴丁状，并配以马蹄、虾籽起鲜，再用小火炖三到四小时。成菜宽汤慢煮，肥而不腻、烂而不散、入口即化、醇香扑鼻。上桌后通常要用汤勺舀着吃，一勺丸子一勺汤，层次特别丰富。传说隋炀帝下扬州时，御厨以“葵花献肉”演化出这道菜，因形似狮子头，后赐名清炖蟹粉狮子头，遂流传至今。",
+  "软兜长鱼": "软兜长鱼是两淮名菜，也是极富地方特色的经典代表。淮安人把黄鳝叫长鱼，当地以黄鳝为原料曾做出 108 道菜，百菜百味、一菜一格。此菜选用笔杆粗细的细黄鳝，活汆水后以竹刀剔骨，取净肉，再配蒜黄和蒜片爆炒。所谓‘软兜’，既与布兜汆杀、成菜形似肚兜有关，也与食用时用小勺在下方兜着入口的讲究有关。整道菜最迷人的地方，在于软嫩、滑嫩、活嫩三大口感，以及蒜香、醋香与淡淡白胡椒辣香交织出的鲜美层次。",
+  "响油鳝糊": "响油鳝糊是上海名菜，名字就来自上桌时淋热油那一瞬间的劈啪作响。它选用笔杆粗的细黄鳝，活汆水后取肉，撕成整齐的鳝丝，再入鸡汤中烫制，沥去水分，配笋丝、葱、姜爆炒而成。装盘时会点上蒜泥、浇上热油，再撒胡椒粉，香气会一下子被激发出来。整道菜蒜香扑鼻，鳝肉滑嫩，鳝糊滋汁鲜香，是很能体现江南细腻火候的一道代表菜。",
+  "清蒸白鱼": "清蒸白鱼是太湖三白之一，也是久负盛名的席上佳肴。民间有‘一条白鱼水中窜，引得四方游客馋，宁吃活白鱼，不吃冰鲥鱼’的说法。白鱼以三斤左右最鲜、最嫩、味最美，最适合用清蒸方式呈现。成菜后鱼肉洁白，鲜嫩肥美，肉质细腻而味道纯净，很能体现食材本味，是江南水乡餐桌上非常经典的一道鱼鲜。",
+  "鸡头米菱角炒虾仁": "鸡头米菱角炒虾仁是本店特色菜，选用太湖白虾仁、野生小菱角以及被称为水中之王的鸡头米一同滑炒而成。整道菜的亮点在于食材搭配清雅却层次丰富：虾仁洁白鲜嫩，菱角脆爽清甜，鸡头米软糯润口，整体营养价值也很高。入口既有湖鲜的清鲜，也有时令水生食材的灵动感。",
+  "普洱匠心红烧肉": "普洱匠心红烧肉精选上等五花肉，搭配云南普洱茶匠心制作，是一道很考验厨师功底的菜。好吃的关键，在于火候、收汁和肥瘦层次的平衡。普洱茶香能帮助提升肉香层次，也让口感更显醇厚而不腻。常说‘会颤抖的红烧肉才是好的红烧肉’，说的正是这道菜应有的软糯弹润与入口化开的状态。",
+  "88秒小黄鱼": "88秒小黄鱼是本店荣获亚洲十大名厨孙正林大师的独创菜品，也是他反复钻研清蒸、煎炸、红烧等多种鱼类做法后沉淀出的代表作。所谓 88 秒，是因为少一秒鱼肉会夹生带腥，多一秒又会过火变老，只有 88 秒刚好达到最佳口感。成菜鲜香滑嫩，最大特色就是对时间与火候的精确把控。",
+  "平桥豆腐": "平桥豆腐是淮扬名菜，也是满汉全席入选菜肴，出自淮安平桥镇。此菜选用嫩豆腐切成一致的菱形小块，再配鸡肉丁、香菇丁、笋丁及香菜叶烩制而成。它最绝妙的地方有两点：一是用鲫鱼脑和鸡汤调口，构思极巧；二是成菜看似不冒热气，其实非常烫，所以讲究‘勺不起，气不起，勺起气起’，需要吹一吹再慢慢品尝。相传乾隆下江南路过平桥镇时，品尝后曾赞其为天下第一菜。",
+  "扬州大煮干丝": "扬州大煮干丝是中国名菜，已有数百年历史，以软绵入味、制作精细而闻名。传统做法选用三分厚豆腐干，片成 18 到 24 片，再切成极细的丝，用开水烫三次后微微挤干，再换清水漂洗去豆腥，最后配笋片、火腿、虾仁，以鸡清汤慢慢烧至质柔汤浓。整道菜看似朴素，实则极见刀工与功夫，是淮扬菜精细讲究的典型代表。",
+  "黄桥烧饼": "黄桥烧饼源于江苏泰兴黄桥镇，是江苏名点。烧饼制作非常讲究，要用油酥和面，再包入火腿或猪油等馅料后烤制而成。成品饼形饱满、色泽金黄，口感香脆肥润，尤其适合热食。刚出炉时外酥内香，层次丰富，是兼具地方风味与大众喜爱的传统点心。",
+};
+
 // AI回复内容
 const AI_REPLIES: Record<string, string> = {
   "餐饮店在哪些环节可以用AI来干活？":
@@ -831,6 +844,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [chatMode, setChatMode] = useState(false); // 是否进入对话模式
   const [msgFeedback, setMsgFeedback] = useState<Record<number, "like" | "dislike" | null>>({});
   const [speakingMsgId, setSpeakingMsgId] = useState<number | null>(null);
+  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [expertIndex, setExpertIndex] = useState(0); // 当前展示的专家形象索引
   const [storeModal, setStoreModal] = useState<{ open: boolean; label: string }>({ open: false, label: "" });
   const openStoreModal = (label: string) => setStoreModal({ open: true, label });
@@ -1518,8 +1532,59 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
     }
   }, [messages]);
 
+  const stopSpeechPlayback = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    speechUtteranceRef.current = null;
+    setSpeakingMsgId(null);
+  };
+
+  const playSpeechForMessage = (messageId: number, rawText: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      toast.info("当前浏览器暂不支持语音播报");
+      return false;
+    }
+
+    const text = rawText
+      .replace(/\*\*/g, "")
+      .replace(/`/g, "")
+      .replace(/\n+/g, "。")
+      .trim();
+
+    if (!text) return false;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "zh-CN";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.onstart = () => setSpeakingMsgId(messageId);
+    utterance.onend = () => {
+      if (speechUtteranceRef.current === utterance) {
+        speechUtteranceRef.current = null;
+        setSpeakingMsgId(null);
+      }
+    };
+    utterance.onerror = () => {
+      if (speechUtteranceRef.current === utterance) {
+        speechUtteranceRef.current = null;
+        setSpeakingMsgId(null);
+      }
+      toast.error("语音播报失败，请重试");
+    };
+    speechUtteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+    return true;
+  };
+
+  useEffect(() => () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  }, []);
+
   // 流式输出AI回复
-  const streamAIReply = (fullText: string, sourceQuestion?: string) => {
+  const streamAIReply = (fullText: string, sourceQuestion?: string, autoSpeak = false) => {
     const id = msgIdRef.current++;
     setMessages(prev => [...prev, { id, role: "ai", text: "", streaming: true }]);
 
@@ -1538,6 +1603,11 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
         const shuffled = [...allFollowUps].sort(() => Math.random() - 0.5);
         const followUps = shuffled.slice(0, count);
         setMessages(prev => prev.map(m => m.id === id ? { ...m, streaming: false, followUps } : m));
+        if (autoSpeak) {
+          setTimeout(() => {
+            playSpeechForMessage(id, fullText);
+          }, 120);
+        }
       }
     }, 30);
   };
@@ -1593,6 +1663,15 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
     }
 
     setMessages(prev => [...prev, { id: userMsgId, role: "user", text: msg }]);
+
+    const normalizedMsg = msg.replace(/[\s　]/g, "");
+    const matchedDishName = Object.keys(DISH_INTROS).find(name => normalizedMsg === name.replace(/[\s　]/g, ""));
+
+    if (matchedDishName) {
+      const reply = `${matchedDishName}\n\n${DISH_INTROS[matchedDishName]}`;
+      setTimeout(() => streamAIReply(reply, matchedDishName, true), 250);
+      return;
+    }
 
     // 查找对应AI回复
     const reply = AI_REPLIES[msg] ||
@@ -3332,8 +3411,15 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
                           {/* 语音播放 */}
                           <button
                             onClick={() => {
-                              setSpeakingMsgId(speakingMsgId === msg.id ? null : msg.id);
-                              toast.info(speakingMsgId === msg.id ? "已停止播放" : "语音播放功能即将开放");
+                              if (speakingMsgId === msg.id) {
+                                stopSpeechPlayback();
+                                toast.info("已停止播放");
+                                return;
+                              }
+                              const played = playSpeechForMessage(msg.id, msg.text || "");
+                              if (played) {
+                                toast.success("开始语音播报");
+                              }
                             }}
                             title="语音播放"
                             style={{
