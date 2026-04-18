@@ -1248,9 +1248,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             setTrainingIsFeedback(true);
             setMessages(prev => [...prev, {
               id: newTrainingMsgId(), role: "ai",
-              text: `🎊 太厉害了！${TRAINING_INVITE_CARD.totalQuestions} 道题全部完成！
-
-最后一个问题：**请用自己的话说说，这次培训让你印象最深的是什么？**`,
+              text: `🎊 太厉害了！最后一个问题：**请说说这次培训对你有用吗？**`,
             }]);
           }
         }, 1500);
@@ -1274,7 +1272,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
       setTrainingIsThinking(false);
       const score = parseFloat((Math.min(5, Math.max(3.5, 3.8 + Math.random() * 1.0))).toFixed(1));
       setMessages(prev => [...prev,
-        { id: newTrainingMsgId(), role: "ai", text: `非常感谢你的反馈！你今天的表现真的很棒！🌟` },
+        { id: newTrainingMsgId(), role: "ai", text: `收到你的反馈啦，辛苦你认真完成整个培训！你的参与很重要，也给团队带来了很好的示范。接下来培训就圆满结束啦，你可以顺手为这次培训打个分，我们也会继续把内容做得更实用。🌟` },
         { id: newTrainingMsgId(), role: "ai", text: "", isTrainingDone: true, trainingScore: score },
       ]);
       setTrainingIsActive(false);
@@ -3285,9 +3283,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
                             setTimeout(() => {
                               setMessages(prev => [...prev, {
                                 id: newTrainingMsgId(), role: "ai",
-                                text: `🎊 所有题目已完成！
-
-最后一个问题：**请用自己的话说说，这次培训让你印象最深的是什么？**`,
+                                text: `🎊 太厉害了！最后一个问题：**请说说这次培训对你有用吗？**`,
                               }]);
                             }, 800);
                           }
