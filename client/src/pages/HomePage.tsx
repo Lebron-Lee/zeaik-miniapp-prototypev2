@@ -723,6 +723,9 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [sectionOpen, setSectionOpen] = useState(true);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isVoiceHolding, setIsVoiceHolding] = useState(false);
+  const [voiceCancelRequested, setVoiceCancelRequested] = useState(false);
+  const [isKnowledgeRecording, setIsKnowledgeRecording] = useState(false);
+  const [knowledgeRecordingStartedAt, setKnowledgeRecordingStartedAt] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatMode, setChatMode] = useState(false); // 是否进入对话模式
   const [msgFeedback, setMsgFeedback] = useState<Record<number, "like" | "dislike" | null>>({});
@@ -1180,6 +1183,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
+    setIsKnowledgeRecording(false);
+    setKnowledgeRecordingStartedAt(null);
     setTrainingTargetPickerOpen(false);
     setMessages(prev => {
       const filtered = prev.filter(
@@ -1254,6 +1259,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
+    setIsKnowledgeRecording(false);
+    setKnowledgeRecordingStartedAt(null);
     setTrainingTargetPickerOpen(false);
     setInputText("");
 
@@ -1414,7 +1421,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  const handleTrainingLaunchVoiceCapture = () => {
+  const commitTrainingLaunchVoiceKnowledge = (durationMs?: number) => {
     const voiceSnippets = [
       "今天晨会重点强调三件事：迎宾先微笑，点单要复述，异常情况 30 秒内上报值班经理。",
       "领导补充要求：高峰期收银与迎宾要分岗协作，避免顾客排队超过两分钟。",
@@ -1427,17 +1434,15 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     ];
     const recognized = voiceSnippets[Math.floor(Math.random() * voiceSnippets.length)];
     const analysis = analysisSummaries[Math.floor(Math.random() * analysisSummaries.length)];
+    const durationSeconds = Math.max(8, Math.round((durationMs ?? 26000) / 1000));
     const simulatedIntent = "对领导讲话进行碎片录音，自动沉淀培训题目";
     const simulatedGoal = `录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：${analysis}`;
     const audioRecord = {
       name: `领导讲话录音_${new Date().getMonth() + 1}${new Date().getDate()}_${String(new Date().getHours()).padStart(2, "0")}${String(new Date().getMinutes()).padStart(2, "0")}.m4a`,
-      sizeLabel: "语音解析",
+      sizeLabel: `${durationSeconds}秒 · 语音解析`,
     };
     const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
 
-    setIsVoiceMode(true);
-    setIsVoiceHolding(true);
-    window.setTimeout(() => setIsVoiceHolding(false), 700);
     setTrainingLaunchIntent(prev => prev.trim() || simulatedIntent);
     setTrainingLaunchGoal(simulatedGoal);
     setTrainingLaunchUploadedFiles(prev => [audioRecord, ...prev.filter(file => file.name !== audioRecord.name)].slice(0, 3));
@@ -1448,7 +1453,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {
         id: msgIdRef.current++,
         role: "user",
-        text: `碎片录音：${recognized}`,
+        text: `碎片录音（${durationSeconds}秒）：${recognized}`,
       },
       {
         id: msgIdRef.current++,
@@ -1460,19 +1465,62 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTimeout(() => inputRef.current?.focus(), 120);
   };
 
+  const handleTrainingLaunchVoiceCapture = () => {
+    if (!isKnowledgeRecording) {
+      setIsKnowledgeRecording(true);
+      setKnowledgeRecordingStartedAt(Date.now());
+      setChatMode(true);
+      toast.info("已开始录音，再次点击“结束”完成录音");
+      return;
+    }
+
+    const durationMs = knowledgeRecordingStartedAt ? Date.now() - knowledgeRecordingStartedAt : undefined;
+    setIsKnowledgeRecording(false);
+    setKnowledgeRecordingStartedAt(null);
+    commitTrainingLaunchVoiceKnowledge(durationMs);
+  };
+
   // 语音按住说话
-  const handleVoiceStart = () => setIsVoiceHolding(true);
+  const handleVoiceStart = () => {
+    setIsVoiceHolding(true);
+    setVoiceCancelRequested(false);
+  };
+
   const handleVoiceEnd = () => {
+    if (!isVoiceHolding) return;
+
     setIsVoiceHolding(false);
-    // 模拟语音识别结果
+    if (voiceCancelRequested) {
+      setVoiceCancelRequested(false);
+      toast.info("已取消发送");
+      return;
+    }
+
     const voiceTexts = [
       "今天营业额怎么样？",
       "帮我分析一下翻台率",
       "服务员培训需要多久？",
     ];
     const recognized = voiceTexts[Math.floor(Math.random() * voiceTexts.length)];
+    setVoiceCancelRequested(false);
     handleSend(recognized);
   };
+
+  useEffect(() => {
+    if (!isVoiceHolding) return undefined;
+
+    const handleGlobalVoiceEnd = () => {
+      handleVoiceEnd();
+    };
+
+    window.addEventListener("mouseup", handleGlobalVoiceEnd);
+    window.addEventListener("touchend", handleGlobalVoiceEnd);
+
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalVoiceEnd);
+      window.removeEventListener("touchend", handleGlobalVoiceEnd);
+    };
+  }, [isVoiceHolding, voiceCancelRequested]);
 
   // 渲染消息内容（支持Markdown粗体）
   const renderText = (text: string) => {
@@ -1634,29 +1682,38 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-start" }}>
                     {[
-                      { label: "资料库", onClick: () => toast.info("资料库功能即将开放") },
-                      { label: "录音", onClick: handleTrainingLaunchVoiceCapture },
-                      { label: "上传", onClick: handleTrainingLaunchUploadTrigger },
+                      { label: "资料库", onClick: () => toast.info("资料库功能即将开放"), active: false },
+                      { label: isKnowledgeRecording ? "结束" : "录音", onClick: handleTrainingLaunchVoiceCapture, active: isKnowledgeRecording },
+                      { label: "上传", onClick: handleTrainingLaunchUploadTrigger, active: false },
                     ].map(action => (
                       <button
                         key={action.label}
                         onClick={action.onClick}
                         style={{
-                          border: "1px solid rgba(232,117,10,0.14)",
+                          border: action.active ? "1px solid rgba(232,117,10,0.28)" : "1px solid rgba(232,117,10,0.14)",
                           borderRadius: 999,
                           padding: "5px 10px",
-                          background: "rgba(255,248,241,0.96)",
-                          color: "#8f6b47",
+                          background: action.active ? "linear-gradient(135deg, rgba(255,154,60,0.18), rgba(232,117,10,0.12))" : "rgba(255,248,241,0.96)",
+                          color: action.active ? "#c15f08" : "#8f6b47",
                           fontSize: 12,
-                          fontWeight: 500,
+                          fontWeight: action.active ? 700 : 500,
                           lineHeight: 1.2,
                           flexShrink: 0,
+                          boxShadow: action.active ? "0 6px 14px rgba(232,117,10,0.12)" : "none",
                         }}
                       >
                         {action.label}
                       </button>
                     ))}
                   </div>
+                  {isKnowledgeRecording && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 2 }}>
+                      <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e8750a", boxShadow: "0 0 0 4px rgba(232,117,10,0.14)" }} />
+                      <div style={{ fontSize: 11.5, color: "#9a6334", lineHeight: 1.5 }}>
+                        录音进行中，再次点击“结束”后进入语音知识解析与题库累积
+                      </div>
+                    </div>
+                  )}
                   {trainingLaunchUploadedFiles.length > 0 && (
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 2 }}>
                       {trainingLaunchUploadedFiles.map(file => (
@@ -2840,6 +2897,57 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           </div>
         )}
 
+        {isVoiceHolding && (
+          <div style={{ padding: "0 14px 10px" }}>
+            <div
+              style={{
+                borderRadius: 20,
+                background: voiceCancelRequested ? "linear-gradient(180deg, rgba(255,239,232,0.98), rgba(255,227,213,0.96))" : "linear-gradient(180deg, rgba(255,252,248,0.98), rgba(255,244,235,0.96))",
+                border: `1px solid ${voiceCancelRequested ? "rgba(228,94,55,0.22)" : "rgba(232,117,10,0.16)"}`,
+                boxShadow: "0 16px 36px rgba(166,108,42,0.12)",
+                padding: "14px 14px 12px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 16, background: voiceCancelRequested ? "rgba(228,94,55,0.12)" : "rgba(232,117,10,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <rect x="9" y="4" width="6" height="11" rx="3" fill={voiceCancelRequested ? "#e45e37" : "#e8750a"} />
+                    <path d="M7 11.5a5 5 0 0 0 10 0M12 16.5v3M9 19.5h6" stroke={voiceCancelRequested ? "#e45e37" : "#e8750a"} strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: voiceCancelRequested ? "#bf4a27" : "#7b4c2d" }}>
+                    {voiceCancelRequested ? "松开即可取消发送" : "正在录音，松开发送"}
+                  </div>
+                  <div style={{ marginTop: 4, fontSize: 11.5, color: voiceCancelRequested ? "#bf6a4d" : "#9a7c62", lineHeight: 1.5 }}>
+                    可移动到下方取消区后松开，交互与微信录音弹窗一致
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
+                <div
+                  onMouseEnter={() => setVoiceCancelRequested(true)}
+                  onMouseLeave={() => setVoiceCancelRequested(false)}
+                  onTouchStart={() => setVoiceCancelRequested(true)}
+                  style={{
+                    minWidth: 132,
+                    borderRadius: 999,
+                    padding: "8px 14px",
+                    textAlign: "center",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: voiceCancelRequested ? "#fff" : "#c06745",
+                    background: voiceCancelRequested ? "linear-gradient(135deg, #eb6f47, #d94e2b)" : "rgba(255,236,228,0.96)",
+                    boxShadow: voiceCancelRequested ? "0 10px 20px rgba(217,78,43,0.26)" : "inset 0 0 0 1px rgba(230,104,64,0.12)",
+                  }}
+                >
+                  取消发送
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 输入框行 */}
         <div className="flex items-center gap-2 px-3 pb-2.5">
           {/* 左侧：语音/键盘切换按钮 */}
@@ -2862,9 +2970,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             /* 语音模式：按住说话按钮 */
             <button
               onMouseDown={handleVoiceStart}
-              onMouseUp={handleVoiceEnd}
+              onMouseLeave={() => isVoiceHolding && setVoiceCancelRequested(true)}
+              onMouseEnter={() => isVoiceHolding && setVoiceCancelRequested(false)}
               onTouchStart={handleVoiceStart}
-              onTouchEnd={handleVoiceEnd}
+              onTouchMove={() => isVoiceHolding && setVoiceCancelRequested(true)}
               style={{
                 flex: 1, height: 44,
                 background: isVoiceHolding
@@ -2886,7 +2995,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     <circle cx="12" cy="12" r="3" fill="#fff"/>
                     <path d="M6 12c0 .5.1 1 .2 1.5M18 12c0 .5-.1 1-.2 1.5M9 6.5C9.9 5.6 10.9 5 12 5s2.1.6 3 1.5" stroke="#fff" strokeWidth="1.6" strokeLinecap="round"/>
                   </svg>
-                  松开发送
+                  {voiceCancelRequested ? "松开取消" : "松开发送"}
                 </>
               ) : (
                 <>
