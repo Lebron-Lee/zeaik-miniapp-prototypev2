@@ -338,3 +338,7 @@
 - [ ] CurrentTaskPage：将培训任务 item 左侧“训”标记改成与任务列表一致的序号样式
 - [ ] CurrentTaskPage：删除培训任务 item 中指定的编号文本元素
 - [ ] CurrentTaskPage：完成本轮手动修正后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查培训按钮当前触发的对话流是否已与首页“立即培训”按钮一致
+- [ ] HomePage：对照首页立即培训的会话启动逻辑，确认当前工作页缺失的步骤与状态卡片
+- [ ] CurrentTaskPage：如可视化编辑未生效，则手动补齐培训发起成功回复、培训接收进展与培训完成会话卡片
+- [ ] CurrentTaskPage：完成一致性修正后执行 TypeScript 校验并创建新的检查点

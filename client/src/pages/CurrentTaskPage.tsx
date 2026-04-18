@@ -4,7 +4,7 @@
  * 三个Tab：当前工作 / 任务状态（待执行+已完成分组）/ 任务大厅（计划任务列表）
  * 设计提醒：培训流程已迁移到当前工作页内部，需保持蓝白工作台风格，不再沿用首页培训卡片主题。
  */
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import TaskDrawerPage from "./TaskDrawerPage";
 import type { TrainingTask as DrawerTrainingTask } from "./DrawerPage";
 
@@ -83,6 +83,7 @@ interface TrainingQuestion {
   question: string;
   aiIntro: string;
   hint: string;
+  keyPoints: string[];
 }
 
 interface TrainingMessage {
@@ -90,6 +91,9 @@ interface TrainingMessage {
   role: "ai" | "user";
   text: string;
   type?: "task" | "question" | "result";
+  questionIdx?: number;
+  isCorrect?: boolean;
+  trainingScore?: number;
 }
 
 const TRAINING_QUESTIONS: TrainingQuestion[] = [
@@ -98,18 +102,21 @@ const TRAINING_QUESTIONS: TrainingQuestion[] = [
     question: "顾客进店后，迎宾动作的第一步应该是什么？",
     aiIntro: "我们先从迎宾动作开始，回答越贴近门店实际越好。",
     hint: "先微笑问候，再确认人数与用餐需求。",
+    keyPoints: ["微笑问候", "确认人数", "用餐需求"],
   },
   {
     id: 2,
     question: "当顾客点完单后，服务员为什么必须复述一次关键信息？",
     aiIntro: "第二题聚焦点单确认流程，尽量说出动作目的。",
     hint: "为了确认菜品、份数和特殊要求，避免出错与返工。",
+    keyPoints: ["确认菜品", "确认份数", "特殊要求", "避免出错"],
   },
   {
     id: 3,
     question: "遇到异常情况时，应在多长时间内同步值班经理？",
     aiIntro: "最后一题是异常上报标准，答完就算完成本次培训。",
     hint: "第一时间同步，原则上不超过 1 分钟。",
+    keyPoints: ["第一时间", "1分钟", "同步值班经理"],
   },
 ];
 
@@ -154,6 +161,9 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
   const [trainingPanelOpen, setTrainingPanelOpen] = useState(true);
   const [trainingStarted, setTrainingStarted] = useState(false);
   const [trainingFinished, setTrainingFinished] = useState(false);
+  const [trainingIsFeedback, setTrainingIsFeedback] = useState(false);
+  const [trainingShowHint, setTrainingShowHint] = useState(false);
+  const [trainingAttempts, setTrainingAttempts] = useState(0);
   const [trainingQuestionIndex, setTrainingQuestionIndex] = useState(0);
   const [trainingInput, setTrainingInput] = useState("");
   const [trainingMessages, setTrainingMessages] = useState<TrainingMessage[]>([
@@ -164,6 +174,9 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
       type: "task",
     },
   ]);
+
+  const trainingMsgIdRef = useRef(1000);
+  const newTrainingMessageId = () => ++trainingMsgIdRef.current;
 
   const resolvedTrainingTask = selectedTrainingTask ?? {
     id: 1,
@@ -195,16 +208,25 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
   };
 
   const handleStartTraining = () => {
-    if (trainingStarted) return;
+    if (trainingStarted || trainingFinished) return;
     const firstQuestion = TRAINING_QUESTIONS[0];
     setTrainingPanelOpen(true);
     setTrainingStarted(true);
-    pushMessage({
-      id: Date.now(),
-      role: "ai",
-      text: `${firstQuestion.aiIntro}\n\n第 1 题：${firstQuestion.question}`,
-      type: "question",
-    });
+    setTrainingIsFeedback(false);
+    setTrainingShowHint(false);
+    setTrainingAttempts(0);
+    setTrainingQuestionIndex(0);
+    setTrainingMessages((prev) => [
+      ...prev,
+      { id: newTrainingMessageId(), role: "user", text: "立即培训" },
+      {
+        id: newTrainingMessageId(),
+        role: "ai",
+        text: `第 1 题：${firstQuestion.question}`,
+        type: "question",
+        questionIdx: 0,
+      },
+    ]);
   };
 
   const handleSendTrainingAnswer = () => {
@@ -212,43 +234,92 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
     const value = trainingInput.trim();
     if (!value) return;
 
+    if (trainingIsFeedback) {
+      setTrainingMessages((prev) => [
+        ...prev,
+        { id: newTrainingMessageId(), role: "user", text: value },
+        {
+          id: newTrainingMessageId(),
+          role: "ai",
+          text: "收到你的反馈啦，辛苦你认真完成整个培训！你的参与很重要，也给团队带来了很好的示范。接下来培训就圆满结束啦，你可以顺手为这次培训打个分，我们也会继续把内容做得更实用。",
+        },
+        {
+          id: newTrainingMessageId(),
+          role: "ai",
+          text: "",
+          type: "result",
+          trainingScore: 4.6,
+        },
+      ]);
+      setTrainingInput("");
+      setTrainingFinished(true);
+      setTrainingIsFeedback(false);
+      setTrainingShowHint(false);
+      setTasks((prev) => prev.map((task) => (
+        task.isTraining ? { ...task, isNow: true } : task
+      )));
+      return;
+    }
+
     const currentQuestion = TRAINING_QUESTIONS[trainingQuestionIndex];
-    const nextIndex = trainingQuestionIndex + 1;
+    const matchedPoints = currentQuestion.keyPoints.filter((point) => value.includes(point.slice(0, 2)) || value.includes(point));
+    const isCorrect = matchedPoints.length >= Math.ceil(currentQuestion.keyPoints.length * 0.6) || value.length >= 16 || trainingAttempts >= 1;
 
     setTrainingMessages((prev) => [
       ...prev,
-      { id: Date.now(), role: "user", text: value },
+      { id: newTrainingMessageId(), role: "user", text: value },
     ]);
     setTrainingInput("");
+
+    if (!isCorrect) {
+      const nextAttempts = trainingAttempts + 1;
+      setTrainingAttempts(nextAttempts);
+      setTrainingMessages((prev) => [
+        ...prev,
+        {
+          id: newTrainingMessageId(),
+          role: "ai",
+          text: nextAttempts >= 2 ? "这道题还差一点，你可以先查看提示，再继续补充。" : "思路是对的，但还差一个关键点，再想想？",
+        },
+      ]);
+      return;
+    }
+
+    const nextIndex = trainingQuestionIndex + 1;
+    const praiseText = trainingQuestionIndex === 0 ? "答得很好，迎宾动作的关键步骤已经抓住了。" : trainingQuestionIndex === 1 ? "这题答得很稳，点单复述的目的已经说清楚了。" : "这题也完成了，异常上报意识不错。";
 
     if (nextIndex < TRAINING_QUESTIONS.length) {
       const nextQuestion = TRAINING_QUESTIONS[nextIndex];
       setTrainingMessages((prev) => [
         ...prev,
+        { id: newTrainingMessageId(), role: "ai", text: praiseText, isCorrect: true },
+        { id: newTrainingMessageId(), role: "ai", text: nextQuestion.aiIntro },
         {
-          id: Date.now() + 1,
+          id: newTrainingMessageId(),
           role: "ai",
-          text: `收到，这题我先按完成记录。参考要点：${currentQuestion.hint}\n\n${nextQuestion.aiIntro}\n\n第 ${nextIndex + 1} 题：${nextQuestion.question}`,
+          text: `第 ${nextIndex + 1} 题：${nextQuestion.question}`,
           type: "question",
+          questionIdx: nextIndex,
         },
       ]);
       setTrainingQuestionIndex(nextIndex);
+      setTrainingAttempts(0);
+      setTrainingShowHint(false);
       return;
     }
 
     setTrainingMessages((prev) => [
       ...prev,
+      { id: newTrainingMessageId(), role: "ai", text: praiseText, isCorrect: true },
       {
-        id: Date.now() + 2,
+        id: newTrainingMessageId(),
         role: "ai",
-        text: `本次培训已完成，我已为你记录本次学习结果。你的培训重点包括：迎宾动作、点单复述与异常上报。接下来这条培训任务会继续保留在“当前工作”里，方便你随时回看。`,
-        type: "result",
+        text: "太棒了，培训题目已经全部完成。最后请简单说说这次培训对你有没有帮助？",
       },
     ]);
-    setTrainingFinished(true);
-    setTasks((prev) => prev.map((task) => (
-      task.isTraining ? { ...task, isNow: true } : task
-    )));
+    setTrainingAttempts(0);
+    setTrainingIsFeedback(true);
+    setTrainingShowHint(false);
   };
 
   // ── 状态栏 + 导航栏（共用） ──
@@ -350,33 +421,85 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                     onClick={handleStartTraining}
                     style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
                   >
-                    {trainingStarted ? "继续" : "培训"}
+                    {trainingStarted ? (trainingFinished ? "已完成" : "继续培训") : "立即培训"}
                   </button>
                 </div>
               );
             }
 
-            const isUser = message.role === "user";
-            return (
-              <div key={message.id} style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start" }}>
-                <div style={{
-                  maxWidth: "86%",
-                  background: isUser ? "#3B5BDB" : "#fff",
-                  color: isUser ? "#fff" : "#24345F",
-                  borderRadius: isUser ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                  padding: "10px 12px",
-                  fontSize: 12.5,
-                  lineHeight: 1.7,
-                  whiteSpace: "pre-line",
-                  boxShadow: isUser ? "0 4px 10px rgba(59,91,219,0.18)" : "0 1px 4px rgba(59,91,219,0.08)",
-                  border: isUser ? "none" : "1px solid rgba(59,91,219,0.1)",
-                }}>
-                  {!isUser && (
-                    <div style={{ fontSize: 10.5, fontWeight: 700, color: "#3B5BDB", marginBottom: 4 }}>培训助手</div>
-                  )}
-                  {message.text}
+            if (message.type === "result") {
+              return (
+                <div key={message.id} style={{ padding: "4px 2px 0" }}>
+                  <div style={{ background: "linear-gradient(135deg, #1a6bbf, #0d4fa0)", borderRadius: 16, padding: "16px 14px", color: "#fff", boxShadow: "0 10px 20px rgba(26,107,191,0.18)" }}>
+                    <div style={{ textAlign: "center", marginBottom: 12 }}>
+                      <div style={{ fontSize: 16, fontWeight: 800 }}>培训完成</div>
+                      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.78)", marginTop: 4 }}>你已完成「{trainingTask.name}」</div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: 28, fontWeight: 900 }}>{message.trainingScore ?? 4.6}</div>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.72)" }}>综合得分</div>
+                      </div>
+                      <div style={{ width: 1, alignSelf: "stretch", background: "rgba(255,255,255,0.22)" }} />
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: "#FFE082" }}>良好</div>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.72)" }}>培训记录已归档</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              );
+            }
+
+            const isUser = message.role === "user";
+            const isCurrentQuestion = message.type === "question" && message.questionIdx === trainingQuestionIndex && !trainingFinished && !trainingIsFeedback;
+            return (
+              <React.Fragment key={message.id}>
+                <div style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start" }}>
+                  <div style={{
+                    maxWidth: "86%",
+                    background: isUser ? "#3B5BDB" : "#fff",
+                    color: isUser ? "#fff" : "#24345F",
+                    borderRadius: isUser ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                    padding: "10px 12px",
+                    fontSize: 12.5,
+                    lineHeight: 1.7,
+                    whiteSpace: "pre-line",
+                    boxShadow: isUser ? "0 4px 10px rgba(59,91,219,0.18)" : "0 1px 4px rgba(59,91,219,0.08)",
+                    border: isUser ? "none" : "1px solid rgba(59,91,219,0.1)",
+                  }}>
+                    {!isUser && (
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: message.isCorrect ? "#15803d" : "#3B5BDB", marginBottom: 4 }}>{message.isCorrect ? "培训助手 · 已通过" : "培训助手"}</div>
+                    )}
+                    {message.text}
+                  </div>
+                </div>
+                {isCurrentQuestion && trainingAttempts > 0 && (
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 6 }}>
+                    <button onClick={() => setTrainingShowHint((prev) => !prev)} style={{ border: "1px solid rgba(59,91,219,0.16)", background: "#fff", color: "#3B5BDB", borderRadius: 999, padding: "5px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{trainingShowHint ? "收起提示" : "查看提示"}</button>
+                    <button onClick={() => {
+                      const nextIndex = trainingQuestionIndex + 1;
+                      setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "user", text: "跳过此题" }, { id: newTrainingMessageId(), role: "ai", text: `已跳过第 ${trainingQuestionIndex + 1} 题，建议课后回看提示再复习。` }]);
+                      setTrainingShowHint(false);
+                      setTrainingAttempts(0);
+                      if (nextIndex < TRAINING_QUESTIONS.length) {
+                        const nextQuestion = TRAINING_QUESTIONS[nextIndex];
+                        setTrainingQuestionIndex(nextIndex);
+                        setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "ai", text: nextQuestion.aiIntro }, { id: newTrainingMessageId(), role: "ai", text: `第 ${nextIndex + 1} 题：${nextQuestion.question}`, type: "question", questionIdx: nextIndex }]);
+                      } else {
+                        setTrainingIsFeedback(true);
+                        setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "ai", text: "题目部分已经结束，请说说这次培训对你有没有帮助？" }]);
+                      }
+                    }} style={{ border: "none", background: "rgba(59,91,219,0.12)", color: "#3B5BDB", borderRadius: 999, padding: "5px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>跳过此题</button>
+                  </div>
+                )}
+                {isCurrentQuestion && trainingShowHint && (
+                  <div style={{ marginTop: 8, marginLeft: 8, marginRight: 22, background: "rgba(255,255,255,0.92)", borderRadius: 14, border: "1px solid rgba(59,91,219,0.12)", padding: "10px 12px" }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: "#3B5BDB", marginBottom: 4 }}>参考提示</div>
+                    <div style={{ fontSize: 12, lineHeight: 1.65, color: "#4A5A7A" }}>{TRAINING_QUESTIONS[trainingQuestionIndex]?.hint}</div>
+                  </div>
+                )}
+              </React.Fragment>
             );
           })}
         </div>
@@ -475,7 +598,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
 
   const trainingInputEnabled = activeTab === "current" && trainingPanelOpen && trainingStarted && !trainingFinished;
   const inputPlaceholder = trainingInputEnabled
-    ? "输入你的培训回答..."
+    ? trainingIsFeedback ? "说说这次培训对你是否有帮助..." : "输入你的培训回答..."
     : activeTab === "current" && trainingPanelOpen
       ? trainingFinished ? "培训已完成，可回看本次记录" : "点击“立即培训”后在这里继续作答"
       : "说点什么...";
