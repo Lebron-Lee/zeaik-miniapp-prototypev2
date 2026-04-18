@@ -1463,19 +1463,25 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     if (cameFromTrainingLaunch) {
       setTrainingLaunchStep(3);
     }
-    setMessages(prev => [
-      ...prev.map(msg => msg.id === messageId
+    setMessages(prev => {
+      const updatedMessages = prev.map(msg => msg.id === messageId
         ? { ...msg, voiceKnowledgeConfirmCard: { ...card, status: "confirmed" as const } }
-        : msg),
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: cameFromTrainingLaunch
-          ? `已根据「${card.recordingName}」生成培训题目，题库已整理为「${card.bankTitle}」。你可以继续点击发起培训卡片中的「去发起培训」，把这组题目直接下发给员工。`
-          : `已确认采用「${card.recordingName}」，解析内容已归入「${card.bankTitle}」，并按「${card.archiveName}」完成题库存档。后续继续录音会自动累计到同一题库。`,
-      },
-    ]);
-    toast.success(cameFromTrainingLaunch ? "题目已生成，可继续发起培训" : "已归档到题库并保留为知识记录");
+        : msg);
+
+      if (cameFromTrainingLaunch) {
+        return updatedMessages;
+      }
+
+      return [
+        ...updatedMessages,
+        {
+          id: msgIdRef.current++,
+          role: "ai",
+          text: `已确认采用「${card.recordingName}」，解析内容已归入「${card.bankTitle}」，并按「${card.archiveName}」完成题库存档。后续继续录音会自动累计到同一题库。`,
+        },
+      ];
+    });
+    toast.success(cameFromTrainingLaunch ? "培训需求已确认，可继续发起培训" : "已归档到题库并保留为知识记录");
     setTimeout(() => inputRef.current?.focus(), 120);
   };
 
@@ -1956,25 +1962,16 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, color: "#9b7f69" }}>培训目的与目标</div>
+                      <div style={{ fontSize: 12, color: "#9b7f69" }}>培训题目</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040", marginTop: 3 }}>
-                        {trainingLaunchIntent || "根据资料自动整理培训目标"}
+                        培训题目
                       </div>
-                      {trainingLaunchGoal && <div style={{ fontSize: 12, color: "#8d7865", marginTop: 6, lineHeight: 1.6 }}>{trainingLaunchGoal}</div>}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 12, color: "#9b7f69" }}>推荐题库</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040", marginTop: 3 }}>{selectedTrainingBank?.title}</div>
-                      <div style={{ fontSize: 12, color: "#8d7865", marginTop: 6, lineHeight: 1.6 }}>{selectedTrainingBank?.description}</div>
-                    </div>
-                    {trainingLaunchUploadedFiles.length > 0 && (
-                      <div>
-                        <div style={{ fontSize: 12, color: "#9b7f69" }}>已上传资料</div>
-                        <div style={{ fontSize: 12, color: "#8d7865", marginTop: 6, lineHeight: 1.6 }}>
-                          {trainingLaunchUploadedFiles.map(file => file.name).join("、")}
-                        </div>
+                      <div style={{ fontSize: 12, color: "#8d7865", marginTop: 6, lineHeight: 1.6 }}>
+                        {(trainingLaunchGoal || "已拆解为晨会口径、岗位动作、风险提醒 3 个解析模块，并生成 3 道培训题。")
+                          .replace("录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：", "")
+                          .replace("培训需求：", "")}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
@@ -1992,7 +1989,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       padding: "11px 12px",
                     }}
                   >
-                    重新编辑
+                    取消
                   </button>
                   <button
                     onClick={handleLaunchTrainingInChat}
@@ -2008,7 +2005,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       boxShadow: "0 10px 20px rgba(232,117,10,0.2)",
                     }}
                   >
-                    去发起培训
+                    发起培训
                   </button>
                 </div>
               </div>
