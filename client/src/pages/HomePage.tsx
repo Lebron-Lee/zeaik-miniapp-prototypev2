@@ -747,7 +747,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [trainingLaunchStep, setTrainingLaunchStep] = useState<0 | 1 | 2 | 3>(0);
   const [selectedTrainingBankId, setSelectedTrainingBankId] = useState<string | null>(null);
   const [selectedTrainingTargets, setSelectedTrainingTargets] = useState<Set<string>>(new Set(TRAINING_LAUNCH_GROUPS.flatMap(group => group.members.map(member => member.id))));
-  const [trainingTargetQuickKey, setTrainingTargetQuickKey] = useState<"all" | "group" | "management" | "store-manager" | "other" | null>("all");
+  const [trainingTargetQuickKey, setTrainingTargetQuickKey] = useState<"all" | null>("all");
+  const [trainingTargetQuickSelections, setTrainingTargetQuickSelections] = useState<Set<"group" | "management" | "store-manager">>(new Set());
   const [trainingLaunchIntent, setTrainingLaunchIntent] = useState("");
   const [trainingLaunchGoal, setTrainingLaunchGoal] = useState("");
   const [trainingLaunchUploadedFiles, setTrainingLaunchUploadedFiles] = useState<Array<{ name: string; sizeLabel: string }>>([]);
@@ -807,26 +808,45 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const selectedTrainingGroupLabels = TRAINING_LAUNCH_GROUPS.filter(group =>
     group.members.some(member => selectedTrainingTargets.has(member.id)),
   ).map(group => group.label);
+  const trainingTargetQuickLabelMap = {
+    group: "集团",
+    management: "管理层",
+    "store-manager": "店长",
+  } as const;
+  const selectedTrainingQuickLabels = Array.from(trainingTargetQuickSelections).map(key => trainingTargetQuickLabelMap[key]);
+  const hasQuickCategoryTargets = trainingTargetQuickSelections.size > 0;
+  const effectiveTrainingMembers = selectedTrainingMembers.length > 0
+    ? selectedTrainingMembers
+    : selectedTrainingQuickLabels.map((label, index) => ({
+        id: `quick-${index}`,
+        name: label,
+        role: "待细选",
+        groupId: `quick-${index}`,
+        groupLabel: label,
+      }));
   const createDefaultTrainingTargetSet = () => new Set(allTrainingLaunchMembers.map(member => member.id));
-  const applyTrainingTargetQuickSelection = (key: "all" | "group" | "management" | "store-manager" | "other") => {
-    setTrainingTargetQuickKey(key);
-
+  const applyTrainingTargetQuickSelection = (key: "all" | "group" | "management" | "store-manager") => {
     if (key === "all") {
+      setTrainingTargetQuickKey("all");
+      setTrainingTargetQuickSelections(new Set());
       setSelectedTrainingTargets(createDefaultTrainingTargetSet());
       return;
     }
 
+    setTrainingTargetQuickKey(null);
     setSelectedTrainingTargets(new Set<string>());
-
-    const tipMap: Record<"group" | "management" | "store-manager" | "other", string> = {
-      group: "请在组织架构页细选集团对象",
-      management: "请在组织架构页细选管理层对象",
-      "store-manager": "请在组织架构页细选店长对象",
-      other: "请在组织架构页细选其它对象",
-    };
-
+    setTrainingTargetQuickSelections(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+  const handleOpenTrainingTargetOrgTree = () => {
+    setTrainingTargetQuickKey(null);
+    setTrainingTargetQuickSelections(new Set());
     if (onOpenOrgTree) onOpenOrgTree();
-    else toast.info(tipMap[key]);
+    else toast.info("请在组织架构页进行培训人员选择");
   };
   const trainingLaunchActive = trainingLaunchStep > 0;
   const formatTrainingUploadSize = (size: number) => {
@@ -1077,6 +1097,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchStep(1);
     setSelectedTrainingBankId(null);
     setTrainingTargetQuickKey("all");
+    setTrainingTargetQuickSelections(new Set());
     setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
@@ -1093,6 +1114,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
   const toggleTrainingTarget = (memberId: string) => {
     setTrainingTargetQuickKey(null);
+    setTrainingTargetQuickSelections(new Set());
     setSelectedTrainingTargets(prev => {
       const next = new Set(prev);
       if (next.has(memberId)) next.delete(memberId);
@@ -1103,6 +1125,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
   const toggleTrainingGroup = (group: TrainingLaunchGroup) => {
     setTrainingTargetQuickKey(null);
+    setTrainingTargetQuickSelections(new Set());
     setSelectedTrainingTargets(prev => {
       const next = new Set(prev);
       const allSelected = group.members.every(member => next.has(member.id));
@@ -1142,6 +1165,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchStep(1);
     setSelectedTrainingBankId(null);
     setTrainingTargetQuickKey("all");
+    setTrainingTargetQuickSelections(new Set());
     setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
@@ -1164,7 +1188,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const handleSubmitTrainingTargets = () => {
-    if (selectedTrainingTargets.size === 0) {
+    if (selectedTrainingTargets.size === 0 && !hasQuickCategoryTargets) {
       toast.error("请先选择培训对象");
       return;
     }
@@ -1174,7 +1198,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       return;
     }
 
-    const summaryNames = selectedTrainingMembers.map(member => member.name).join('、');
+    const summaryNames = effectiveTrainingMembers.map(member => member.name).join('、');
     const recommendedBankTitle = selectedTrainingBank?.title ?? 'AI推荐题库';
     setTrainingLaunchStep(3);
     setTrainingTargetPickerOpen(false);
@@ -1183,7 +1207,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {
         id: msgIdRef.current++,
         role: "user",
-        text: `培训对象：${summaryNames || `${selectedTrainingTargets.size}人`}；培训目的：${trainingLaunchIntent || trainingLaunchGoal || '根据上传资料自动生成题库'}`,
+        text: `培训对象：${summaryNames || selectedTrainingQuickLabels.join(' / ') || `${selectedTrainingTargets.size}人`}；培训目的：${trainingLaunchIntent || trainingLaunchGoal || '根据上传资料自动生成题库'}`,
       },
       {
         id: msgIdRef.current++,
@@ -1194,17 +1218,20 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const handleLaunchTrainingInChat = () => {
-    if (selectedTrainingTargets.size === 0) {
+    if (selectedTrainingTargets.size === 0 && !hasQuickCategoryTargets) {
       toast.error("请先选择培训对象");
       return;
     }
 
-    const totalCount = selectedTrainingMembers.length;
-    const summaryNames = selectedTrainingMembers.map(member => member.name).join('、');
-    const targetSummary = `${summaryNames || `${totalCount}人`} · ${selectedTrainingGroupLabels.join(" / ") || "已选择"}`;
+    const totalCount = effectiveTrainingMembers.length;
+    const summaryNames = effectiveTrainingMembers.map(member => member.name).join('、');
+    const targetSummary = hasQuickCategoryTargets
+      ? `${selectedTrainingQuickLabels.join(" / ")} · 待细选`
+      : `${summaryNames || `${totalCount}人`} · ${selectedTrainingGroupLabels.join(" / ") || "已选择"}`;
     const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
-    const receiptCard = buildTrainingLaunchReceiptCard(selectedTrainingMembers, recommendedBankTitle, targetSummary);
-    const completionCard = buildTrainingLaunchCompletionCard(selectedTrainingMembers);
+    const receiptCard = buildTrainingLaunchReceiptCard(effectiveTrainingMembers, recommendedBankTitle, targetSummary);
+    const completionCard = buildTrainingLaunchCompletionCard(effectiveTrainingMembers);
+
     const intentSummary = trainingLaunchIntent.trim() || trainingLaunchGoal.trim() || "根据上传资料自动生成题库";
     const qrCard = buildTrainingLaunchQrCard(recommendedBankTitle, targetSummary, intentSummary);
 
@@ -1212,6 +1239,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchStep(0);
     setSelectedTrainingBankId(null);
     setTrainingTargetQuickKey("all");
+    setTrainingTargetQuickSelections(new Set());
     setSelectedTrainingTargets(createDefaultTrainingTargetSet());
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
@@ -1224,7 +1252,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {
         id: msgIdRef.current++,
         role: "user",
-        text: `发起培训：${summaryNames || `${totalCount}人`}；题库：${recommendedBankTitle}`,
+        text: `发起培训：${summaryNames || selectedTrainingQuickLabels.join(' / ') || `${totalCount}人`}；题库：${recommendedBankTitle}`,
       },
       {
         id: msgIdRef.current++,
@@ -1410,14 +1438,16 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const renderTrainingLaunchCard = () => {
     if (!trainingLaunchActive) return null;
 
-    const hasTargets = selectedTrainingTargets.size > 0;
+    const hasTargets = selectedTrainingTargets.size > 0 || hasQuickCategoryTargets;
     const hasIntent = Boolean(trainingLaunchUploadedFiles.length > 0 || trainingLaunchIntent.trim() || trainingLaunchGoal.trim());
-    const allSelected = selectedTrainingTargets.size === allTrainingLaunchMembers.length;
+    const allSelected = trainingTargetQuickKey === "all" || selectedTrainingTargets.size === allTrainingLaunchMembers.length;
     const targetSummary = allSelected
       ? `全员培训 · ${allTrainingLaunchMembers.length}人`
-      : hasTargets
-        ? `${selectedTrainingMembers.length}人 · ${selectedTrainingMembers.map(member => member.name).slice(0, 2).join('、')}${selectedTrainingMembers.length > 2 ? '等' : ''}`
-        : '暂未选择';
+      : hasQuickCategoryTargets
+        ? `${selectedTrainingQuickLabels.join(' / ')} · 待细选`
+        : selectedTrainingTargets.size > 0
+          ? `${selectedTrainingMembers.length}人 · ${selectedTrainingMembers.map(member => member.name).slice(0, 2).join('、')}${selectedTrainingMembers.length > 2 ? '等' : ''}`
+          : '暂未选择';
 
     return (
       <div className="flex mb-3" style={{ justifyContent: "flex-start" }}>
@@ -1450,42 +1480,35 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     <span style={{ fontSize: 12, color: "#8f6b47", fontWeight: 600, letterSpacing: "0.02em" }}>对象</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                    {[
+                    {([
                       {
                         key: "all",
                         label: "全员",
                         active: trainingTargetQuickKey === "all" || allSelected,
-                        onClick: () => applyTrainingTargetQuickSelection("all"),
                       },
                       {
                         key: "group",
                         label: "集团",
-                        active: trainingTargetQuickKey === "group",
-                        onClick: () => applyTrainingTargetQuickSelection("group"),
+                        active: trainingTargetQuickSelections.has("group"),
                       },
                       {
                         key: "management",
                         label: "管理层",
-                        active: trainingTargetQuickKey === "management",
-                        onClick: () => applyTrainingTargetQuickSelection("management"),
+                        active: trainingTargetQuickSelections.has("management"),
                       },
                       {
                         key: "store-manager",
                         label: "店长",
-                        active: trainingTargetQuickKey === "store-manager",
-                        onClick: () => applyTrainingTargetQuickSelection("store-manager"),
+                        active: trainingTargetQuickSelections.has("store-manager"),
                       },
-                      {
-                        key: "other",
-                        label: "其它",
-                        active: trainingTargetQuickKey === "other",
-                        onClick: () => applyTrainingTargetQuickSelection("other"),
-                      },
-                    ].map(item => (
+                    ] as const).map(item => (
                       <button
                         key={item.key}
-                        onClick={item.onClick}
+                        onClick={() => applyTrainingTargetQuickSelection(item.key)}
                         style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
                           border: item.active ? "1px solid rgba(232,117,10,0.32)" : "1px solid rgba(232,117,10,0.14)",
                           borderRadius: 999,
                           padding: "5px 10px",
@@ -1497,9 +1520,44 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           flexShrink: 0,
                         }}
                       >
-                        {item.label}
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: 3,
+                            border: item.active ? "1px solid #e8750a" : "1px solid rgba(143,107,71,0.28)",
+                            background: item.active ? "#e8750a" : "#ffffff",
+                            color: "#ffffff",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 9,
+                            lineHeight: 1,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {item.active ? "✓" : ""}
+                        </span>
+                        <span>{item.label}</span>
                       </button>
                     ))}
+                    <button
+                      onClick={handleOpenTrainingTargetOrgTree}
+                      style={{
+                        border: "1px solid rgba(232,117,10,0.14)",
+                        borderRadius: 999,
+                        padding: "5px 10px",
+                        background: "rgba(255,255,255,0.92)",
+                        color: "#8f6b47",
+                        fontSize: 12,
+                        fontWeight: 500,
+                        lineHeight: 1.2,
+                        flexShrink: 0,
+                      }}
+                    >
+                      其它
+                    </button>
                   </div>
                 </div>
 
@@ -1589,10 +1647,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     <div>
                       <div style={{ fontSize: 12, color: "#9b7f69" }}>培训对象</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040", marginTop: 3 }}>
-                        {selectedTrainingMembers.length} 人 · {selectedTrainingGroupLabels.join(" / ") || "已选择"}
+                        {effectiveTrainingMembers.length} 人 · {hasQuickCategoryTargets ? `${selectedTrainingQuickLabels.join(" / ")}（待细选）` : selectedTrainingGroupLabels.join(" / ") || "已选择"}
                       </div>
                       <div style={{ fontSize: 12, color: "#8d7865", marginTop: 6, lineHeight: 1.6 }}>
-                        {selectedTrainingMembers.map(member => `${member.name}（${member.role}）`).join("、")}
+                        {effectiveTrainingMembers.map(member => `${member.name}（${member.role}）`).join("、")}
                       </div>
                     </div>
                     <div>
