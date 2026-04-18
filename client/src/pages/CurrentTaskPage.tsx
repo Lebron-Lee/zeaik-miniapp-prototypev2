@@ -342,26 +342,18 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
           {trainingMessages.map((message) => {
             if (message.type === "task") {
               return (
-                <div key={message.id} style={{ background: "#fff", borderRadius: 14, padding: 14, border: "1px solid rgba(59,91,219,0.12)", boxShadow: "0 1px 3px rgba(59,91,219,0.06)" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: "#3B5BDB", letterSpacing: 0.2 }}>培训任务</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A", marginTop: 4 }}>{trainingTask.name}</div>
-                    </div>
-                    <span style={{ fontSize: 11, color: "#3B5BDB", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>{trainingTaskCode}</span>
-                  </div>
-                  <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 12, background: "#F5F8FF", color: "#50608F", fontSize: 12.5, lineHeight: 1.65 }}>
-                    {`当前任务来自“${resolvedTrainingTask.group}”，最近进展为“${resolvedTrainingTask.progress}”。培训完成后会自动计入当前工作，你也可以随时回来继续本条任务。`}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 12 }}>
-                    <div style={{ fontSize: 11.5, color: "#7D8CB8" }}>会话中只展示该培训任务相关内容</div>
-                    <button
-                      onClick={handleStartTraining}
-                      style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 16, padding: "7px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 10px rgba(59,91,219,0.22)" }}
-                    >
-                      {trainingStarted ? "继续培训" : "立即培训"}
-                    </button>
-                  </div>
+                <div key={message.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: "1px solid #F5F5F5", gap: 8, background: "#fff", borderRadius: 14 }}>
+                  <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>训</span>
+                  <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{resolvedTrainingTask.time}</span>
+                  <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{trainingTask.name}</span>
+                  <span style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>{trainingTaskCode}</span>
+                  <LightningIcon />
+                  <button
+                    onClick={handleStartTraining}
+                    style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
+                  >
+                    {trainingStarted ? "继续" : "培训"}
+                  </button>
                 </div>
               );
             }

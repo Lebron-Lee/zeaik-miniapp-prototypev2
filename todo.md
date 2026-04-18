@@ -330,3 +330,7 @@
 - [ ] CurrentTaskPage：核查 line 341 对应区块当前样式，确认是否仍与任务卡片不一致
 - [ ] CurrentTaskPage：如可视化编辑未生效，则手动将目标区块改成与任务卡片一致的视觉样式
 - [ ] CurrentTaskPage：完成样式补齐后进行必要验证并创建新的检查点
+- [ ] CurrentTaskPage：核查培训任务卡片与“任务状态”列表 item 的结构差异
+- [ ] CurrentTaskPage：将培训任务首卡改造成与任务状态一致的行式 item 样式
+- [ ] CurrentTaskPage：保留“立即培训/继续培训”操作并收口到 item 右侧操作区
+- [ ] CurrentTaskPage：完成样式改造后执行 TypeScript 校验并创建新的检查点
