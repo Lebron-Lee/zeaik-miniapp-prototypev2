@@ -308,9 +308,6 @@ export default function OrgTreePage({
             <div style={{ fontSize: 16, fontWeight: 700, color: "#1f2430" }}>
               {activeDepartment ? activeDepartment.name : "组织架构"}
             </div>
-            <div style={{ fontSize: 11, color: "#8f6b47", marginTop: 2 }}>
-              {activeDepartment ? "勾选成员后返回发起培训流程" : "按组织或成员选择培训对象"}
-            </div>
           </div>
         </div>
 
@@ -668,9 +665,6 @@ export default function OrgTreePage({
         >
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#1f2430" }}>已选 {selectedCount} 位培训人员</div>
-            <div style={{ fontSize: 12, color: "#98a0b3", marginTop: 3 }}>
-              已勾选组织 {selectedDeptCount} 个{activeDepartment ? ` · 当前层级 ${activeDepartment.members.length} 人` : " · 可继续进入层级细选成员"}
-            </div>
           </div>
           <button
             onClick={handleApply}
