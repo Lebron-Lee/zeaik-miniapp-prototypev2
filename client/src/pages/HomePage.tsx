@@ -805,6 +805,284 @@ function StoreInfoModal({ open, onClose, triggerLabel }: { open: boolean; onClos
   );
 }
 
+type SalesQrRegisterInfo = {
+  companyName: string;
+  contactName: string;
+  phone: string;
+};
+
+const SALES_SHARE_QR_MATRIX = [
+  "1111111001001",
+  "1000001011101",
+  "1011101010001",
+  "1011101011101",
+  "1011101000101",
+  "1000001010101",
+  "1111111011111",
+  "0001000010010",
+  "1110111010111",
+  "1000100010001",
+  "1011101110101",
+  "1000001010001",
+  "1111111011101",
+];
+
+function SalesQrRegisterModal({
+  open,
+  onClose,
+  defaultName,
+  defaultPhone,
+}: {
+  open: boolean;
+  onClose: () => void;
+  defaultName: string;
+  defaultPhone: string;
+}) {
+  const [info, setInfo] = React.useState<SalesQrRegisterInfo>({
+    companyName: "",
+    contactName: defaultName,
+    phone: defaultPhone,
+  });
+  const [submitted, setSubmitted] = React.useState(false);
+
+  React.useEffect(() => {
+    if (open) {
+      setInfo({
+        companyName: "",
+        contactName: defaultName,
+        phone: defaultPhone,
+      });
+      setSubmitted(false);
+    }
+  }, [open, defaultName, defaultPhone]);
+
+  if (!open) return null;
+
+  const isComplete = info.companyName.trim() && info.contactName.trim() && info.phone.trim();
+
+  const handleSubmit = () => {
+    if (!isComplete) {
+      toast.error("请先填写完整的企业信息");
+      return;
+    }
+    setSubmitted(true);
+    toast.success("企业信息已登记，顾问会尽快与您联系");
+  };
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 240,
+        background: "rgba(25,16,12,0.46)",
+        backdropFilter: "blur(6px)",
+        display: "flex",
+        alignItems: "flex-end",
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxHeight: "90%",
+          overflowY: "auto",
+          borderRadius: "20px 20px 0 0",
+          background: "linear-gradient(180deg, #fff8f1 0%, #fff3e6 52%, #fffaf6 100%)",
+          boxShadow: "0 -12px 36px rgba(111,59,9,0.18)",
+          padding: "12px 18px 26px",
+          animation: "slideUp 0.28s cubic-bezier(0.32,0.72,0,1)",
+        }}
+      >
+        <div style={{ width: 38, height: 4, borderRadius: 999, background: "rgba(232,117,10,0.24)", margin: "0 auto 16px" }} />
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#2d2040" }}>
+              {submitted ? "欢迎加入智爱客" : "扫码后注册企业信息"}
+            </div>
+            <div style={{ fontSize: 12.5, lineHeight: 1.6, color: "#8a6f58", marginTop: 4 }}>
+              {submitted
+                ? "信息已登记成功，您现在可以继续分享小程序二维码给同事或伙伴。"
+                : "模拟首次接收销售二维码扫码进入小程序，先登记企业信息，再继续后续体验。"}
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", padding: 4, cursor: "pointer" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9a8aaa" strokeWidth="2" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "1.08fr 0.92fr",
+          gap: 14,
+          alignItems: "stretch",
+        }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#6d4c37", marginBottom: 6 }}>企业名称 <span style={{ color: "#e8750a" }}>*</span></div>
+              <input
+                value={info.companyName}
+                onChange={(e) => setInfo((prev) => ({ ...prev, companyName: e.target.value }))}
+                placeholder="例如：海底捞北京朝阳门店"
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: "12px 14px",
+                  borderRadius: 14,
+                  border: "1.5px solid rgba(232,117,10,0.18)",
+                  background: "rgba(255,255,255,0.92)",
+                  fontSize: 14,
+                  color: "#2d2040",
+                  outline: "none",
+                }}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#6d4c37", marginBottom: 6 }}>微信昵称 / 姓名 <span style={{ color: "#e8750a" }}>*</span></div>
+              <input
+                value={info.contactName}
+                onChange={(e) => setInfo((prev) => ({ ...prev, contactName: e.target.value }))}
+                placeholder="已自动获取微信昵称"
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: "12px 14px",
+                  borderRadius: 14,
+                  border: "1.5px solid rgba(232,117,10,0.18)",
+                  background: "rgba(255,255,255,0.92)",
+                  fontSize: 14,
+                  color: "#2d2040",
+                  outline: "none",
+                }}
+              />
+              <div style={{ fontSize: 12, color: "#9a7b63", marginTop: 6 }}>已默认带出微信昵称，也可以手动修改为自己的真实姓名。</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#6d4c37", marginBottom: 6 }}>手机号 <span style={{ color: "#e8750a" }}>*</span></div>
+              <input
+                value={info.phone}
+                onChange={(e) => setInfo((prev) => ({ ...prev, phone: e.target.value }))}
+                placeholder="已自动获取手机号"
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: "12px 14px",
+                  borderRadius: 14,
+                  border: "1.5px solid rgba(232,117,10,0.18)",
+                  background: "rgba(255,255,255,0.92)",
+                  fontSize: 14,
+                  color: "#2d2040",
+                  outline: "none",
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{
+            borderRadius: 18,
+            background: "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,248,241,0.96) 100%)",
+            border: "1px solid rgba(232,117,10,0.14)",
+            padding: "14px 12px",
+            boxShadow: "0 10px 24px rgba(232,117,10,0.08)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#c45e00" }}>分享小程序二维码</div>
+              <div style={{ fontSize: 12, color: "#8a6f58", lineHeight: 1.6, marginTop: 5 }}>
+                完成登记后，可把这个小程序码继续分享给同事或合作伙伴，帮助他们直接进入体验流程。
+              </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", margin: "14px 0 10px" }}>
+              <div style={{
+                width: 118,
+                height: 118,
+                borderRadius: 18,
+                background: "#fff",
+                padding: 10,
+                display: "grid",
+                gridTemplateColumns: "repeat(13, 1fr)",
+                gap: 1.5,
+                boxShadow: "inset 0 0 0 1px rgba(232,117,10,0.08)",
+              }}>
+                {SALES_SHARE_QR_MATRIX.flatMap((row, rowIndex) =>
+                  row.split("").map((cell, cellIndex) => (
+                    <div
+                      key={`${rowIndex}-${cellIndex}`}
+                      style={{
+                        borderRadius: 1.5,
+                        background: cell === "1" ? "#2d2040" : "transparent",
+                      }}
+                    />
+                  )),
+                )}
+              </div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: "#2d2040" }}>Zeaik 销售体验入口</div>
+              <div style={{ fontSize: 11.5, color: "#9a7b63", marginTop: 4 }}>扫码后先登记企业信息，再继续体验产品。</div>
+            </div>
+          </div>
+        </div>
+
+        {!submitted ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
+            <div style={{
+              background: "rgba(255,154,60,0.1)",
+              border: "1px solid rgba(232,117,10,0.16)",
+              borderRadius: 14,
+              padding: "11px 12px",
+              fontSize: 12.5,
+              lineHeight: 1.65,
+              color: "#9a6c3b",
+            }}>
+              已模拟微信授权：系统会自动带出昵称和手机号，用户只需补充企业名称并确认即可完成首次登记。
+            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={!isComplete}
+              style={{
+                width: "100%",
+                padding: "13px 14px",
+                borderRadius: 16,
+                border: "none",
+                background: isComplete ? "linear-gradient(135deg, #ff9a3c, #e8750a)" : "rgba(220,210,200,0.8)",
+                color: isComplete ? "#fff" : "#9b948b",
+                fontSize: 15,
+                fontWeight: 800,
+                cursor: isComplete ? "pointer" : "not-allowed",
+                boxShadow: isComplete ? "0 10px 22px rgba(232,117,10,0.22)" : "none",
+              }}
+            >
+              确认企业信息并继续
+            </button>
+          </div>
+        ) : (
+          <div style={{ marginTop: 16, borderRadius: 16, background: "rgba(255,255,255,0.94)", border: "1px solid rgba(232,117,10,0.15)", padding: "14px 14px 12px" }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#2d2040", marginBottom: 8 }}>登记成功，欢迎开始体验</div>
+            <div style={{ fontSize: 12.5, color: "#8a6f58", lineHeight: 1.65, marginBottom: 10 }}>
+              {info.contactName}，您好。企业信息已记录，接下来可继续体验智爱客的小程序功能，也可直接把右侧小程序二维码分享给团队成员。
+            </div>
+            <div style={{ display: "grid", gap: 6 }}>
+              {[["企业名称", info.companyName], ["联系人", info.contactName], ["手机号", info.phone]].map(([label, value]) => (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "4px 0", borderBottom: "1px solid rgba(238,228,220,0.9)" }}>
+                  <span style={{ fontSize: 12.5, color: "#9a7b63" }}>{label}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: "#2d2040", textAlign: "right" }}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 interface HomePageProps {
   userPhone: string;
   onLogout: () => void;
@@ -848,6 +1126,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [expertIndex, setExpertIndex] = useState(0); // 当前展示的专家形象索引
   const [storeModal, setStoreModal] = useState<{ open: boolean; label: string }>({ open: false, label: "" });
   const openStoreModal = (label: string) => setStoreModal({ open: true, label });
+  const [showSalesQrRegister, setShowSalesQrRegister] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null); // 待发送的图片
 
   // ── 扫码培训模式状态 ──
@@ -2634,7 +2913,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             </svg>
             官方网站
           </a>
-          <button onClick={() => toast.info("更多功能即将开放")} style={{
+          <button onClick={() => setShowSalesQrRegister(true)} style={{
             width: 32, height: 32, borderRadius: "50%",
             background: "rgba(255,255,255,0.55)", border: "none",
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -4181,6 +4460,12 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
         open={storeModal.open}
         onClose={() => setStoreModal({ open: false, label: storeModal.label })}
         triggerLabel={storeModal.label}
+      />
+      <SalesQrRegisterModal
+        open={showSalesQrRegister}
+        onClose={() => setShowSalesQrRegister(false)}
+        defaultName={trainingRegisteredName || "张老板"}
+        defaultPhone={userPhone || "138****8888"}
       />
     </div>
   );
