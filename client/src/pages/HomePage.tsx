@@ -1496,7 +1496,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     ];
     const analysisSummaries = [
       "已提炼为服务标准、异常上报、岗位协同 3 个知识点，并生成 6 道情境题。",
-      "已拆解为晨会口径、岗位动作、风险提醒 3 个解析模块，并生成 5 道培训题。",
+      "已拆解为晨会口径、岗位动作、风险提醒 3 个解析模块，并生成 3 道培训题。",
       "已整理为门店执行要点、管理要求、顾客沟通话术 3 类题目素材，并生成 6 道题库条目。",
     ];
     const parsingStepPresets = [
@@ -2324,6 +2324,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {/* ── 对话消息区（在统一滚动容器内） ── */}
       {chatMode && (
         <div className="px-3 py-3">
+          {renderTrainingLaunchCard()}
           {messages.map(msg => (
             <div
               key={msg.id}
@@ -2548,9 +2549,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                           </div>
                         </div>
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c15f08", fontSize: 11, fontWeight: 700 }}>
-                            {msg.voiceKnowledgeConfirmCard.durationLabel}
-                          </span>
                           <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(59,130,246,0.1)", color: "#1d4ed8", fontSize: 11, fontWeight: 700 }}>
                             题库：{msg.voiceKnowledgeConfirmCard.bankTitle}
                           </span>
@@ -2584,10 +2582,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               </div>
                             ))}
                           </div>
-                        </div>
-                        <div style={{ borderRadius: 12, background: "rgba(255,255,255,0.78)", border: "1px dashed rgba(232,117,10,0.28)", padding: "9px 10px", marginBottom: 10 }}>
-                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 4 }}>归档名称</div>
-                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.5 }}>{msg.voiceKnowledgeConfirmCard.archiveName}</div>
                         </div>
                         <div style={{ display: "flex", gap: 8 }}>
                           <button
@@ -2625,7 +2619,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                               cursor: msg.voiceKnowledgeConfirmCard.status === "pending" ? "pointer" : "not-allowed",
                             }}
                           >
-                            确认归档
+                            确认
                           </button>
                         </div>
                       </div>
@@ -2989,7 +2983,6 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
               </div>
             </div>
           ))}
-          {renderTrainingLaunchCard()}
           <div ref={chatEndRef} />
         </div>
       )}
