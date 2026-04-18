@@ -337,8 +337,8 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
     if (!trainingPanelOpen) return null;
 
     return (
-      <div style={{ marginTop: 12, background: "#EAF0FF", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(59,91,219,0.08)" }}>
-        <div style={{ padding: "12px", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ marginTop: 12, background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ background: "#fff", borderRadius: 14, padding: "12px", display: "flex", flexDirection: "column", gap: 10, border: "1px solid rgba(59,91,219,0.1)", boxShadow: "0 1px 3px rgba(59,91,219,0.06)" }}>
           {trainingMessages.map((message) => {
             if (message.type === "task") {
               return (
