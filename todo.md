@@ -323,3 +323,7 @@
 - [ ] CurrentTaskPage：核查培训卡片中 line 346、349、351、387 对应元素，并按用户意图手动删除
 - [ ] CurrentTaskPage：删除目标元素后完成 TypeScript 校验
 - [ ] CurrentTaskPage：完成后创建新的检查点
+- [ ] 运行时错误：定位首页 Maximum call stack size exceeded 的直接触发点
+- [ ] CurrentTaskPage：检查最近改动是否引入递归渲染、循环引用或不稳定 memo 输入
+- [ ] 运行日志：结合浏览器控制台与最近代码改动确认根因并修复
+- [ ] 修复后完成代码校验、页面复测并创建新的检查点

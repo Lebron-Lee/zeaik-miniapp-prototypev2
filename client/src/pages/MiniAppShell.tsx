@@ -337,7 +337,7 @@ export default function MiniAppShell() {
       )}
       {/* 主内容区 */}
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
-        {(appView === "home" || (appView === "org-tree" && orgTreeSource === "home-training")) && (
+        {appView === "home" && (
           <HomePage
             userPhone={userPhone}
             isLoggedIn={isLoggedIn}
