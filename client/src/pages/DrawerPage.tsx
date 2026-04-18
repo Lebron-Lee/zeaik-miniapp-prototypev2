@@ -30,14 +30,6 @@ const IcChevronRight = () => (
   </svg>
 );
 
-const IcTrash = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e05a5a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"/>
-    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-    <path d="M10 11v6M14 11v6"/>
-    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
-  </svg>
-);
 
 const IcMember = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -86,14 +78,26 @@ const IcChatBubble = () => (
   </svg>
 );
 
-// ─── 模拟对话记录数据 ────────────────────────────────────────────────────────
+// ─── 培训中心模拟任务数据 ─────────────────────────────────────────────────────
 
-const INITIAL_CHATS = [
-  { id: 1, title: "餐饮店在哪些环节可以用AI来干活？", time: "今天 14:32" },
-  { id: 2, title: "初中毕业的服务员能上手AI吗？", time: "今天 11:08" },
-  { id: 3, title: "餐饮店用AI需要投入多少钱？", time: "昨天 16:45" },
-  { id: 4, title: "如何用AI提升翻台率？", time: "昨天 09:20" },
-  { id: 5, title: "智能巡检功能怎么配置？", time: "3天前" },
+type TrainingTaskGroup = "我发起的" | "我参加的";
+
+interface TrainingTask {
+  id: number;
+  title: string;
+  time: string;
+  progress: string;
+  group: TrainingTaskGroup;
+  hasUpdate?: boolean;
+}
+
+const TRAINING_TASKS: TrainingTask[] = [
+  { id: 1, title: "茶水区服务标准培训", time: "今天 09:41", progress: "新增 3 人完成，完成率 72%", group: "我发起的", hasUpdate: true },
+  { id: 2, title: "门店开档检查培训", time: "昨天 18:20", progress: "新增 1 条待完成提醒", group: "我发起的", hasUpdate: true },
+  { id: 3, title: "新品推荐话术培训", time: "昨天 11:08", progress: "培训已发起，待 5 人接收", group: "我发起的" },
+  { id: 4, title: "服务礼仪标准培训", time: "今天 14:32", progress: "已完成 4/5 题，待提交反馈", group: "我参加的" },
+  { id: 5, title: "食品安全晨会培训", time: "昨天 16:45", progress: "培训完成，得分 96 分", group: "我参加的" },
+  { id: 6, title: "值班经理交接培训", time: "3天前", progress: "历史任务，可回看记录", group: "我参加的" },
 ];
 
 // ─── 通用列表卡片组件 ────────────────────────────────────────────────────────
@@ -165,23 +169,14 @@ function SectionCard({ title, badge, items }: {
 }
 
 export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation }: DrawerPageProps) {
-  const [chats, setChats] = useState(INITIAL_CHATS);
-  const [editMode, setEditMode] = useState(false);
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [showAllTrainingTasks, setShowAllTrainingTasks] = useState(false);
 
-  const toggleSelect = (id: number) => {
-    const next = new Set(selected);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelected(next);
-  };
+  const initiatedTasks = TRAINING_TASKS.filter(task => task.group === "我发起的");
+  const joinedTasks = TRAINING_TASKS.filter(task => task.group === "我参加的");
+  const initiatedUpdateCount = initiatedTasks.filter(task => task.hasUpdate).length;
 
-  const deleteSelected = () => {
-    setChats(prev => prev.filter(c => !selected.has(c.id)));
-    setSelected(new Set());
-    setEditMode(false);
-    toast.success("已删除所选对话记录");
-  };
+  const visibleInitiatedTasks = showAllTrainingTasks ? initiatedTasks : initiatedTasks.slice(0, 2);
+  const visibleJoinedTasks = showAllTrainingTasks ? joinedTasks : joinedTasks.slice(0, 2);
 
   return (
     <div
@@ -264,20 +259,34 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
         ]}
       />
 
-      {/* ── 对话记录（蚂蚁阿福风格，移至最后） ── */}
+      {/* ── 培训中心（最新与历史任务） ── */}
       <div className="px-3 pt-3 pb-6">
         <div className="flex items-center justify-between px-1 mb-2">
           <div className="flex items-center gap-2">
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>对话记录</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>培训中心</span>
+            {initiatedUpdateCount > 0 && (
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "2px 7px",
+                borderRadius: 999,
+                background: "rgba(232,117,10,0.12)",
+                border: "1px solid rgba(232,117,10,0.22)",
+                fontSize: 11,
+                color: "#e8750a",
+                fontWeight: 700,
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#e8750a" }} />
+                {initiatedUpdateCount} 条新进度
+              </div>
+            )}
           </div>
           <button
-            onClick={() => { setEditMode(!editMode); setSelected(new Set()); }}
-            style={{
-              fontSize: 12.5, color: editMode ? "#e8750a" : "#9a8aaa",
-              background: "none", border: "none", fontWeight: 600,
-            }}
+            onClick={() => setShowAllTrainingTasks(prev => !prev)}
+            style={{ fontSize: 12.5, color: "#e8750a", background: "none", border: "none", fontWeight: 600 }}
           >
-            {editMode ? "取消" : "管理"}
+            {showAllTrainingTasks ? "收起" : "查看全部"}
           </button>
         </div>
 
@@ -290,111 +299,138 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
           overflow: "hidden",
         }}>
           <button
-            onClick={() => onOpenTrainingConversation?.()}
+            onClick={() => setShowAllTrainingTasks(prev => !prev)}
             style={{
-              width: "100%", display: "flex", alignItems: "center", gap: 10,
-              padding: "12px 16px",
-              background: "linear-gradient(90deg, rgba(255,244,234,0.95), rgba(255,250,244,0.88))",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "13px 16px",
+              background: "linear-gradient(90deg, rgba(255,244,234,0.96), rgba(255,251,247,0.9))",
               border: "none",
-              borderBottom: chats.length > 0 ? "1px solid rgba(232,117,10,0.08)" : "none",
+              borderBottom: "1px solid rgba(232,117,10,0.08)",
               textAlign: "left",
             }}
           >
             <div style={{
-              width: 36, height: 36, borderRadius: 10,
+              width: 40,
+              height: 40,
+              borderRadius: 12,
               background: "linear-gradient(135deg, rgba(255,210,160,0.45), rgba(255,235,200,0.35))",
               border: "1px solid rgba(232,117,10,0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               flexShrink: 0,
             }}>
-              <IcChatBubble />
+              <IcTrain />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{
-                fontSize: 13.5, fontWeight: 600, color: "#2d2040",
-                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              }}>茶水区服务标准培训</div>
-              <div style={{ fontSize: 11.5, color: "#b0a0c0", marginTop: 2 }}>今天 09:41</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>最新及历史培训任务</div>
+              <div style={{ fontSize: 12, color: "#9a8aaa", marginTop: 2 }}>展开查看我发起的与我参加的全部培训任务</div>
             </div>
             <IcChevronRight />
           </button>
-          {chats.length === 0 ? (
-            <div style={{ padding: "28px 0", textAlign: "center", color: "#b0a0c0", fontSize: 13 }}>
-              暂无对话记录
-            </div>
-          ) : (
-            chats.map((chat, i) => (
-              <button
-                key={chat.id}
-                onClick={() => editMode ? toggleSelect(chat.id) : toast.info("对话详情即将开放")}
-                style={{
-                  width: "100%", display: "flex", alignItems: "center", gap: 10,
-                  padding: "12px 16px",
-                  background: selected.has(chat.id) ? "rgba(255,240,220,0.9)" : "none",
-                  border: "none",
-                  borderBottom: i < chats.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none",
-                  textAlign: "left",
-                  transition: "background 0.15s",
-                }}
-              >
-                {/* 左侧图标 */}
-                {editMode ? (
+
+          {([
+            { title: "我发起的", tasks: visibleInitiatedTasks },
+            { title: "我参加的", tasks: visibleJoinedTasks },
+          ] as const).map((group, groupIndex) => (
+            <div key={group.title} style={{ borderBottom: groupIndex === 0 ? "1px solid rgba(0,0,0,0.04)" : "none" }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 16px 8px",
+              }}>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: "#5f4a72" }}>{group.title}</span>
+                <span style={{ fontSize: 11.5, color: "#b0a0c0" }}>{group.title === "我发起的" ? initiatedTasks.length : joinedTasks.length} 条任务</span>
+              </div>
+
+              {group.tasks.map((task, taskIndex) => (
+                <button
+                  key={task.id}
+                  onClick={() => {
+                    if (task.group === "我发起的") {
+                      onOpenTrainingConversation?.();
+                    } else {
+                      toast.info(`${task.title}详情即将开放`);
+                    }
+                  }}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "10px 16px 12px",
+                    background: "none",
+                    border: "none",
+                    borderBottom: taskIndex < group.tasks.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none",
+                    textAlign: "left",
+                  }}
+                >
                   <div style={{
-                    width: 20, height: 20, borderRadius: "50%",
-                    border: `2px solid ${selected.has(chat.id) ? "#e8750a" : "#d0c0e0"}`,
-                    background: selected.has(chat.id) ? "#e8750a" : "transparent",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0,
-                  }}>
-                    {selected.has(chat.id) && (
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                        <path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
-                      </svg>
-                    )}
-                  </div>
-                ) : (
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10,
-                    background: "linear-gradient(135deg, rgba(255,210,160,0.45), rgba(255,235,200,0.35))",
-                    border: "1px solid rgba(232,117,10,0.15)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 34,
+                    height: 34,
+                    borderRadius: 10,
+                    background: task.group === "我发起的" ? "rgba(232,117,10,0.1)" : "rgba(255,210,160,0.22)",
+                    border: "1px solid rgba(232,117,10,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     flexShrink: 0,
                   }}>
                     <IcChatBubble />
                   </div>
-                )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: 13.5,
+                        fontWeight: 600,
+                        color: "#2d2040",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        minWidth: 0,
+                        flex: 1,
+                      }}>{task.title}</div>
+                      {task.hasUpdate && (
+                        <span style={{
+                          flexShrink: 0,
+                          padding: "1px 6px",
+                          borderRadius: 999,
+                          background: "rgba(232,117,10,0.12)",
+                          color: "#e8750a",
+                          fontSize: 10.5,
+                          fontWeight: 700,
+                        }}>新进度</span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: "#8f7b9f", marginTop: 2 }}>{task.progress}</div>
+                    <div style={{ fontSize: 11, color: "#b7a7c6", marginTop: 3 }}>{task.time}</div>
+                  </div>
+                  <IcChevronRight />
+                </button>
+              ))}
+            </div>
+          ))}
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: 13.5, fontWeight: 600, color: "#2d2040",
-                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  }}>{chat.title}</div>
-                  <div style={{ fontSize: 11.5, color: "#b0a0c0", marginTop: 2 }}>{chat.time}</div>
-                </div>
-                {!editMode && <IcChevronRight />}
-              </button>
-            ))
-          )}
-        </div>
-
-        {/* 删除按钮（管理模式） */}
-        {editMode && selected.size > 0 && (
           <button
-            onClick={deleteSelected}
+            onClick={() => setShowAllTrainingTasks(prev => !prev)}
             style={{
-              width: "100%", marginTop: 10,
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              padding: "11px",
-              background: "rgba(255,240,240,0.9)",
-              border: "1px solid rgba(224,90,90,0.2)",
-              borderRadius: 14,
-              fontSize: 13.5, color: "#e05a5a", fontWeight: 600,
+              width: "100%",
+              padding: "12px 16px",
+              background: "rgba(255,248,240,0.65)",
+              border: "none",
+              borderTop: "1px solid rgba(232,117,10,0.06)",
+              fontSize: 12.5,
+              color: "#e8750a",
+              fontWeight: 700,
             }}
           >
-            <IcTrash />
-            删除所选 ({selected.size} 条)
+            {showAllTrainingTasks ? "收起培训任务" : "展开查看全部培训任务"}
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
