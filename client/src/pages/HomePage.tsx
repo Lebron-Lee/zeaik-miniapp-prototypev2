@@ -840,6 +840,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [showTrainingRegister, setShowTrainingRegister] = useState(false);
   const [trainingRegistered, setTrainingRegistered] = useState(false);
   const [trainingRegisteredName, setTrainingRegisteredName] = useState("");
+  const [trainingRegisterName, setTrainingRegisterName] = useState("张老板");
   const [trainingActiveTask, setTrainingActiveTask] = useState<TrainingCardData | null>(null);
   const [trainingQIdx, setTrainingQIdx] = useState(0);
   const [trainingAttempts, setTrainingAttempts] = useState(0);
@@ -1189,6 +1190,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
   // 开始培训（注册完成后调用）
   const handleTrainingStart = (name: string) => {
     setTrainingRegisteredName(name);
+    setTrainingRegisterName(name);
     setTrainingRegistered(true);
     setShowTrainingRegister(false);
     setTrainingActiveTask(TRAINING_INVITE_CARD);
@@ -1294,6 +1296,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
 
   const handleTrainingIntroAction = (_item: TrainingIntroItem) => {
     setChatMode(true);
+    setTrainingRegisterName(trainingRegisteredName || "张老板");
     setShowTrainingRegister(true);
   };
 
@@ -2922,6 +2925,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
                               setTrainingRegisterRelation(null);
                               setTrainingRegisterPosition("");
                               setTrainingRegisterCustomPosition("");
+                              setTrainingRegisterName(trainingRegisteredName || "张老板");
                               setShowTrainingRegister(true);
                             }}
                             style={{
@@ -3906,12 +3910,14 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
       {/* 培训注册弹层（扫码培训模式） */}
       {showTrainingRegister && (
         <div
-          onClick={() => {
-            setShowTrainingRegister(false);
-            setTrainingRegisterRelation(null);
-            setTrainingRegisterPosition("");
-            setTrainingRegisterCustomPosition("");
-          }}
+            onClick={() => {
+              setShowTrainingRegister(false);
+              setTrainingRegisterRelation(null);
+              setTrainingRegisterPosition("");
+              setTrainingRegisterCustomPosition("");
+              setTrainingRegisterName(trainingRegisteredName || "张老板");
+            }}
+
           style={{
             position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)",
             display: "flex", alignItems: "flex-end", zIndex: 200,
@@ -3943,7 +3949,9 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
               <div style={{ fontSize: 13, fontWeight: 600, color: "#6d4c37", marginBottom: 6 }}>你的姓名</div>
               <input
                 id="training-reg-name"
-                placeholder="请输入真实姓名"
+                value={trainingRegisterName}
+                onChange={(e) => setTrainingRegisterName(e.target.value)}
+                placeholder="已自动获取微信昵称"
                 style={{
                   width: "100%", padding: "12px 14px",
                   border: "1.5px solid rgba(232,117,10,0.18)", borderRadius: 14,
@@ -4067,8 +4075,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             {/* 确认按钮 */}
             <button
               onClick={() => {
-                const nameEl = document.getElementById("training-reg-name") as HTMLInputElement;
-                const name = nameEl?.value?.trim() || "新员工";
+                const name = trainingRegisterName.trim() || "新员工";
                 handleTrainingStart(name);
               }}
               style={{
