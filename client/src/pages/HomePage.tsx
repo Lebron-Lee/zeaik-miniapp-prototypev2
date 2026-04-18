@@ -1452,12 +1452,17 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
 
     const simulatedIntent = "对领导讲话进行碎片录音，自动沉淀培训题目";
     const simulatedGoal = `录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：${card.analysisSummary}`;
+    const cameFromTrainingLaunch = trainingLaunchActive;
 
     setTrainingLaunchIntent(prev => prev.trim() || simulatedIntent);
     setTrainingLaunchGoal(simulatedGoal);
+    setSelectedTrainingBankId("upload-generated");
     setTrainingLaunchUploadedFiles(prev => [{ name: card.recordingName, sizeLabel: card.durationLabel }, ...prev.filter(file => file.name !== card.recordingName)].slice(0, 3));
     setInputText(card.recognizedText);
     setChatMode(true);
+    if (cameFromTrainingLaunch) {
+      setTrainingLaunchStep(3);
+    }
     setMessages(prev => [
       ...prev.map(msg => msg.id === messageId
         ? { ...msg, voiceKnowledgeConfirmCard: { ...card, status: "confirmed" as const } }
@@ -1465,10 +1470,12 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       {
         id: msgIdRef.current++,
         role: "ai",
-        text: `已确认采用「${card.recordingName}」，解析内容已归入「${card.bankTitle}」，并按「${card.archiveName}」完成题库存档。后续继续录音会自动累计到同一题库。`,
+        text: cameFromTrainingLaunch
+          ? `已根据「${card.recordingName}」生成培训题目，题库已整理为「${card.bankTitle}」。你可以继续点击发起培训卡片中的「去发起培训」，把这组题目直接下发给员工。`
+          : `已确认采用「${card.recordingName}」，解析内容已归入「${card.bankTitle}」，并按「${card.archiveName}」完成题库存档。后续继续录音会自动累计到同一题库。`,
       },
     ]);
-    toast.success("已归档到题库并保留为知识记录");
+    toast.success(cameFromTrainingLaunch ? "题目已生成，可继续发起培训" : "已归档到题库并保留为知识记录");
     setTimeout(() => inputRef.current?.focus(), 120);
   };
 
