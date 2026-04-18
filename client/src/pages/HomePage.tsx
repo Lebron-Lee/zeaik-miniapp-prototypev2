@@ -743,6 +743,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [knowledgeRecordingStartedAt, setKnowledgeRecordingStartedAt] = useState<number | null>(null);
   const [knowledgeRecordingElapsedMs, setKnowledgeRecordingElapsedMs] = useState(0);
   const [knowledgeRecordingSerial, setKnowledgeRecordingSerial] = useState(1);
+  const [voiceThinkingTick, setVoiceThinkingTick] = useState(0);
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatMode, setChatMode] = useState(false); // 是否进入对话模式
   const [msgFeedback, setMsgFeedback] = useState<Record<number, "like" | "dislike" | null>>({});
@@ -1648,6 +1649,52 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       window.removeEventListener("touchend", handleGlobalVoiceEnd);
     };
   }, [isVoiceHolding, voiceCancelRequested]);
+
+  useEffect(() => {
+    const hasPendingVoiceCard = messages.some(msg => msg.voiceKnowledgeConfirmCard?.status === "pending");
+    if (!hasPendingVoiceCard) {
+      setVoiceThinkingTick(0);
+      return undefined;
+    }
+
+    setVoiceThinkingTick(0);
+    const intervalId = window.setInterval(() => {
+      setVoiceThinkingTick(prev => prev + 1);
+    }, 70);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [messages]);
+
+  const renderVoiceTypedText = (text: string, startTick: number, charsPerTick = 1.4, animate = true, color = "#4f4135") => {
+    if (!animate) {
+      return <span style={{ color, whiteSpace: "pre-wrap" }}>{text}</span>;
+    }
+
+    const visibleChars = Math.max(0, Math.floor((voiceThinkingTick - startTick + 1) * charsPerTick));
+    const typedText = text.slice(0, Math.min(text.length, visibleChars));
+    const isComplete = typedText.length >= text.length;
+
+    return (
+      <span style={{ color, whiteSpace: "pre-wrap" }}>
+        {typedText}
+        {!isComplete && (
+          <span
+            style={{
+              display: "inline-block",
+              width: 1.5,
+              height: "1em",
+              background: "#e8750a",
+              marginLeft: 2,
+              verticalAlign: "-2px",
+              animation: "blink 1s step-end infinite",
+            }}
+          />
+        )}
+      </span>
+    );
+  };
 
   // 渲染消息内容（支持Markdown粗体）
   const renderText = (text: string) => {
@@ -2563,7 +2610,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                         </div>
                         <div style={{ borderRadius: 13, background: "rgba(255,255,255,0.9)", border: "1px solid rgba(241,214,190,0.72)", padding: "10px 10px 9px", marginBottom: 10, animation: "thinkingFade 0.45s ease 0.08s both" }}>
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>识别文本</div>
-                          <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.6 }}>{msg.voiceKnowledgeConfirmCard.recognizedText}</div>
+                          <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.6 }}>{renderVoiceTypedText(msg.voiceKnowledgeConfirmCard.recognizedText, 2, 1.35, msg.voiceKnowledgeConfirmCard.status === "pending")}</div>
                         </div>
                         <div style={{ borderRadius: 13, background: "rgba(255,248,241,0.9)", border: "1px solid rgba(241,214,190,0.68)", padding: "10px 10px 9px", marginBottom: 10, animation: "thinkingFade 0.45s ease 0.22s both" }}>
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析过程</div>
@@ -2573,12 +2620,12 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                                 <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(255,154,60,0.14)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                   {index + 1}
                                 </span>
-                                <span style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55 }}>{step}</span>
+                                <span style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55 }}>{renderVoiceTypedText(step, 12 + index * 10, 1.3, msg.voiceKnowledgeConfirmCard!.status === "pending", "#5b4739")}</span>
                               </div>
                             ))}
                           </div>
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析结论</div>
-                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6, marginBottom: 10 }}>{msg.voiceKnowledgeConfirmCard.analysisSummary}</div>
+                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6, marginBottom: 10 }}>{renderVoiceTypedText(msg.voiceKnowledgeConfirmCard.analysisSummary, 46, 1.25, msg.voiceKnowledgeConfirmCard.status === "pending", "#5b4739")}</div>
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>输出题目</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                             {msg.voiceKnowledgeConfirmCard.questionPreview.map((question, index) => (
@@ -2586,7 +2633,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                                 <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                   {index + 1}
                                 </span>
-                                <span style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{question}</span>
+                                <span style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{renderVoiceTypedText(question, 60 + index * 12, 1.25, msg.voiceKnowledgeConfirmCard!.status === "pending")}</span>
                               </div>
                             ))}
                           </div>
