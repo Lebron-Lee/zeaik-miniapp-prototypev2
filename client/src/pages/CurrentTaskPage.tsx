@@ -343,11 +343,9 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
             if (message.type === "task") {
               return (
                 <div key={message.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: "1px solid #F5F5F5", gap: 8, background: "#fff", borderRadius: 14 }}>
-                  <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>训</span>
+                  <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{trainingTask.id}</span>
                   <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{resolvedTrainingTask.time}</span>
                   <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{trainingTask.name}</span>
-                  <span style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>{trainingTaskCode}</span>
-                  <LightningIcon />
                   <button
                     onClick={handleStartTraining}
                     style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}

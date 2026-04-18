@@ -334,3 +334,7 @@
 - [ ] CurrentTaskPage：将培训任务首卡改造成与任务状态一致的行式 item 样式
 - [ ] CurrentTaskPage：保留“立即培训/继续培训”操作并收口到 item 右侧操作区
 - [ ] CurrentTaskPage：完成样式改造后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查 line 132 对应 svg 图标是否仍存在，若存在则按要求删除
+- [ ] CurrentTaskPage：将培训任务 item 左侧“训”标记改成与任务列表一致的序号样式
+- [ ] CurrentTaskPage：删除培训任务 item 中指定的编号文本元素
+- [ ] CurrentTaskPage：完成本轮手动修正后执行 TypeScript 校验并创建新的检查点
