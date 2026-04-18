@@ -37,39 +37,6 @@ const IcMember = () => (
   </svg>
 );
 
-// 专属智库图标
-const IcReport = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <rect x="4" y="2" width="13" height="17" rx="2" fill="rgba(232,117,10,0.15)" stroke="#e8750a" strokeWidth="1.4"/>
-    <path d="M7 7h7M7 10.5h7M7 14h4" stroke="#e8750a" strokeWidth="1.4" strokeLinecap="round"/>
-    <circle cx="18" cy="18" r="4" fill="#e8750a"/>
-    <path d="M16.5 18h3M18 16.5v3" stroke="#fff" strokeWidth="1.3" strokeLinecap="round"/>
-  </svg>
-);
-
-const IcBook = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#e8750a" strokeWidth="1.4" strokeLinecap="round"/>
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" fill="rgba(232,117,10,0.12)" stroke="#e8750a" strokeWidth="1.4"/>
-    <path d="M8 7h8M8 10.5h6M8 14h4" stroke="#e8750a" strokeWidth="1.3" strokeLinecap="round"/>
-  </svg>
-);
-
-// 学习中心图标
-const IcTrain = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path d="M12 3l2.09 6.26L20 10.18l-4.91 4.82 1.18 6.82L12 18.77l-4.27 3.05 1.18-6.82L4 10.18l5.91-.92L12 3z" fill="rgba(232,117,10,0.15)" stroke="#e8750a" strokeWidth="1.4" strokeLinejoin="round"/>
-  </svg>
-);
-
-const IcHelp = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="9" fill="rgba(232,117,10,0.12)" stroke="#e8750a" strokeWidth="1.4"/>
-    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke="#e8750a" strokeWidth="1.4" strokeLinecap="round"/>
-    <circle cx="12" cy="17" r="0.6" fill="#e8750a"/>
-  </svg>
-);
-
 // 对话图标
 const IcChatBubble = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -99,74 +66,6 @@ export const TRAINING_TASKS: TrainingTask[] = [
   { id: 5, title: "食品安全晨会培训", time: "昨天 16:45", progress: "培训完成，得分 96 分", group: "我参加的" },
   { id: 6, title: "值班经理交接培训", time: "3天前", progress: "历史任务，可回看记录", group: "我参加的" },
 ];
-
-// ─── 通用列表卡片组件 ────────────────────────────────────────────────────────
-
-function SectionCard({ title, badge, items }: {
-  title: string;
-  badge?: string;
-  items: { Icon: () => React.ReactElement; label: string; desc: string }[];
-}) {
-  return (
-    <div className="px-3 pt-3">
-      {/* 标题行 */}
-      <div className="flex items-center gap-2 px-1 mb-2">
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>{title}</span>
-        {badge && (
-          <div style={{
-            background: "rgba(232,117,10,0.12)",
-            border: "1px solid rgba(232,117,10,0.25)",
-            borderRadius: 8, padding: "2px 7px",
-            fontSize: 11, color: "#e8750a", fontWeight: 600,
-          }}>{badge}</div>
-        )}
-      </div>
-
-      <div style={{
-        background: "rgba(255,255,255,0.78)",
-        backdropFilter: "blur(12px)",
-        borderRadius: 16,
-        border: "1px solid rgba(255,255,255,0.9)",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-        overflow: "hidden",
-      }}>
-        {items.map(({ Icon, label, desc }, i) => (
-          <button
-            key={i}
-            onClick={() => toast.info(`${label}功能即将开放`)}
-            style={{
-              width: "100%", display: "flex", alignItems: "center", gap: 12,
-              padding: "13px 16px",
-              background: "none", border: "none",
-              borderBottom: i < items.length - 1 ? "1px solid rgba(232,117,10,0.06)" : "none",
-              textAlign: "left",
-              transition: "background 0.15s",
-            }}
-            onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,248,240,0.8)")}
-            onMouseLeave={e => (e.currentTarget.style.background = "none")}
-          >
-            <div style={{
-              width: 40, height: 40, borderRadius: 12,
-              background: "linear-gradient(135deg, rgba(255,210,160,0.45), rgba(255,235,200,0.35))",
-              border: "1px solid rgba(232,117,10,0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0,
-            }}>
-              <Icon />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#2d2040" }}>{label}</div>
-              <div style={{ fontSize: 12, color: "#9a8aaa", marginTop: 2 }}>{desc}</div>
-            </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.2" strokeLinecap="round">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export const TRAINING_DRAWER_BADGE_COUNT = TRAINING_TASKS.filter(
   task => task.group === "我发起的" && task.hasUpdate,
@@ -244,25 +143,6 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
         </div>
       </div>
 
-      {/* ── 专属智库 ── */}
-      <SectionCard
-        title="专属智库"
-        badge="需授权"
-        items={[
-          { Icon: IcReport, label: "餐厅体检分析报告", desc: "专属 AI 诊断，免费领取" },
-          { Icon: IcBook,   label: "餐饮 AI 实战提效手册", desc: "2025 最新版，限时获取" },
-        ]}
-      />
-
-      {/* ── 学习中心 ── */}
-      <SectionCard
-        title="学习中心"
-        items={[
-          { Icon: IcTrain, label: "AI培训课程", desc: "9.9元快速上手AI赚钱" },
-          { Icon: IcHelp,  label: "帮助中心",   desc: "常见问题与使用指南" },
-        ]}
-      />
-
       {/* ── 培训中心（最新与历史任务） ── */}
       <div className="px-3 pt-3 pb-6">
         <div className="flex items-center justify-between px-1 mb-2">
@@ -302,40 +182,6 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
           boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
           overflow: "hidden",
         }}>
-          <button
-            onClick={() => setShowAllTrainingTasks(prev => !prev)}
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: "13px 16px",
-              background: "linear-gradient(90deg, rgba(255,244,234,0.96), rgba(255,251,247,0.9))",
-              border: "none",
-              borderBottom: "1px solid rgba(232,117,10,0.08)",
-              textAlign: "left",
-            }}
-          >
-            <div style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              background: "linear-gradient(135deg, rgba(255,210,160,0.45), rgba(255,235,200,0.35))",
-              border: "1px solid rgba(232,117,10,0.15)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}>
-              <IcTrain />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040" }}>最新及历史培训任务</div>
-              <div style={{ fontSize: 12, color: "#9a8aaa", marginTop: 2 }}>展开查看我发起的与我参加的全部培训任务</div>
-            </div>
-            <IcChevronRight />
-          </button>
-
           {([
             { title: "我发起的", tasks: visibleInitiatedTasks },
             { title: "我参加的", tasks: visibleJoinedTasks },
