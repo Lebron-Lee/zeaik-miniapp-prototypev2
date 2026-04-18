@@ -411,6 +411,21 @@ interface TrainingLaunchGroup {
   members: TrainingLaunchMember[];
 }
 
+interface TrainingLibraryQuestion {
+  id: string;
+  title: string;
+  summary: string;
+  keywords: string[];
+}
+
+interface TrainingLibraryBank {
+  id: string;
+  title: string;
+  description: string;
+  tag: string;
+  questions: TrainingLibraryQuestion[];
+}
+
 const TRAINING_LAUNCH_BANKS: TrainingLaunchBankOption[] = [
   {
     id: "service-standard",
@@ -432,6 +447,61 @@ const TRAINING_LAUNCH_BANKS: TrainingLaunchBankOption[] = [
     description: "围绕留样、效期、冷链、清洁消杀与后厨协同规范展开。",
     meta: "10个知识点 · 适合后厨与值班经理",
     tag: "风险优先",
+  },
+];
+
+const TRAINING_LIBRARY_BANKS: TrainingLibraryBank[] = [
+  {
+    id: "library-new-staff",
+    title: "新员工/临时工题库",
+    description: "聚焦入岗第一周最容易出错的服务礼仪、迎宾流程与基本动作。",
+    tag: "入岗必练",
+    questions: [
+      { id: "new-1", title: "新员工礼仪：迎宾前三句话怎么说？", summary: "覆盖问候语、站姿和引导手势。", keywords: ["新员工礼仪", "迎宾", "服务话术"] },
+      { id: "new-2", title: "临时工上岗前需要完成哪些卫生检查？", summary: "检查工服、手部卫生与台面清洁。", keywords: ["临时工", "卫生检查", "上岗"] },
+      { id: "new-3", title: "顾客高峰期如何快速确认点单信息？", summary: "训练复述确认和加单提醒动作。", keywords: ["点单确认", "高峰期", "新员工"] },
+      { id: "new-4", title: "遇到不会回答的问题时应如何向上求助？", summary: "明确向店长和值班经理求助路径。", keywords: ["求助", "新员工", "门店协同"] },
+      { id: "new-5", title: "餐前五分钟需要完成哪些岗位准备？", summary: "围绕备餐、设备与站位检查。", keywords: ["餐前准备", "新员工", "岗位动作"] },
+    ],
+  },
+  {
+    id: "library-culture",
+    title: "制度及文化题库",
+    description: "聚焦门店规章制度、奖惩边界与团队协同文化。",
+    tag: "制度文化",
+    questions: [
+      { id: "culture-1", title: "门店迟到早退的上报与记录规则是什么？", summary: "覆盖班次纪律与异常报备。", keywords: ["制度", "考勤", "上报"] },
+      { id: "culture-2", title: "遇到顾客投诉时，团队协同的标准顺序是什么？", summary: "强调先安抚顾客，再同步管理岗。", keywords: ["制度", "投诉", "协同"] },
+      { id: "culture-3", title: "门店文化中“先解决问题”体现在哪些动作？", summary: "用真实场景理解服务文化。", keywords: ["文化", "服务意识", "团队"] },
+      { id: "culture-4", title: "交接班信息遗漏会带来哪些经营风险？", summary: "覆盖值班日志与责任传递。", keywords: ["交接班", "制度", "风险"] },
+      { id: "culture-5", title: "员工如何在班前会中快速对齐当日重点？", summary: "围绕晨会口径和任务传达。", keywords: ["班前会", "文化", "晨会"] },
+    ],
+  },
+  {
+    id: "library-skill",
+    title: "技能题库",
+    description: "聚焦服务、出品、收银等岗位的标准动作与实操技能。",
+    tag: "岗位技能",
+    questions: [
+      { id: "skill-1", title: "收银找零时必须复述哪三项关键信息？", summary: "强调金额确认与顾客二次核对。", keywords: ["收银", "技能", "金额确认"] },
+      { id: "skill-2", title: "后厨出品前如何完成效期与留样复检？", summary: "覆盖留样、效期和标签。", keywords: ["后厨", "留样", "效期"] },
+      { id: "skill-3", title: "新员工礼仪：托盘服务的动作标准是什么？", summary: "围绕站姿、转身和上菜动作。", keywords: ["新员工礼仪", "托盘", "服务动作"] },
+      { id: "skill-4", title: "高峰时段如何进行分区巡台与异常预警？", summary: "训练巡台节奏与优先级判断。", keywords: ["巡台", "高峰期", "服务标准"] },
+      { id: "skill-5", title: "饮品制作中如何避免配方遗漏与返工？", summary: "适用于饮品岗位的流程复核。", keywords: ["饮品", "配方", "技能"] },
+    ],
+  },
+  {
+    id: "library-special",
+    title: "专项题库",
+    description: "聚焦节假日大促、食品安全、突发客诉等专项培训主题。",
+    tag: "专项强化",
+    questions: [
+      { id: "special-1", title: "节假日高峰时如何安排迎宾分流？", summary: "覆盖排队安抚与动线管理。", keywords: ["节假日", "迎宾", "高峰"] },
+      { id: "special-2", title: "食品安全突发事件的第一响应是什么？", summary: "训练封存、上报与顾客沟通。", keywords: ["食品安全", "突发事件", "上报"] },
+      { id: "special-3", title: "外卖催单集中出现时如何稳定门店节奏？", summary: "覆盖前后厨协同与时间承诺。", keywords: ["外卖", "催单", "专项"] },
+      { id: "special-4", title: "临时工在大型活动日应重点关注哪些禁忌？", summary: "适合活动场景临时补训。", keywords: ["临时工", "活动日", "专项"] },
+      { id: "special-5", title: "顾客连续追问优惠规则时如何统一口径？", summary: "强调促销政策与话术统一。", keywords: ["优惠规则", "统一口径", "专项"] },
+    ],
   },
 ];
 
@@ -775,6 +845,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [trainingLaunchIntent, setTrainingLaunchIntent] = useState("");
   const [trainingLaunchGoal, setTrainingLaunchGoal] = useState("");
   const [trainingLaunchUploadedFiles, setTrainingLaunchUploadedFiles] = useState<Array<{ name: string; sizeLabel: string }>>([]);
+  const [trainingLibraryOpen, setTrainingLibraryOpen] = useState(false);
+  const [activeTrainingLibraryBankId, setActiveTrainingLibraryBankId] = useState(TRAINING_LIBRARY_BANKS[0]?.id ?? "library-new-staff");
+  const [trainingLibraryKeyword, setTrainingLibraryKeyword] = useState("");
+  const [selectedTrainingLibraryQuestionIds, setSelectedTrainingLibraryQuestionIds] = useState<Set<string>>(new Set());
   const [trainingTargetPickerOpen, setTrainingTargetPickerOpen] = useState(false);
   const trainingLaunchUploadRef = React.useRef<HTMLInputElement>(null);
   const trainingMsgIdRef = React.useRef(10000);
@@ -897,6 +971,17 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       };
     }
 
+    const libraryBank = TRAINING_LIBRARY_BANKS.find(item => item.id === selectedTrainingBankId);
+    if (libraryBank && selectedTrainingLibraryQuestionIds.size > 0) {
+      return {
+        id: libraryBank.id,
+        title: libraryBank.title,
+        description: `已从${libraryBank.title}中选择 ${selectedTrainingLibraryQuestionIds.size} 道题，可继续补充培训对象后发起。`,
+        meta: `${selectedTrainingLibraryQuestionIds.size} 道题 · 支持关键词继续搜索`,
+        tag: "资料库选题",
+      };
+    }
+
     const keyword = `${trainingLaunchIntent} ${trainingLaunchGoal} ${selectedTrainingGroupLabels.join(' ')}`.toLowerCase();
     if (/(食品|后厨|效期|冷链|留样|消杀|卫生)/.test(keyword)) {
       return TRAINING_LAUNCH_BANKS.find(item => item.id === "food-safety") ?? TRAINING_LAUNCH_BANKS[0];
@@ -907,6 +992,29 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     return TRAINING_LAUNCH_BANKS.find(item => item.id === "service-standard") ?? TRAINING_LAUNCH_BANKS[0];
   };
   const selectedTrainingBank = getAutoRecommendedTrainingBank();
+  const activeTrainingLibraryBank = TRAINING_LIBRARY_BANKS.find(bank => bank.id === activeTrainingLibraryBankId) ?? TRAINING_LIBRARY_BANKS[0];
+  const selectedTrainingLibraryQuestions = TRAINING_LIBRARY_BANKS
+    .flatMap(bank => bank.questions)
+    .filter(question => selectedTrainingLibraryQuestionIds.has(question.id));
+  const normalizedTrainingLibraryKeyword = trainingLibraryKeyword.trim().toLowerCase();
+  const filteredTrainingLibraryBanks = TRAINING_LIBRARY_BANKS.map(bank => ({
+    ...bank,
+    questions: bank.questions.filter(question => {
+      if (!normalizedTrainingLibraryKeyword) return true;
+      const haystack = `${bank.title} ${question.title} ${question.summary} ${question.keywords.join(' ')}`.toLowerCase();
+      return haystack.includes(normalizedTrainingLibraryKeyword);
+    }),
+  })).filter(bank => bank.questions.length > 0 || !normalizedTrainingLibraryKeyword);
+  const trainingTopicSummary = summarizeTrainingTopic({
+    intent: trainingLaunchIntent,
+    goal: trainingLaunchGoal,
+    selectedQuestions: selectedTrainingLibraryQuestions,
+    uploadedFiles: trainingLaunchUploadedFiles,
+  });
+  const trainingTopicDetail = buildTrainingTopicDetail({
+    selectedQuestions: selectedTrainingLibraryQuestions,
+    goal: trainingLaunchGoal,
+  });
   const TRAINING_LAUNCH_QR_MATRIX = [
     "1111111001101",
     "1000001010101",
@@ -931,7 +1039,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     title: "本次培训小程序码",
     subtitle: `扫码即可进入「${bankTitle}」`,
     targetSummary,
-    focusSummary: intentSummary,
+    focusSummary: `培训主题：${intentSummary}`,
     tip: "员工扫码后即可开始培训并自动归位。",
     codeLabel: "Zeaik Training",
   });
@@ -998,7 +1106,60 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     { id: 5, question: "门店卫生检查的频率和标准是什么？", keyPoints: ["每日检查", "餐前餐后", "记录台账"], hint: "参考答案要点：\n① 每日餐前、餐后各检查一次\n② 每周大扫除一次\n③ 检查结果需记录台账，异常上报", aiIntro: "最后一题了，加油！" },
   ];
 
-  const newTrainingMsgId = () => ++trainingMsgIdRef.current;
+  function summarizeTrainingTopic({
+    intent,
+    goal,
+    selectedQuestions,
+    uploadedFiles,
+  }: {
+    intent: string;
+    goal: string;
+    selectedQuestions: TrainingLibraryQuestion[];
+    uploadedFiles: Array<{ name: string; sizeLabel: string }>;
+  }) {
+    if (selectedQuestions.length > 0) {
+      const keywordSet = Array.from(new Set(selectedQuestions.flatMap(question => question.keywords))).slice(0, 3);
+      return `${keywordSet.join(' / ')}培训`;
+    }
+
+    const merged = `${intent} ${goal}`
+      .replace(/培训需求：|录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：/g, '')
+      .replace(/已拆解为.*$/g, '')
+      .trim();
+
+    if (merged) {
+      const compact = merged.replace(/\s+/g, '');
+      return compact.length > 18 ? `${compact.slice(0, 18)}…` : compact;
+    }
+
+    if (uploadedFiles.length > 0) {
+      return `根据${uploadedFiles[0].name}自动整理培训主题`;
+    }
+
+    return '门店标准动作培训';
+  }
+
+  function buildTrainingTopicDetail({
+    selectedQuestions,
+    goal,
+  }: {
+    selectedQuestions: TrainingLibraryQuestion[];
+    goal: string;
+  }) {
+    if (selectedQuestions.length > 0) {
+      const titles = selectedQuestions.slice(0, 3).map(question => question.title.replace(/[：:]/g, ' · '));
+      return `已自动总结培训主题，并围绕 ${titles.join('、')} 生成培训题目。`;
+    }
+
+    const cleanGoal = goal
+      .replace('录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：', '')
+      .replace('培训需求：', '')
+      .trim();
+
+    return cleanGoal || '已自动总结培训主题，并生成 3 道培训题。';
+  }
+
+const newTrainingMsgId = () => ++trainingMsgIdRef.current;
 
   // 扫码进入时推送培训任务卡片
   React.useEffect(() => {
@@ -1201,6 +1362,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
+    setTrainingLibraryOpen(false);
+    setTrainingLibraryKeyword("");
+    setSelectedTrainingLibraryQuestionIds(new Set());
+    setActiveTrainingLibraryBankId(TRAINING_LIBRARY_BANKS[0]?.id ?? "library-new-staff");
     setIsKnowledgeRecording(false);
     setKnowledgeRecordingStartedAt(null);
     setTrainingTargetPickerOpen(false);
@@ -1265,7 +1430,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     const receiptCard = buildTrainingLaunchReceiptCard(effectiveTrainingMembers, recommendedBankTitle, targetSummary);
     const completionCard = buildTrainingLaunchCompletionCard(effectiveTrainingMembers);
 
-    const intentSummary = trainingLaunchIntent.trim() || trainingLaunchGoal.trim() || "根据上传资料自动生成题库";
+    const intentSummary = trainingTopicSummary;
     const qrCard = buildTrainingLaunchQrCard(recommendedBankTitle, targetSummary, intentSummary);
 
     setChatMode(true);
@@ -1277,6 +1442,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingLaunchIntent("");
     setTrainingLaunchGoal("");
     setTrainingLaunchUploadedFiles([]);
+    setTrainingLibraryOpen(false);
+    setTrainingLibraryKeyword("");
+    setSelectedTrainingLibraryQuestionIds(new Set());
+    setActiveTrainingLibraryBankId(TRAINING_LIBRARY_BANKS[0]?.id ?? "library-new-staff");
     setIsKnowledgeRecording(false);
     setKnowledgeRecordingStartedAt(null);
     setTrainingTargetPickerOpen(false);
@@ -1437,6 +1606,63 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setChatMode(true);
     trainingLaunchUploadRef.current?.click();
     setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  const handleOpenTrainingLibrary = () => {
+    setChatMode(true);
+    setTrainingLibraryOpen(true);
+    setTrainingLibraryKeyword("");
+  };
+
+  const toggleTrainingLibraryQuestion = (questionId: string) => {
+    setSelectedTrainingLibraryQuestionIds(prev => {
+      const next = new Set(prev);
+      if (next.has(questionId)) {
+        next.delete(questionId);
+        return next;
+      }
+      if (next.size >= 5) {
+        toast.info("最多选择 5 道题");
+        return prev;
+      }
+      next.add(questionId);
+      return next;
+    });
+  };
+
+  const handleConfirmTrainingLibrarySelection = () => {
+    if (selectedTrainingLibraryQuestionIds.size === 0) {
+      toast.error("请先选择至少 1 道题");
+      return;
+    }
+
+    const questions = TRAINING_LIBRARY_BANKS.flatMap(bank => bank.questions).filter(question => selectedTrainingLibraryQuestionIds.has(question.id));
+    const bank = TRAINING_LIBRARY_BANKS.find(item => item.id === activeTrainingLibraryBankId) ?? TRAINING_LIBRARY_BANKS[0];
+    const topicSummary = summarizeTrainingTopic({
+      intent: trainingLaunchIntent,
+      goal: trainingLaunchGoal,
+      selectedQuestions: questions,
+      uploadedFiles: trainingLaunchUploadedFiles,
+    });
+
+    setSelectedTrainingBankId(bank.id);
+    setTrainingLaunchIntent(prev => prev.trim() || `从${bank.title}中选择题目发起培训`);
+    setTrainingLaunchGoal(`已自动总结培训主题：${topicSummary}；已从${bank.title}中选择 ${questions.length} 道题，可继续发起培训。`);
+    setTrainingLaunchStep(3);
+    setTrainingLibraryOpen(false);
+    setMessages(prev => [
+      ...prev,
+      {
+        id: msgIdRef.current++,
+        role: "user",
+        text: `资料库选题：${questions.map(question => question.title).join('、')}`,
+      },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: `已根据你选择的 ${questions.length} 道题，自动总结培训主题为「${topicSummary}」，你可以直接继续发起培训。`,
+      },
+    ]);
   };
 
   const formatVoiceKnowledgeFileName = (startedAt: number, sequence: number) => {
@@ -1877,7 +2103,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-start" }}>
                     {[
-                      { label: "资料库", onClick: () => toast.info("资料库功能即将开放"), active: false },
+                      { label: "资料库", onClick: handleOpenTrainingLibrary, active: trainingLibraryOpen || selectedTrainingLibraryQuestionIds.size > 0 },
                       { label: "录音", onClick: handleTrainingLaunchVoiceCapture, active: isKnowledgeRecording },
                       { label: "上传", onClick: handleTrainingLaunchUploadTrigger, active: false },
                     ].map(action => (
@@ -1901,6 +2127,31 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       </button>
                     ))}
                   </div>
+                  {selectedTrainingLibraryQuestions.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 7, paddingTop: 2 }}>
+                      <div style={{ fontSize: 11.5, color: "#9a6334", lineHeight: 1.5 }}>
+                        已从「{selectedTrainingBank?.title ?? activeTrainingLibraryBank.title}」中选中 {selectedTrainingLibraryQuestions.length} 道题，并自动总结培训主题。
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {selectedTrainingLibraryQuestions.map(question => (
+                          <span
+                            key={question.id}
+                            style={{
+                              padding: "6px 9px",
+                              borderRadius: 999,
+                              background: "rgba(255,246,236,0.96)",
+                              border: "1px solid rgba(232,117,10,0.14)",
+                              fontSize: 11.5,
+                              color: "#8f6b47",
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {question.title}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {isKnowledgeRecording && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 2 }}>
                       <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e8750a", boxShadow: "0 0 0 4px rgba(232,117,10,0.14)" }} />
@@ -1962,14 +2213,37 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, color: "#9b7f69" }}>培训题目</div>
+                      <div style={{ fontSize: 12, color: "#9b7f69" }}>培训主题</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: "#2d2040", marginTop: 3 }}>
-                        培训题目
+                        {trainingTopicSummary}
                       </div>
                       <div style={{ fontSize: 12, color: "#8d7865", marginTop: 6, lineHeight: 1.6 }}>
-                        {(trainingLaunchGoal || "已拆解为晨会口径、岗位动作、风险提醒 3 个解析模块，并生成 3 道培训题。")
-                          .replace("录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：", "")
-                          .replace("培训需求：", "")}
+                        {trainingTopicDetail}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, color: "#9b7f69" }}>培训题目</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
+                        {(selectedTrainingLibraryQuestions.length > 0 ? selectedTrainingLibraryQuestions : [
+                          { id: "auto-1", title: "服务标准执行是否到位？", summary: "", keywords: [] },
+                          { id: "auto-2", title: "异常情况上报路径是否清晰？", summary: "", keywords: [] },
+                          { id: "auto-3", title: "岗位协同动作是否形成统一口径？", summary: "", keywords: [] },
+                        ]).map(question => (
+                          <div
+                            key={question.id}
+                            style={{
+                              padding: "8px 10px",
+                              borderRadius: 12,
+                              background: "rgba(255,255,255,0.76)",
+                              border: "1px solid rgba(255,215,182,0.7)",
+                              fontSize: 12,
+                              color: "#5b4739",
+                              lineHeight: 1.55,
+                            }}
+                          >
+                            {question.title}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -2053,6 +2327,139 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           }}
         />
       </div>
+
+      {trainingLibraryOpen && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 85,
+            background: "rgba(48,28,20,0.18)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "stretch",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              background: "linear-gradient(180deg, #fffaf5 0%, #fff4ea 46%, #f7ede8 100%)",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(232,117,10,0.08)" }}>
+              <button
+                onClick={() => setTrainingLibraryOpen(false)}
+                style={{ border: "none", background: "none", color: "#8f6b47", fontSize: 13, fontWeight: 600, padding: 0 }}
+              >
+                返回
+              </button>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "#2d2040" }}>资料库选题</div>
+              <div style={{ fontSize: 11.5, color: "#c45e00", fontWeight: 700 }}>{selectedTrainingLibraryQuestionIds.size}/5</div>
+            </div>
+            <div style={{ padding: "12px 16px 10px" }}>
+              <input
+                value={trainingLibraryKeyword}
+                onChange={e => setTrainingLibraryKeyword(e.target.value)}
+                placeholder="全局搜索题目，例如：新员工礼仪"
+                style={{
+                  width: "100%",
+                  borderRadius: 14,
+                  border: "1px solid rgba(232,117,10,0.14)",
+                  background: "rgba(255,255,255,0.96)",
+                  padding: "11px 14px",
+                  fontSize: 13,
+                  color: "#2d2040",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "0 16px 10px" }}>
+              {TRAINING_LIBRARY_BANKS.map(bank => {
+                const active = bank.id === activeTrainingLibraryBankId;
+                return (
+                  <button
+                    key={bank.id}
+                    onClick={() => setActiveTrainingLibraryBankId(bank.id)}
+                    style={{
+                      flexShrink: 0,
+                      borderRadius: 999,
+                      border: active ? "1px solid rgba(232,117,10,0.28)" : "1px solid rgba(232,117,10,0.12)",
+                      background: active ? "linear-gradient(135deg, rgba(255,154,60,0.18), rgba(232,117,10,0.1))" : "rgba(255,255,255,0.92)",
+                      color: active ? "#c45e00" : "#8f6b47",
+                      padding: "7px 12px",
+                      fontSize: 12,
+                      fontWeight: active ? 700 : 600,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {bank.title}
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
+              {(filteredTrainingLibraryBanks.find(bank => bank.id === activeTrainingLibraryBankId)?.questions ?? activeTrainingLibraryBank.questions.filter(question => {
+                if (!normalizedTrainingLibraryKeyword) return true;
+                const haystack = `${question.title} ${question.summary} ${question.keywords.join(' ')}`.toLowerCase();
+                return haystack.includes(normalizedTrainingLibraryKeyword);
+              })).map(question => {
+                const selected = selectedTrainingLibraryQuestionIds.has(question.id);
+                return (
+                  <button
+                    key={question.id}
+                    onClick={() => toggleTrainingLibraryQuestion(question.id)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      borderRadius: 18,
+                      border: selected ? "1px solid rgba(232,117,10,0.28)" : "1px solid rgba(232,117,10,0.12)",
+                      background: selected ? "linear-gradient(180deg, rgba(255,248,240,0.98) 0%, rgba(255,241,228,0.95) 100%)" : "rgba(255,255,255,0.98)",
+                      padding: "13px 14px",
+                      boxShadow: selected ? "0 10px 20px rgba(232,117,10,0.08)" : "0 6px 12px rgba(0,0,0,0.03)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                      <div style={{ width: 18, height: 18, marginTop: 1, borderRadius: 999, flexShrink: 0, border: selected ? "1px solid #e8750a" : "1px solid rgba(143,107,71,0.3)", background: selected ? "#e8750a" : "#fff", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{selected ? "✓" : ""}</div>
+                      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 700, color: "#2d2040", lineHeight: 1.45 }}>{question.title}</div>
+                        <div style={{ fontSize: 12, color: "#8d7865", lineHeight: 1.6 }}>{question.summary}</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {question.keywords.map(keyword => (
+                            <span key={keyword} style={{ padding: "4px 7px", borderRadius: 999, background: "rgba(255,248,241,0.96)", border: "1px solid rgba(232,117,10,0.12)", fontSize: 11, color: "#9a6334" }}>
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+              {((filteredTrainingLibraryBanks.find(bank => bank.id === activeTrainingLibraryBankId)?.questions ?? []).length === 0 && normalizedTrainingLibraryKeyword) && (
+                <div style={{ padding: "28px 12px", textAlign: "center", color: "#9a8aaa", fontSize: 12.5, lineHeight: 1.7 }}>
+                  没有找到匹配题目，请换一个关键词继续搜索。
+                </div>
+              )}
+            </div>
+            <div style={{ padding: "12px 16px 18px", borderTop: "1px solid rgba(232,117,10,0.08)", background: "rgba(255,250,246,0.96)" }}>
+              <div style={{ fontSize: 11.5, color: "#8d7865", lineHeight: 1.6, marginBottom: 10 }}>
+                已选 {selectedTrainingLibraryQuestionIds.size} 道题。系统会自动总结培训主题，并在下一步直接进入“培训需求已确认”。
+              </div>
+              <button
+                onClick={handleConfirmTrainingLibrarySelection}
+                style={{ width: "100%", borderRadius: 16, border: "none", background: "linear-gradient(135deg, #ff9a3c, #e8750a)", color: "#fff", fontSize: 14, fontWeight: 800, padding: "12px 14px", boxShadow: "0 10px 20px rgba(232,117,10,0.18)" }}
+              >
+                确认题目并继续
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── 状态栏 ── */}
       <div className="flex items-center justify-between px-5 pt-3 pb-0" style={{ fontSize: 15, fontWeight: 600, color: "#2d2040" }}>
