@@ -2988,7 +2988,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
                             )}
                           </div>
                           <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, paddingRight: 6 }}>
-                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.38, fontWeight: 600, whiteSpace: "normal", wordBreak: "break-word" }}>{msg.trainingLaunchQrCard.focusSummary}</div>
+                            <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.38, fontWeight: 600, whiteSpace: "normal", wordBreak: "break-word", width: "154px", height: "75px" }}>{msg.trainingLaunchQrCard.focusSummary}</div>
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "flex-end", flexShrink: 0, paddingBottom: 2 }}>
