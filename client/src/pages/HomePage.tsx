@@ -3304,31 +3304,40 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#2d2040" }}>正在录音</div>
-                <div style={{ marginTop: 4, fontSize: 12, color: "#9a7c62", lineHeight: 1.5 }}>
-                  当前为阻塞录音状态，结束前不会离开发起培训流程
-                </div>
               </div>
               <div style={{ minWidth: 72, textAlign: "right", fontSize: 18, fontWeight: 800, color: "#e8750a", fontVariantNumeric: "tabular-nums" }}>
                 {`${String(Math.floor(knowledgeRecordingElapsedMs / 60000)).padStart(2, "0")}:${String(Math.floor((knowledgeRecordingElapsedMs % 60000) / 1000)).padStart(2, "0")}`}
               </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 16 }}>
-              {[0, 1, 2, 3, 4].map(index => (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-end", gap: 8, marginBottom: 16, minHeight: 42 }}>
+              {[0, 1, 2, 3, 4, 5].map(index => (
                 <span
                   key={index}
                   style={{
                     width: 8,
-                    height: 18 + (index % 2) * 10,
+                    height: 16 + (index % 3) * 8,
                     borderRadius: 999,
-                    background: index % 2 === 0 ? "rgba(255,154,60,0.9)" : "rgba(232,117,10,0.55)",
+                    background: index % 2 === 0 ? "rgba(255,154,60,0.92)" : "rgba(232,117,10,0.58)",
                     boxShadow: "0 4px 10px rgba(232,117,10,0.18)",
+                    transformOrigin: "center bottom",
+                    animation: `voiceWave 1.1s ease-in-out ${index * 0.12}s infinite`,
                   }}
                 />
               ))}
             </div>
             <div style={{ borderRadius: 16, background: "rgba(255,255,255,0.84)", border: "1px solid rgba(241,214,190,0.9)", padding: "12px 12px 11px", marginBottom: 16 }}>
-              <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6 }}>
-                请持续录入领导讲话、晨会重点或门店执行要求。结束录音后，系统会先展示识别文本、解析摘要和题目预览，待你确认后再归档到题库。
+              <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>录音实时转写</div>
+              <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.7 }}>
+                {(() => {
+                  const transcriptPhases = [
+                    "正在收听…",
+                    "今天晨会重点强调三件事：迎宾先微笑。",
+                    "今天晨会重点强调三件事：迎宾先微笑，点单要复述。",
+                    "今天晨会重点强调三件事：迎宾先微笑，点单要复述，异常情况 30 秒内上报值班经理。",
+                  ];
+                  const transcriptIndex = Math.min(transcriptPhases.length - 1, Math.floor(knowledgeRecordingElapsedMs / 4000));
+                  return transcriptPhases[transcriptIndex];
+                })()}
               </div>
             </div>
             <button
@@ -3361,6 +3370,10 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         @keyframes slideUp {
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes voiceWave {
+          0%, 100% { transform: scaleY(0.45); opacity: 0.52; }
+          50% { transform: scaleY(1.18); opacity: 1; }
         }
       `}</style>
 
