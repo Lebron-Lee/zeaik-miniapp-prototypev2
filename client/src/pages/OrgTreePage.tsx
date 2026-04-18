@@ -500,10 +500,33 @@ export default function OrgTreePage({
           </>
         ) : (
           <>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#8f97a8", margin: "0 2px 12px" }}>
-              <span style={{ color: "#5b84ff", fontWeight: 600 }}>通讯录</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#8f97a8", margin: "0 2px 12px", flexWrap: "wrap" }}>
+              <button
+                onClick={() => setActiveDeptId(null)}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  color: "#5b84ff",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                通讯录
+              </button>
               <span>›</span>
-              <span>{ORG_DIRECTORY.companyName}</span>
+              <button
+                onClick={() => setActiveDeptId(null)}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  color: "#6d7587",
+                  cursor: "pointer",
+                }}
+              >
+                {ORG_DIRECTORY.companyName}
+              </button>
               <span>›</span>
               <span style={{ color: "#1f2430" }}>{activeDepartment.name}</span>
             </div>
