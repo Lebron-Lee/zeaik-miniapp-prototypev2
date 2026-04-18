@@ -712,10 +712,12 @@ interface HomePageProps {
   onOpenTraining?: () => void;
   onOpenTrainingConversation?: () => void;
   onOpenOrgTree?: () => void;
+  orgTreeSelectedMemberIds?: string[];
+  orgTreeSelectionVersion?: number;
   fromTrainingScan?: boolean; // 从培训二维码扫码进入
   onExitTrainingScan?: () => void; // 退出扫码培训模式
 }
-export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, onOpenOrgTree, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
+export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, onOpenOrgTree, orgTreeSelectedMemberIds = [], orgTreeSelectionVersion = 0, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [inputText, setInputText] = useState("");
   const [sectionOpen, setSectionOpen] = useState(true);
@@ -825,6 +827,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
         groupLabel: label,
       }));
   const createDefaultTrainingTargetSet = () => new Set(allTrainingLaunchMembers.map(member => member.id));
+
+  useEffect(() => {
+    if (!orgTreeSelectionVersion) return;
+    setTrainingTargetQuickKey(null);
+    setTrainingTargetQuickSelections(new Set());
+    setSelectedTrainingTargets(new Set(orgTreeSelectedMemberIds));
+  }, [orgTreeSelectedMemberIds, orgTreeSelectionVersion]);
+
   const applyTrainingTargetQuickSelection = (key: "all" | "group" | "management" | "store-manager") => {
     if (key === "all") {
       setTrainingTargetQuickKey("all");

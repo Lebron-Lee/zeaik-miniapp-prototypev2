@@ -30,6 +30,7 @@ import type { TrainingResult } from "./TrainingAnswerPage";
 // ── 全局阶段类型 ─────────────────────────────────────────────────────────────
 export type UserStage = 1 | 2 | 3;
 export type AppView = "home" | "video" | "store-info" | "product" | "current-task" | "inspection" | "daily-salary" | "quota-detail" | "ai-menu" | "store-ai-model" | "group-ai-model" | "training" | "training-answer" | "training-report" | "training-manager" | "org-tree" | "org-register";
+type OrgTreeSource = "training-manager" | "home-training";
 
 // ── 登录弹窗组件 ─────────────────────────────────────────────────────────────
 function LoginModal({
@@ -220,6 +221,12 @@ export default function MiniAppShell() {
   const [userPhone, setUserPhone] = useState("138****8888");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginTrigger, setLoginTrigger] = useState<string | undefined>();
+  const [orgTreeSource, setOrgTreeSource] = useState<OrgTreeSource>("training-manager");
+  const [trainingOrgSelection, setTrainingOrgSelection] = useState<{ departmentIds: string[]; memberIds: string[]; version: number }>({
+    departmentIds: [],
+    memberIds: [],
+    version: 0,
+  });
 
   const isLoggedIn = stage >= 2;
 
@@ -286,8 +293,15 @@ export default function MiniAppShell() {
     setAppView("training");
   };
 
-  const handleOpenOrgTree = () => {
+  const handleOpenOrgTree = (source: OrgTreeSource = "training-manager") => {
+    setOrgTreeSource(source);
     setAppView("org-tree");
+  };
+
+  const handleApplyTrainingOrgSelection = (payload: { departmentIds: string[]; memberIds: string[] }) => {
+    setTrainingOrgSelection({ ...payload, version: Date.now() });
+    toast.success(`已同步 ${payload.memberIds.length} 位培训对象`);
+    setAppView("home");
   };
 
   const handleOpenOrgRegister = () => {
@@ -320,7 +334,7 @@ export default function MiniAppShell() {
       )}
       {/* 主内容区 */}
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
-        {appView === "home" && (
+        {(appView === "home" || (appView === "org-tree" && orgTreeSource === "home-training")) && (
           <HomePage
             userPhone={userPhone}
             isLoggedIn={isLoggedIn}
@@ -342,7 +356,9 @@ export default function MiniAppShell() {
               setFromTrainingScan(false);
               window.setTimeout(() => setFromTrainingScan(true), 0);
             }}
-            onOpenOrgTree={handleOpenOrgTree}
+            onOpenOrgTree={() => handleOpenOrgTree("home-training")}
+            orgTreeSelectedMemberIds={trainingOrgSelection.memberIds}
+            orgTreeSelectionVersion={trainingOrgSelection.version}
             fromTrainingScan={fromTrainingScan}
             onExitTrainingScan={() => setFromTrainingScan(false)}
           />
@@ -444,18 +460,23 @@ export default function MiniAppShell() {
         {appView === "training-manager" && (
           <TrainingManagerPage
             onBack={() => setAppView("training")}
-            onOpenOrgTree={handleOpenOrgTree}
+            onOpenOrgTree={() => handleOpenOrgTree("training-manager")}
           />
         )}
         {appView === "org-tree" && (
-          <OrgTreePage
-            onBack={() => setAppView("training-manager")}
-            onInvite={handleOpenOrgRegister}
-          />
+          <div style={{ position: "absolute", inset: 0, zIndex: 20 }}>
+            <OrgTreePage
+              onBack={() => setAppView(orgTreeSource === "home-training" ? "home" : "training-manager")}
+              onInvite={handleOpenOrgRegister}
+              selectedDeptIds={trainingOrgSelection.departmentIds}
+              selectedMemberIds={trainingOrgSelection.memberIds}
+              onApplySelection={handleApplyTrainingOrgSelection}
+            />
+          </div>
         )}
         {appView === "org-register" && (
           <OrgRegisterPage
-            onBack={() => setAppView("org-tree")}
+            onBack={() => setAppView(orgTreeSource === "home-training" ? "org-tree" : "org-tree")}
             onComplete={() => setAppView("training")}
           />
         )}

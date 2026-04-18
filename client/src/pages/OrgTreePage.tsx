@@ -1,843 +1,673 @@
-/**
- * 培训智能体 · 组织架构树页
- * 当前页面设计提醒：遵循微信小程序式轻量会话流，顶部只保留返回与标题，围绕“选择培训对象后返回主页”这一主任务收敛交互。
- * 功能：可视化组织层级 + 角色权限标签 + 同层级多角色展示
- * 设计规范：橙色主题，树形卡片，层级缩进，角色色彩区分
+/*
+ * 培训智能体 · 组织架构选择页
+ * 当前页面设计提醒：遵循飞书通讯录式两层选择体验。第一页展示可勾选组织层级与层级入口；第二页展示该层级下的成员勾选。
+ * 设计规范：微信小程序比例、暖白背景、橙色品牌强调、蓝色组织图标、底部固定确认栏。
  */
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+
+interface OrgTreeSelectionPayload {
+  departmentIds: string[];
+  memberIds: string[];
+}
 
 interface OrgTreePageProps {
   onBack: () => void;
   onInvite: () => void;
+  selectedDeptIds?: string[];
+  selectedMemberIds?: string[];
+  onApplySelection?: (payload: OrgTreeSelectionPayload) => void;
 }
 
-// ── 类型 ──────────────────────────────────────────────────────────────────────
-type RoleType = "manager" | "functional" | "observer" | "executor";
+type MemberStatus = "active" | "pending";
 
-interface OrgMember {
+interface DepartmentMember {
   id: string;
   name: string;
-  jobTitle: string;
-  roleType: RoleType;
-  dept: string;
-  level: number; // 0=集团, 1=区域, 2=门店, 3=班组
-  status: "active" | "pending" | "invited";
-  trainingScore?: number;
-  children?: OrgMember[];
-  expanded?: boolean;
+  role: string;
+  store: string;
+  tag?: string;
+  status?: MemberStatus;
 }
 
-// ── 角色类型配置 ──────────────────────────────────────────────────────────────
-const ROLE_CONFIG: Record<RoleType, { label: string; bg: string; text: string; desc: string }> = {
-  manager:    { label: "管理者", bg: "#FFF3E0", text: "#e8750a", desc: "可发起培训、查看全员数据" },
-  functional: { label: "职能支持", bg: "#E3F2FD", text: "#1565C0", desc: "在职能范围内发起培训" },
-  observer:   { label: "数据观察", bg: "#F3E5F5", text: "#6A1B9A", desc: "只读全部数据，不可发起" },
-  executor:   { label: "执行者", bg: "#E8F5E9", text: "#2E7D32", desc: "接受培训任务，提交答题" },
-};
+interface OrgDepartment {
+  id: string;
+  name: string;
+  countHint: string;
+  description: string;
+  members: DepartmentMember[];
+}
 
-const LEVEL_CONFIG = [
-  { label: "集团级", color: "#7B1FA2" },
-  { label: "区域级", color: "#1565C0" },
-  { label: "门店级", color: "#e8750a" },
-  { label: "班组级", color: "#2E7D32" },
-];
+const ORG_DIRECTORY = {
+  companyName: "智爱客餐饮集团",
+  companyOwner: "王建国",
+  companyRole: "企业负责人",
+  departments: [
+    {
+      id: "front-service",
+      name: "前厅服务组",
+      countHint: "3",
+      description: "北京朝阳店 · 服务礼仪与顾客接待",
+      members: [
+        { id: "S1", name: "曹敏", role: "服务员", store: "北京朝阳店", tag: "培训骨干" },
+        { id: "S2", name: "李明", role: "服务员", store: "北京朝阳店" },
+        { id: "S5", name: "赵强", role: "服务员", store: "北京朝阳店", status: "pending" },
+      ],
+    },
+    {
+      id: "kitchen-pass",
+      name: "后厨出品组",
+      countHint: "2",
+      description: "北京朝阳店 · 食品安全与出品流程",
+      members: [
+        { id: "S3", name: "张华", role: "厨师", store: "北京朝阳店", tag: "核心岗位" },
+        { id: "S6", name: "陈静", role: "厨师", store: "北京朝阳店" },
+      ],
+    },
+    {
+      id: "cashier-greeting",
+      name: "收银与迎宾组",
+      countHint: "2",
+      description: "门店综合前场 · 高峰接待与收银操作",
+      members: [
+        { id: "S4", name: "王芳", role: "收银员", store: "北京朝阳店" },
+        { id: "S7", name: "刘宁", role: "迎宾", store: "北京朝阳店", tag: "新人" },
+      ],
+    },
+  ] satisfies OrgDepartment[],
+} as const;
 
-// ── Mock 组织数据 ──────────────────────────────────────────────────────────────
-const ORG_TREE: OrgMember[] = [
-  {
-    id: "G1", name: "刘总", jobTitle: "集团CEO", roleType: "manager",
-    dept: "智爱客餐饮集团", level: 0, status: "active", trainingScore: 5.0,
-    children: [
-      {
-        id: "R1", name: "张志远", jobTitle: "区域经理", roleType: "manager",
-        dept: "华北区", level: 1, status: "active", trainingScore: 4.7,
-        children: [
-          {
-            id: "R1F1", name: "陈丽华", jobTitle: "人力资源经理", roleType: "functional",
-            dept: "华北区", level: 1, status: "active", trainingScore: 4.5,
-          },
-          {
-            id: "R1F2", name: "赵数据", jobTitle: "数据分析员", roleType: "observer",
-            dept: "华北区", level: 1, status: "active",
-          },
-          {
-            id: "R1F3", name: "孙助理", jobTitle: "经理助理", roleType: "functional",
-            dept: "华北区", level: 1, status: "active", trainingScore: 4.2,
-          },
-          {
-            id: "S1", name: "王建国", jobTitle: "店长", roleType: "manager",
-            dept: "北京朝阳店", level: 2, status: "active", trainingScore: 4.8,
-            children: [
-              {
-                id: "S1D1", name: "李秀梅", jobTitle: "副店长", roleType: "manager",
-                dept: "北京朝阳店", level: 2, status: "active", trainingScore: 4.6,
-                children: [
-                  { id: "E1", name: "曹敏", jobTitle: "服务员", roleType: "executor", dept: "北京朝阳店", level: 3, status: "active", trainingScore: 4.5 },
-                  { id: "E2", name: "李明", jobTitle: "服务员", roleType: "executor", dept: "北京朝阳店", level: 3, status: "active", trainingScore: 3.9 },
-                  { id: "E3", name: "张华", jobTitle: "厨师", roleType: "executor", dept: "北京朝阳店", level: 3, status: "active", trainingScore: 3.2 },
-                  { id: "E4", name: "王芳", jobTitle: "收银员", roleType: "executor", dept: "北京朝阳店", level: 3, status: "active", trainingScore: 4.8 },
-                  { id: "E5", name: "赵强", jobTitle: "服务员", roleType: "executor", dept: "北京朝阳店", level: 3, status: "active", trainingScore: 2.8 },
-                  { id: "E6", name: "陈静", jobTitle: "厨师", roleType: "executor", dept: "北京朝阳店", level: 3, status: "pending" },
-                ],
-              },
-            ],
-          },
-          {
-            id: "S2", name: "吴丽", jobTitle: "店长", roleType: "manager",
-            dept: "北京海淀店", level: 2, status: "active", trainingScore: 4.3,
-            children: [
-              { id: "E7", name: "周明", jobTitle: "服务员", roleType: "executor", dept: "北京海淀店", level: 3, status: "active", trainingScore: 4.1 },
-              { id: "E8", name: "（待邀请）", jobTitle: "服务员", roleType: "executor", dept: "北京海淀店", level: 3, status: "invited" },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
+function Checkbox({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        border: checked ? "1.5px solid #e8750a" : "1.5px solid #D5D9E6",
+        background: checked ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#ffffff",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: checked ? "0 6px 14px rgba(232,117,10,0.18)" : "none",
+        flexShrink: 0,
+      }}
+    >
+      {checked && (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 6.2L4.7 8.8L10 3.4" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </span>
+  );
+}
 
-// ── 展开状态管理 ──────────────────────────────────────────────────────────────
-function useExpandState(initial: Set<string>) {
-  const [expanded, setExpanded] = useState<Set<string>>(initial);
-  const toggle = (id: string) => {
-    setExpanded(prev => {
+function OrgIcon() {
+  return (
+    <div
+      style={{
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        background: "linear-gradient(135deg, #4867ff, #5e54ff)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0 8px 18px rgba(86, 91, 255, 0.22)",
+        flexShrink: 0,
+      }}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="5" r="2.6" />
+        <circle cx="6" cy="18" r="2.6" />
+        <circle cx="18" cy="18" r="2.6" />
+        <path d="M12 7.8v4.2" />
+        <path d="M12 12h-6v3.4" />
+        <path d="M12 12h6v3.4" />
+      </svg>
+    </div>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B7BCC8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+export default function OrgTreePage({
+  onBack,
+  onInvite,
+  selectedDeptIds = [],
+  selectedMemberIds = [],
+  onApplySelection,
+}: OrgTreePageProps) {
+  const [keyword, setKeyword] = useState("");
+  const [activeDeptId, setActiveDeptId] = useState<string | null>(null);
+  const [localSelectedDeptIds, setLocalSelectedDeptIds] = useState<Set<string>>(new Set(selectedDeptIds));
+  const [localSelectedMemberIds, setLocalSelectedMemberIds] = useState<Set<string>>(new Set(selectedMemberIds));
+
+  useEffect(() => {
+    setLocalSelectedDeptIds(new Set(selectedDeptIds));
+    setLocalSelectedMemberIds(new Set(selectedMemberIds));
+  }, [selectedDeptIds, selectedMemberIds]);
+
+  const departmentMap = useMemo(
+    () => new Map(ORG_DIRECTORY.departments.map(department => [department.id, department])),
+    [],
+  );
+
+  const activeDepartment = activeDeptId ? departmentMap.get(activeDeptId) ?? null : null;
+  const normalizedKeyword = keyword.trim().toLowerCase();
+
+  const filteredDepartments = useMemo(() => {
+    if (!normalizedKeyword) return ORG_DIRECTORY.departments;
+    return ORG_DIRECTORY.departments.filter(department => {
+      const haystack = [
+        department.name,
+        department.description,
+        ...department.members.map(member => `${member.name}${member.role}${member.store}`),
+      ].join(" ").toLowerCase();
+      return haystack.includes(normalizedKeyword);
+    });
+  }, [normalizedKeyword]);
+
+  const filteredMembers = useMemo(() => {
+    if (!activeDepartment) return [];
+    if (!normalizedKeyword) return activeDepartment.members;
+    return activeDepartment.members.filter(member => {
+      const haystack = `${member.name} ${member.role} ${member.store} ${member.tag ?? ""}`.toLowerCase();
+      return haystack.includes(normalizedKeyword);
+    });
+  }, [activeDepartment, normalizedKeyword]);
+
+  const getDepartmentMemberIds = (departmentId: string) => {
+    const department = departmentMap.get(departmentId);
+    return department ? department.members.map(member => member.id) : [];
+  };
+
+  const syncDepartmentSelection = (departmentId: string, nextMemberIds: Set<string>) => {
+    const departmentMemberIds = getDepartmentMemberIds(departmentId);
+    const allChecked = departmentMemberIds.length > 0 && departmentMemberIds.every(id => nextMemberIds.has(id));
+    setLocalSelectedDeptIds(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (allChecked) next.add(departmentId);
+      else next.delete(departmentId);
       return next;
     });
   };
-  return { expanded, toggle };
-}
 
-// ── 邀请弹层 ──────────────────────────────────────────────────────────────────
-function InviteModal({ onClose, onInvite }: { onClose: () => void; onInvite: () => void }) {
-  const [copied, setCopied] = useState(false);
-  const link = "https://miniapp.zeaik.com/join?inv=WJG001&dept=北京朝阳店";
+  const toggleDepartment = (departmentId: string) => {
+    const memberIds = getDepartmentMemberIds(departmentId);
+    const isChecked = localSelectedDeptIds.has(departmentId);
 
-  const handleCopy = () => {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast.success("邀请链接已复制");
+    setLocalSelectedDeptIds(prev => {
+      const next = new Set(prev);
+      if (isChecked) next.delete(departmentId);
+      else next.add(departmentId);
+      return next;
+    });
+
+    setLocalSelectedMemberIds(prev => {
+      const next = new Set(prev);
+      memberIds.forEach(memberId => {
+        if (isChecked) next.delete(memberId);
+        else next.add(memberId);
+      });
+      return next;
+    });
   };
 
-  return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "flex-end" }}>
-      <div style={{ width: "100%", background: "white", borderRadius: "20px 20px 0 0", padding: "20px 18px 36px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <span style={{ fontSize: 16, fontWeight: 700, color: "#1A1A1A" }}>邀请成员加入</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, color: "#888", cursor: "pointer" }}>×</button>
-        </div>
-
-        {/* 邀请方式 */}
-        <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-          {[
-            { icon: "🔗", label: "复制链接", action: handleCopy },
-            { icon: "📱", label: "微信分享", action: () => toast.info("请在微信中打开后分享") },
-            { icon: "📷", label: "生成二维码", action: () => toast.info("二维码生成中...") },
-          ].map(item => (
-            <button
-              key={item.label}
-              onClick={item.action}
-              style={{
-                flex: 1, padding: "14px 0", borderRadius: 12, border: "1.5px solid #F0F0F0",
-                background: "white", cursor: "pointer", display: "flex", flexDirection: "column",
-                alignItems: "center", gap: 6,
-              }}
-            >
-              <span style={{ fontSize: 22 }}>{item.icon}</span>
-              <span style={{ fontSize: 12, color: "#555", fontWeight: 600 }}>{item.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* 链接预览 */}
-        <div style={{
-          background: "#F5F5F5", borderRadius: 10, padding: "10px 14px",
-          display: "flex", alignItems: "center", gap: 10, marginBottom: 16,
-        }}>
-          <span style={{ fontSize: 11, color: "#888", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {link}
-          </span>
-          <button
-            onClick={handleCopy}
-            style={{
-              padding: "5px 12px", borderRadius: 8, border: "none",
-              background: copied ? "#43A047" : "linear-gradient(135deg, #e8750a, #ff9a3c)",
-              color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer", flexShrink: 0,
-            }}
-          >
-            {copied ? "已复制" : "复制"}
-          </button>
-        </div>
-
-        {/* 说明 */}
-        <div style={{ background: "#FFF8F0", borderRadius: 10, padding: "10px 14px", border: "1px solid #FFE0B2" }}>
-          <div style={{ fontSize: 12, color: "#888", lineHeight: 1.7 }}>
-            📌 成员点击链接后，填写姓名+职位即可完成注册，<strong style={{ color: "#e8750a" }}>自动归入你的团队</strong>，无需手动添加
-          </div>
-        </div>
-
-        <button
-          onClick={() => { onInvite(); onClose(); }}
-          style={{
-            width: "100%", marginTop: 16, padding: "13px 0", borderRadius: 14, border: "none",
-            background: "linear-gradient(135deg, #e8750a, #ff9a3c)",
-            color: "white", fontSize: 15, fontWeight: 700, cursor: "pointer",
-          }}
-        >
-          确认，发送邀请
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ── 成员节点组件 ──────────────────────────────────────────────────────────────
-function MemberNode({
-  member, depth, expanded, onToggle, onInvite, currentUserId,
-}: {
-  member: OrgMember;
-  depth: number;
-  expanded: Set<string>;
-  onToggle: (id: string) => void;
-  onInvite: () => void;
-  currentUserId: string;
-}) {
-  const hasChildren = member.children && member.children.length > 0;
-  const isExpanded = expanded.has(member.id);
-  const isCurrentUser = member.id === currentUserId;
-  const levelCfg = LEVEL_CONFIG[member.level] ?? LEVEL_CONFIG[3];
-
-  // 同层级分组：找出和当前成员同层同父的其他职能角色（仅在 level<=1 时展示分组标签）
-  const isPending = member.status === "pending";
-  const isInvited = member.status === "invited";
-
-  return (
-    <div style={{ marginLeft: depth * 16 }}>
-      {/* 连接线 */}
-      {depth > 0 && (
-        <div style={{
-          position: "absolute",
-          left: depth * 16 - 10,
-          top: 0, bottom: 0,
-          width: 1,
-          background: "#E8E8E8",
-          pointerEvents: "none",
-        }} />
-      )}
-
-      <div style={{
-        background: isCurrentUser ? "#FFF8F0" : "white",
-        borderRadius: 12, padding: "8px 10px", marginBottom: 6,
-        border: isCurrentUser ? "1.5px solid #e8750a" : isPending ? "1.5px dashed #FFB74D" : "1.5px solid #F0F0F0",
-        boxShadow: isCurrentUser ? "0 2px 12px rgba(232,117,10,0.15)" : "0 1px 4px rgba(0,0,0,0.04)",
-        display: "flex", alignItems: "center", gap: 8, cursor: hasChildren ? "pointer" : "default",
-        position: "relative",
-        opacity: isInvited ? 0.6 : 1,
-      }}
-        onClick={() => hasChildren && onToggle(member.id)}
-      >
-        {/* 头像 */}
-        <div style={{
-          width: 32, height: 32, borderRadius: 10, flexShrink: 0,
-          background: isInvited ? "#F5F5F5" :
-            isCurrentUser ? "linear-gradient(135deg, #e8750a, #ff9a3c)" :
-              `linear-gradient(135deg, ${levelCfg.color}33, ${levelCfg.color}22)`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 13, fontWeight: 700,
-          color: isInvited ? "#bbb" : isCurrentUser ? "white" : levelCfg.color,
-          border: isInvited ? "1.5px dashed #ddd" : "none",
-        }}>
-          {isInvited ? "+" : member.name[0]}
-        </div>
-
-        {/* 信息 */}
-        <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{
-            fontSize: 14, fontWeight: isCurrentUser ? 800 : 600,
-            color: isInvited ? "#bbb" : "#1A1A1A",
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}>
-            {member.name}
-            {isCurrentUser && <span style={{ fontSize: 10, color: "#e8750a", marginLeft: 4 }}>（我）</span>}
-          </span>
-          <span style={{
-            fontSize: 11, color: "#888", flexShrink: 0,
-            display: "inline-flex", alignItems: "center", lineHeight: 1,
-          }}>
-            {member.jobTitle}
-          </span>
-          {isPending && (
-            <span style={{ fontSize: 10, color: "#F57C00", flexShrink: 0, marginLeft: 2 }}>
-              待完成
-            </span>
-          )}
-          {isInvited && (
-            <button
-              onClick={e => { e.stopPropagation(); onInvite(); }}
-              style={{
-                marginLeft: "auto",
-                fontSize: 10, color: "#e8750a", background: "#FFF3E0", padding: "2px 8px",
-                borderRadius: 6, border: "none", cursor: "pointer", fontWeight: 700,
-              }}
-            >
-              + 邀请
-            </button>
-          )}
-        </div>
-
-        {/* 展开/收起 */}
-        {hasChildren && (
-          <div style={{
-            width: 20, height: 20, borderRadius: 6, flexShrink: 0,
-            background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round"
-              style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </div>
-        )}
-      </div>
-
-      {/* 子节点 */}
-      {hasChildren && isExpanded && (
-        <div style={{ position: "relative" }}>
-          {member.children!.map(child => (
-            <MemberNode
-              key={child.id}
-              member={child}
-              depth={depth + 1}
-              expanded={expanded}
-              onToggle={onToggle}
-              onInvite={onInvite}
-              currentUserId={currentUserId}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── 主组件 ────────────────────────────────────────────────────────────────────
-export default function OrgTreePage({ onBack, onInvite }: OrgTreePageProps) {
-  const { expanded, toggle } = useExpandState(new Set(["G1", "R1", "S1", "S1D1"]));
-  const [showInvite, setShowInvite] = useState(false);
-  const [growthAnimStep, setGrowthAnimStep] = useState(0);
+  const toggleMember = (departmentId: string, memberId: string) => {
+    setLocalSelectedMemberIds(prev => {
+      const next = new Set(prev);
+      if (next.has(memberId)) next.delete(memberId);
+      else next.add(memberId);
+      syncDepartmentSelection(departmentId, next);
+      return next;
+    });
+  };
 
   const handleBack = () => {
-    if (window.history.length > 1) {
-      window.history.back();
+    if (activeDeptId) {
+      setActiveDeptId(null);
+      setKeyword("");
       return;
     }
     onBack();
   };
 
-  // 模拟培训传播构建的时间线数据
-  const GROWTH_TIMELINE = [
-    {
-      time: "今天 09:15", type: "send", icon: "📤",
-      title: "王建国发起培训任务",
-      desc: "选择 5 道服务礼仪题，发送给北京朝阳店全体员工",
-      color: "#e8750a", bg: "#FFF3E0",
-    },
-    {
-      time: "今天 09:16", type: "share", icon: "🔗",
-      title: "生成邀请链接分享到微信群",
-      desc: "链接携带：邀请人=王建国 · 门店=北京朝阳店 · 推荐职位=服务员",
-      color: "#1565C0", bg: "#E3F2FD",
-    },
-    {
-      time: "今天 09:31", type: "register", icon: "✅",
-      title: "刘小红 通过链接完成注册",
-      desc: "填写姓名+职位（服务员）→ 确认上级（王建国）→ 自动加入北京朝阳店",
-      color: "#2E7D32", bg: "#E8F5E9",
-      newMember: { name: "刘小红", job: "服务员", dept: "北京朝阳店" },
-    },
-    {
-      time: "今天 09:31", type: "org", icon: "🏗️",
-      title: "组织架构自动更新",
-      desc: "刘小红已加入组织树 · 北京朝阳店成员 +1 · 无需手动维护",
-      color: "#6A1B9A", bg: "#F3E5F5",
-    },
-    {
-      time: "今天 09:33", type: "training", icon: "🎓",
-      title: "刘小红开始答题培训",
-      desc: "直接进入培训任务，无需额外登录步骤，2 步注册即完成",
-      color: "#e8750a", bg: "#FFF3E0",
-    },
-    {
-      time: "今天 10:05", type: "register", icon: "✅",
-      title: "陈大明 通过链接完成注册",
-      desc: "填写姓名+职位（厨师）→ 确认上级（王建国）→ 自动加入北京朝阳店",
-      color: "#2E7D32", bg: "#E8F5E9",
-      newMember: { name: "陈大明", job: "厨师", dept: "北京朝阳店" },
-    },
-    {
-      time: "今天 10:05", type: "org", icon: "🏗️",
-      title: "组织架构再次自动更新",
-      desc: "陈大明已加入组织树 · 北京朝阳店成员 +1 · 组织架构持续完善",
-      color: "#6A1B9A", bg: "#F3E5F5",
-    },
-    // ── 反向拉新：向上传播节点（通用邀请链接，接收者自选层级关系）──
-    {
-      time: "今天 11:20", type: "superior_invite", icon: "📤",
-      title: "王建国发起通用邀请",
-      desc: "首次发起培训时尚无上级，生成「通用邀请链接」并分享到微信 — 链接不区分上级/下级，接收者自行选择与邀请人的关系",
-      color: "#6A1B9A", bg: "#EDE7F6",
-    },
-    {
-      time: "今天 11:38", type: "superior_register", icon: "👤",
-      title: "李区域经理 打开链接，选择「我是TA的上级」",
-      desc: "填写姓名+手机号 → 选择「我是王建国的上级」→ 选择职位（区域经理）→ 系统自动将其归入上级层级",
-      color: "#6A1B9A", bg: "#EDE7F6",
-      newSuperior: { name: "李区域经理", job: "区域经理", dept: "华北区" },
-    },
-    {
-      time: "今天 11:38", type: "org_up", icon: "🏗️",
-      title: "组织架构向上扩展",
-      desc: "李区域经理已加入组织树 · 王建国的上级节点自动绑定 · 历史培训数据同步至上级管理端",
-      color: "#6A1B9A", bg: "#F3E5F5",
-    },
-    {
-      time: "今天 11:40", type: "sync", icon: "📊",
-      title: "上级可查看下级团队数据",
-      desc: "李区域经理登录管理端，可查看北京朝阳店 8 人的培训完成率、得分分布和问题清单",
-      color: "#1565C0", bg: "#E3F2FD",
-    },
-  ];
-  const currentUserId = "S1"; // 模拟当前登录用户为王建国（店长）
+  const handleApply = () => {
+    const payload = {
+      departmentIds: Array.from(localSelectedDeptIds),
+      memberIds: Array.from(localSelectedMemberIds),
+    };
 
-  // 统计数据
-  const countMembers = (nodes: OrgMember[]): number =>
-    nodes.reduce((sum, n) => sum + 1 + (n.children ? countMembers(n.children) : 0), 0);
-  const totalMembers = countMembers(ORG_TREE);
+    if (payload.memberIds.length === 0) {
+      toast.info("请先勾选组织或成员");
+      return;
+    }
+
+    if (onApplySelection) {
+      onApplySelection(payload);
+      return;
+    }
+
+    toast.success(`已选择 ${payload.memberIds.length} 位培训对象`);
+    onBack();
+  };
+
+  const selectedCount = localSelectedMemberIds.size;
+  const selectedDeptCount = localSelectedDeptIds.size;
 
   return (
-    <div style={{
-      width: "100%", height: "100%", display: "flex", flexDirection: "column",
-      background: "#F7F8FC", fontFamily: "-apple-system, 'PingFang SC', sans-serif",
-    }}>
-      {/* 顶部导航 */}
-      <div style={{
-        background: "linear-gradient(135deg, #e8750a 0%, #ff9a3c 100%)",
-        padding: "44px 16px 0", flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-          <button onClick={handleBack} aria-label="返回上一页" style={{ background: "none", border: "none", padding: 4, cursor: "pointer" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" style={{ cursor: "pointer" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        background: "linear-gradient(180deg, #fcfaf7 0%, #f6f6fb 100%)",
+        fontFamily: "'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
+      }}
+    >
+      <div
+        style={{
+          padding: "44px 16px 10px",
+          background: "rgba(255,255,255,0.92)",
+          borderBottom: "1px solid rgba(232,117,10,0.08)",
+          backdropFilter: "blur(14px)",
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <button
+            onClick={handleBack}
+            aria-label={activeDeptId ? "返回组织列表" : "返回上一页"}
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 14,
+              border: "none",
+              background: "transparent",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2F3443" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: "white" }}>组织架构</span>
-          <div style={{ width: 28, height: 28 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#1f2430" }}>
+              {activeDepartment ? activeDepartment.name : "组织架构"}
+            </div>
+            <div style={{ fontSize: 11, color: "#8f6b47", marginTop: 2 }}>
+              {activeDepartment ? "勾选成员后返回发起培训流程" : "按组织或成员选择培训对象"}
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "12px 14px",
+            borderRadius: 16,
+            background: "#f5f6fa",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B5BBC9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.5-3.5" />
+          </svg>
+          <input
+            value={keyword}
+            onChange={event => setKeyword(event.target.value)}
+            placeholder={activeDepartment ? "搜索成员姓名或岗位" : "搜索组织或成员"}
+            style={{
+              flex: 1,
+              border: "none",
+              outline: "none",
+              background: "transparent",
+              fontSize: 15,
+              color: "#2f3443",
+              padding: 0,
+            }}
+          />
         </div>
       </div>
 
-      {/* 当前原型聚焦组织树选择流程，隐藏其余辅助视角按钮，降低导航噪音。 */}
-
-      {/* 内容区 */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px 80px" }}>
-        <>
-            {/* 层级图例 */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
-              {LEVEL_CONFIG.map((lv, i) => (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 4,
-                  background: "white", borderRadius: 8, padding: "4px 10px",
-                  border: "1px solid #F0F0F0",
-                }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 4, background: lv.color }} />
-                  <span style={{ fontSize: 11, color: "#555" }}>L{i} {lv.label}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* 树形结构 */}
-            {ORG_TREE.map(root => (
-              <MemberNode
-                key={root.id}
-                member={root}
-                depth={0}
-                expanded={expanded}
-                onToggle={toggle}
-                onInvite={() => setShowInvite(true)}
-                currentUserId={currentUserId}
-              />
-            ))}
-
-            {/* 快速邀请卡 */}
-            <div style={{
-              background: "white", borderRadius: 14, padding: "16px",
-              border: "1.5px dashed #FFB74D", marginTop: 8,
-              display: "flex", alignItems: "center", gap: 12,
-            }}>
-              <div style={{
-                width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                background: "#FFF3E0", display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8750a" strokeWidth="2" strokeLinecap="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                  <line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
-                </svg>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", marginBottom: 2 }}>邀请更多成员</div>
-                <div style={{ fontSize: 12, color: "#888" }}>分享链接，成员注册后自动加入团队</div>
-              </div>
-              <button
-                onClick={() => setShowInvite(true)}
+      <div style={{ flex: 1, overflowY: "auto", padding: "14px 14px 112px" }}>
+        {!activeDepartment ? (
+          <>
+            <button
+              onClick={onInvite}
+              style={{
+                width: "100%",
+                border: "none",
+                padding: "14px 16px",
+                borderRadius: 20,
+                background: "rgba(255,255,255,0.96)",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                boxShadow: "0 12px 30px rgba(31,36,48,0.05)",
+                marginBottom: 14,
+                cursor: "pointer",
+              }}
+            >
+              <div
                 style={{
-                  padding: "8px 14px", borderRadius: 10, border: "none",
-                  background: "linear-gradient(135deg, #e8750a, #ff9a3c)",
-                  color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer",
+                  width: 40,
+                  height: 40,
+                  borderRadius: 14,
+                  background: "rgba(72,103,255,0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
-                邀请
-              </button>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4867ff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" y1="8" x2="19" y2="14" />
+                  <line x1="22" y1="11" x2="16" y2="11" />
+                </svg>
+              </div>
+              <div style={{ flex: 1, textAlign: "left" }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#1f2430" }}>添加企业/成员</div>
+                <div style={{ fontSize: 12, color: "#98a0b3", marginTop: 3 }}>成员注册后会自动归入对应组织</div>
+              </div>
+              <Chevron />
+            </button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#8f97a8", margin: "0 2px 10px" }}>
+              <span style={{ color: "#5b84ff", fontWeight: 600 }}>通讯录</span>
+              <span>›</span>
+              <span>{ORG_DIRECTORY.companyName}</span>
+            </div>
+
+            <div
+              style={{
+                background: "rgba(255,255,255,0.96)",
+                borderRadius: 20,
+                padding: "16px",
+                boxShadow: "0 14px 32px rgba(31,36,48,0.05)",
+                marginBottom: 14,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                  background: "linear-gradient(135deg, #ffad35, #f48914)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  fontSize: 18,
+                  fontWeight: 800,
+                  flexShrink: 0,
+                }}
+              >
+                智
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: "#1f2430" }}>{ORG_DIRECTORY.companyName}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 13, color: "#586072", fontWeight: 600 }}>{ORG_DIRECTORY.companyOwner}</span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "#4d74f6",
+                      background: "rgba(77,116,246,0.1)",
+                      borderRadius: 999,
+                      padding: "4px 8px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {ORG_DIRECTORY.companyRole}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {filteredDepartments.map(department => {
+                const checked = localSelectedDeptIds.has(department.id);
+                return (
+                  <div
+                    key={department.id}
+                    style={{
+                      background: "rgba(255,255,255,0.98)",
+                      borderRadius: 20,
+                      padding: "14px 14px 14px 12px",
+                      boxShadow: "0 12px 28px rgba(31,36,48,0.05)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <button
+                      onClick={() => toggleDepartment(department.id)}
+                      aria-label={`勾选${department.name}`}
+                      style={{ background: "transparent", border: "none", padding: 0, display: "inline-flex", cursor: "pointer" }}
+                    >
+                      <Checkbox checked={checked} />
+                    </button>
+                    <button
+                      onClick={() => setActiveDeptId(department.id)}
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        background: "transparent",
+                        border: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                    >
+                      <OrgIcon />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: "#1f2430" }}>
+                          {department.name}
+                          <span style={{ color: "#98a0b3", fontWeight: 500 }}>（{department.countHint}）</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "#98a0b3", marginTop: 4 }}>{department.description}</div>
+                      </div>
+                      <Chevron />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </>
-
-        {/* 以下视角内容暂保留原型代码，当前流程中隐藏入口，不在本轮交互中暴露。 */}
-        {false && (
+        ) : (
           <>
-            {/* 未绑定上级警告 */}
-            <div style={{
-              background: "linear-gradient(135deg, #FFF3E0, #FFF8F0)",
-              border: "1.5px solid #FFB74D", borderRadius: 14,
-              padding: "14px 16px", marginBottom: 16,
-              display: "flex", alignItems: "flex-start", gap: 12,
-            }}>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>⚠️</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#E65100", marginBottom: 4 }}>你尚未绑定上级</div>
-                <div style={{ fontSize: 12, color: "#888", lineHeight: 1.7 }}>
-                  你发起的培训数据目前仅在本层级可见，上级无法查看你团队的培训情况，
-                  也无法通过你的培训活动扩展上级组织架构。
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#8f97a8", margin: "0 2px 12px" }}>
+              <span style={{ color: "#5b84ff", fontWeight: 600 }}>通讯录</span>
+              <span>›</span>
+              <span>{ORG_DIRECTORY.companyName}</span>
+              <span>›</span>
+              <span style={{ color: "#1f2430" }}>{activeDepartment.name}</span>
+            </div>
+
+            <div
+              style={{
+                background: "rgba(255,255,255,0.98)",
+                borderRadius: 20,
+                padding: "16px",
+                boxShadow: "0 12px 28px rgba(31,36,48,0.05)",
+                marginBottom: 14,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <OrgIcon />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: "#1f2430" }}>{activeDepartment.name}</div>
+                  <div style={{ fontSize: 12, color: "#98a0b3", marginTop: 4 }}>{activeDepartment.description}</div>
                 </div>
-                <button style={{
-                  marginTop: 10, padding: "8px 16px", borderRadius: 10, border: "none",
-                  background: "linear-gradient(135deg, #e8750a, #ff9a3c)",
-                  color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                }}
-                  onClick={() => {}}
+                <button
+                  onClick={() => toggleDepartment(activeDepartment.id)}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    padding: 0,
+                    display: "inline-flex",
+                    cursor: "pointer",
+                  }}
                 >
-                  立即绑定上级 →
+                  <Checkbox checked={localSelectedDeptIds.has(activeDepartment.id)} />
                 </button>
               </div>
             </div>
 
-            {/* 说明：绑定后上级能看到什么 */}
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", marginBottom: 10 }}>绑定上级后，上级可见内容</div>
-            {[
-              { icon: "📊", title: "培训完成率汇总", desc: "上级可在管理端看到你团队的整体完成率和平均分，无需逐一询问" },
-              { icon: "🏆", title: "问题清单下钻", desc: "上级的 TOP10 问题清单中，会包含你团队员工的答错记录，支持一键发起专项培训" },
-              { icon: "🌱", title: "组织架构扩展", desc: "你的员工通过培训链接注册后，自动出现在上级的组织树中，上级无感知组织扩张" },
-              { icon: "🔔", title: "培训通知同步", desc: "你每次发起培训时，上级收到通知摘要，掌握全局培训动态" },
-            ].map((item, i) => (
-              <div key={i} style={{
-                background: "white", borderRadius: 12, padding: "14px 16px", marginBottom: 8,
-                boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
-                display: "flex", alignItems: "flex-start", gap: 12,
-              }}>
-                <span style={{ fontSize: 22, flexShrink: 0 }}>{item.icon}</span>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", marginBottom: 3 }}>{item.title}</div>
-                  <div style={{ fontSize: 12, color: "#888", lineHeight: 1.6 }}>{item.desc}</div>
-                </div>
-              </div>
-            ))}
-
-            {/* 模拟：上级视角的下级培训汇总 */}
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", margin: "16px 0 10px" }}>上级视角预览（绑定后效果）</div>
-            <div style={{
-              background: "white", borderRadius: 14, padding: "14px 16px",
-              boxShadow: "0 1px 6px rgba(0,0,0,0.04)", border: "1.5px solid #F0F0F0",
-              opacity: 0.6,
-            }}>
-              <div style={{ fontSize: 12, color: "#aaa", marginBottom: 12, textAlign: "center" }}>— 绑定上级后解锁 —</div>
-              {[
-                { name: "张志远（区域经理）", label: "你的上级", score: "4.7", rate: "92%", color: "#1565C0" },
-                { name: "北京朝阳店（你的团队）", label: "本店汇总", score: "4.2", rate: "85%", color: "#e8750a" },
-                { name: "北京海淀店（同级）", label: "同级对比", score: "4.3", rate: "88%", color: "#2E7D32" },
-              ].map((row, i) => (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 10,
-                  padding: "10px 0", borderBottom: i < 2 ? "1px solid #F5F5F5" : "none",
-                }}>
-                  <div style={{
-                    width: 8, height: 8, borderRadius: 4, flexShrink: 0,
-                    background: row.color,
-                  }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#1A1A1A" }}>{row.name}</div>
-                    <div style={{ fontSize: 11, color: "#aaa" }}>{row.label}</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: row.color }}>{row.score}分</div>
-                    <div style={{ fontSize: 10, color: "#aaa" }}>完成率 {row.rate}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 多上级场景说明 */}
-            <div style={{
-              background: "#E3F2FD", borderRadius: 12, padding: "12px 14px",
-              border: "1px solid #90CAF9", marginTop: 12,
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#1565C0", marginBottom: 4 }}>💡 多上级场景</div>
-              <div style={{ fontSize: 11, color: "#555", lineHeight: 1.7 }}>
-                若你绑定了多位上级（如区域经理 + 人力资源经理），培训数据会同步至所有上级的管理视图。
-                每位上级只能看到与自己职能相关的数据维度，数据隔离保护隐私。
-              </div>
-            </div>
-          </>
-        )}
-
-        {false && (
-          <>
-            {/* 说明横幅 */}
-            <div style={{
-              background: "linear-gradient(135deg, #FFF3E0, #FFF8F0)",
-              border: "1.5px solid #FFB74D", borderRadius: 14,
-              padding: "14px 16px", marginBottom: 16,
-              display: "flex", alignItems: "flex-start", gap: 12,
-            }}>
-              <span style={{ fontSize: 24, flexShrink: 0 }}>🌱</span>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#E65100", marginBottom: 4 }}>
-                  组织架构随培训传播自动生长
-                </div>
-                <div style={{ fontSize: 12, color: "#888", lineHeight: 1.7 }}>
-                  每次发起培训并分享邀请链接，未注册员工点击后 2 步完成注册，
-                  系统自动将其归入对应层级，无需管理员手动维护人员名单。
-                </div>
-              </div>
-            </div>
-
-            {/* 统计卡片 */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-              {[
-                { label: "本月通过培训注册", value: "8", unit: "人", color: "#2E7D32", bg: "#E8F5E9" },
-                { label: "组织完整度", value: "76", unit: "%", color: "#e8750a", bg: "#FFF3E0" },
-                { label: "待邀请岗位", value: "3", unit: "个", color: "#1565C0", bg: "#E3F2FD" },
-              ].map((s, i) => (
-                <div key={i} style={{
-                  flex: 1, background: s.bg, borderRadius: 12,
-                  padding: "12px 10px", textAlign: "center",
-                }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>
-                    {s.value}<span style={{ fontSize: 11 }}>{s.unit}</span>
-                  </div>
-                  <div style={{ fontSize: 10, color: "#888", marginTop: 2 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* 时间线 */}
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1A1A1A", marginBottom: 12 }}>今日传播记录</div>
-            <div style={{ position: "relative" }}>
-              {/* 竖线 */}
-              <div style={{
-                position: "absolute", left: 19, top: 20, bottom: 20,
-                width: 2, background: "linear-gradient(180deg, #e8750a33, #e8750a11)",
-                borderRadius: 2,
-              }} />
-
-              {GROWTH_TIMELINE.map((item, i) => (
-                <div key={i} style={{
-                  display: "flex", gap: 12, marginBottom: 12,
-                  opacity: growthAnimStep > i || growthAnimStep === 0 ? 1 : 0.3,
-                  transition: "opacity 0.4s",
-                }}>
-                  {/* 时间线节点 */}
-                  <div style={{
-                    width: 38, height: 38, borderRadius: 12, flexShrink: 0,
-                    background: item.bg, border: `1.5px solid ${item.color}33`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 18, zIndex: 1, position: "relative",
-                  }}>
-                    {item.icon}
-                  </div>
-
-                  {/* 内容卡片 */}
-                  <div style={{
-                    flex: 1, background: "white", borderRadius: 12,
-                    padding: "10px 12px", boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-                    border: `1px solid ${item.color}22`,
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.title}</span>
-                      <span style={{ fontSize: 10, color: "#aaa", flexShrink: 0, marginLeft: 6 }}>{item.time}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: "#666", lineHeight: 1.6 }}>{item.desc}</div>
-                    {item.newMember && (
-                      <div style={{
-                        marginTop: 8, display: "flex", alignItems: "center", gap: 8,
-                        background: "#F0FFF4", borderRadius: 8, padding: "6px 10px",
-                      }}>
-                        <div style={{
-                          width: 28, height: 28, borderRadius: 8,
-                          background: "linear-gradient(135deg, #43A047, #66BB6A)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 12, fontWeight: 700, color: "white", flexShrink: 0,
-                        }}>{item.newMember.name[0]}</div>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: "#2E7D32" }}>
-                            {item.newMember.name} · {item.newMember.job}
-                          </div>
-                          <div style={{ fontSize: 10, color: "#888" }}>{item.newMember.dept}</div>
-                        </div>
-                        <span style={{
-                          marginLeft: "auto", fontSize: 10, padding: "2px 8px",
-                          background: "#C8E6C9", color: "#2E7D32", borderRadius: 6, fontWeight: 700,
-                        }}>已加入组织树</span>
-                      </div>
-                    )}
-                    {(item as any).newSuperior && (
-                      <div style={{
-                        marginTop: 8, display: "flex", alignItems: "center", gap: 8,
-                        background: "#F3E5F5", borderRadius: 8, padding: "6px 10px",
-                        border: "1px solid #CE93D8",
-                      }}>
-                        <div style={{
-                          width: 28, height: 28, borderRadius: 8,
-                          background: "linear-gradient(135deg, #6A1B9A, #8E24AA)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 12, fontWeight: 700, color: "white", flexShrink: 0,
-                        }}>{(item as any).newSuperior.name[0]}</div>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: "#6A1B9A" }}>
-                            {(item as any).newSuperior.name} · {(item as any).newSuperior.job}
-                          </div>
-                          <div style={{ fontSize: 10, color: "#888" }}>{(item as any).newSuperior.dept}</div>
-                        </div>
-                        <span style={{
-                          marginLeft: "auto", fontSize: 10, padding: "2px 8px",
-                          background: "#CE93D8", color: "white", borderRadius: 6, fontWeight: 700,
-                        }}>已成为上级</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 底部提示 */}
-            <div style={{
-              background: "#F3E5F5", borderRadius: 12, padding: "12px 14px",
-              border: "1px solid #CE93D8", marginTop: 4,
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#6A1B9A", marginBottom: 4 }}>💡 设计原理</div>
-              <div style={{ fontSize: 11, color: "#555", lineHeight: 1.7 }}>
-                邀请链接携带「邀请人 + 门店 + 推荐职位」三个参数，新成员注册时系统自动预填上级候选，
-                只需确认即完成绑定，整个过程对员工来说只是「开始培训」，
-                组织架构在后台悄然完善。
-              </div>
-            </div>
-          </>
-        )}
-
-        {false && (
-          <>
-            <div style={{ fontSize: 13, color: "#aaa", marginBottom: 14 }}>
-              每位成员拥有「层级」+「角色类型」两个维度的身份，共同决定其权限范围
-            </div>
-
-            {/* 角色类型说明 */}
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", marginBottom: 10 }}>角色类型</div>
-            {Object.entries(ROLE_CONFIG).map(([key, cfg]) => (
-              <div key={key} style={{
-                background: "white", borderRadius: 12, padding: "14px 16px", marginBottom: 8,
-                boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                  <span style={{
-                    fontSize: 12, padding: "3px 10px", borderRadius: 8,
-                    background: cfg.bg, color: cfg.text, fontWeight: 700,
-                  }}>{cfg.label}</span>
-                </div>
-                <div style={{ fontSize: 13, color: "#555" }}>{cfg.desc}</div>
-              </div>
-            ))}
-
-            {/* 层级说明 */}
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", margin: "16px 0 10px" }}>组织层级</div>
-            {LEVEL_CONFIG.map((lv, i) => (
-              <div key={i} style={{
-                background: "white", borderRadius: 12, padding: "12px 16px", marginBottom: 8,
-                boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
-                display: "flex", alignItems: "center", gap: 12,
-              }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                  background: `${lv.color}22`, display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 13, fontWeight: 800, color: lv.color,
-                }}>L{i}</div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#1A1A1A" }}>{lv.label}</div>
-                  <div style={{ fontSize: 12, color: "#888" }}>
-                    {["集团总部管理层", "区域/大区管理层", "单店管理层", "班组/岗位执行层"][i]}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* 同层级多角色示例 */}
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A1A", margin: "16px 0 10px" }}>同层级多角色示例</div>
-            <div style={{
-              background: "white", borderRadius: 12, padding: "14px 16px",
-              boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
-            }}>
-              <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>
-                区域级（L1）可同时存在以下不同角色：
-              </div>
-              {[
-                { name: "张志远", job: "区域经理", role: "manager" as RoleType },
-                { name: "陈丽华", job: "人力资源经理", role: "functional" as RoleType },
-                { name: "赵数据", job: "数据分析员", role: "observer" as RoleType },
-                { name: "孙助理", job: "经理助理", role: "functional" as RoleType },
-              ].map((m, i) => {
-                const cfg = ROLE_CONFIG[m.role];
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {filteredMembers.map(member => {
+                const checked = localSelectedMemberIds.has(member.id);
                 return (
-                  <div key={i} style={{
-                    display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
-                    borderBottom: i < 3 ? "1px solid #F5F5F5" : "none",
-                  }}>
-                    <div style={{
-                      width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-                      background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 12, fontWeight: 700, color: "#888",
-                    }}>{m.name[0]}</div>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>{m.name}</span>
-                      <span style={{ fontSize: 12, color: "#aaa", marginLeft: 6 }}>{m.job}</span>
+                  <div
+                    key={member.id}
+                    style={{
+                      background: "rgba(255,255,255,0.98)",
+                      borderRadius: 18,
+                      padding: "14px 14px 14px 12px",
+                      boxShadow: "0 10px 26px rgba(31,36,48,0.045)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <button
+                      onClick={() => toggleMember(activeDepartment.id, member.id)}
+                      aria-label={`勾选${member.name}`}
+                      style={{ background: "transparent", border: "none", padding: 0, display: "inline-flex", cursor: "pointer" }}
+                    >
+                      <Checkbox checked={checked} />
+                    </button>
+                    <div
+                      style={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: 21,
+                        background: checked ? "linear-gradient(135deg, rgba(232,117,10,0.18), rgba(255,154,60,0.12))" : "linear-gradient(135deg, rgba(91,132,255,0.12), rgba(91,132,255,0.05))",
+                        color: checked ? "#c45e00" : "#4867ff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 16,
+                        fontWeight: 800,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {member.name.slice(0, 1)}
                     </div>
-                    <span style={{
-                      fontSize: 10, padding: "2px 8px", borderRadius: 6,
-                      background: cfg.bg, color: cfg.text, fontWeight: 700,
-                    }}>{cfg.label}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: "#1f2430" }}>{member.name}</span>
+                        <span style={{ fontSize: 12, color: "#6d7587" }}>{member.role}</span>
+                        {member.tag && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: "#4d74f6",
+                              background: "rgba(77,116,246,0.1)",
+                              borderRadius: 999,
+                              padding: "3px 8px",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {member.tag}
+                          </span>
+                        )}
+                        {member.status === "pending" && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: "#c45e00",
+                              background: "rgba(232,117,10,0.1)",
+                              borderRadius: 999,
+                              padding: "3px 8px",
+                              fontWeight: 600,
+                            }}
+                          >
+                            待补训
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#98a0b3", marginTop: 5 }}>{member.store}</div>
+                    </div>
                   </div>
                 );
               })}
-              <div style={{ fontSize: 11, color: "#aaa", marginTop: 8, lineHeight: 1.6 }}>
-                💡 同层级多角色可同时向下级发起培训，但权限范围不同：人力资源经理只能发起入职/制度类培训，区域经理可发起所有类型
-              </div>
             </div>
           </>
         )}
       </div>
 
-      {/* 邀请弹层 */}
-      {showInvite && (
-        <InviteModal
-          onClose={() => setShowInvite(false)}
-          onInvite={() => { onInvite(); toast.success("邀请已发送！"); }}
-        />
-      )}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          padding: "12px 14px 18px",
+          background: "linear-gradient(180deg, rgba(252,250,247,0.2) 0%, rgba(252,250,247,0.94) 24%, #fcfaf7 100%)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <div
+          style={{
+            background: "rgba(255,255,255,0.96)",
+            borderRadius: 22,
+            padding: "12px 14px",
+            boxShadow: "0 16px 32px rgba(31,36,48,0.08)",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1f2430" }}>已选 {selectedCount} 位培训人员</div>
+            <div style={{ fontSize: 12, color: "#98a0b3", marginTop: 3 }}>
+              已勾选组织 {selectedDeptCount} 个{activeDepartment ? ` · 当前层级 ${activeDepartment.members.length} 人` : " · 可继续进入层级细选成员"}
+            </div>
+          </div>
+          <button
+            onClick={handleApply}
+            style={{
+              border: "none",
+              borderRadius: 16,
+              padding: "12px 18px",
+              minWidth: 96,
+              background: selectedCount > 0 ? "linear-gradient(135deg, #e8750a, #ff9a3c)" : "#d9dee8",
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 700,
+              boxShadow: selectedCount > 0 ? "0 10px 22px rgba(232,117,10,0.25)" : "none",
+              cursor: "pointer",
+            }}
+          >
+            确定
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
