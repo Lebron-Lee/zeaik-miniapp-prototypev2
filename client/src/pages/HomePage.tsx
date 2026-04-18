@@ -8,6 +8,7 @@
  * - 底部：快捷按钮 + 输入框（支持语音/文字切换，拍照触发AI检测模拟）
  * - 对话界面：内嵌在页面中，支持流式AI回复
  * - 设计哲学：沿用暖橙玻璃卡片与拟物浮层语言，把碎片化培训做成聊天流中的双步骤任务卡，强调轻量引导、可快速决策与组织分组选择
+ * - 本文件中的培训发起录音交互遵循微信小程序阻塞式录音确认体验：录音时禁止误触跳出，结束后先以会话卡片确认解析结果，再决定是否归档到题库
  */
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -357,6 +358,18 @@ interface TrainingLaunchQrCard {
   codeLabel: string;
 }
 
+interface VoiceKnowledgeConfirmCard {
+  title: string;
+  recordingName: string;
+  durationLabel: string;
+  recognizedText: string;
+  analysisSummary: string;
+  archiveName: string;
+  bankTitle: string;
+  questionPreview: string[];
+  status: "pending" | "confirmed" | "discarded";
+}
+
 type Message = {
   id: number;
   role: "user" | "ai";
@@ -373,6 +386,7 @@ type Message = {
   trainingLaunchReceiptCard?: TrainingLaunchReceiptCard;
   trainingLaunchCompletionCard?: TrainingLaunchCompletionCard;
   trainingLaunchQrCard?: TrainingLaunchQrCard;
+  voiceKnowledgeConfirmCard?: VoiceKnowledgeConfirmCard;
 };
 
 interface TrainingLaunchBankOption {
@@ -726,6 +740,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   const [voiceCancelRequested, setVoiceCancelRequested] = useState(false);
   const [isKnowledgeRecording, setIsKnowledgeRecording] = useState(false);
   const [knowledgeRecordingStartedAt, setKnowledgeRecordingStartedAt] = useState<number | null>(null);
+  const [knowledgeRecordingElapsedMs, setKnowledgeRecordingElapsedMs] = useState(0);
+  const [knowledgeRecordingSerial, setKnowledgeRecordingSerial] = useState(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatMode, setChatMode] = useState(false); // 是否进入对话模式
   const [msgFeedback, setMsgFeedback] = useState<Record<number, "like" | "dislike" | null>>({});
@@ -1188,7 +1204,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTrainingTargetPickerOpen(false);
     setMessages(prev => {
       const filtered = prev.filter(
-        msg => !msg.trainingLaunchReceiptCard && !msg.trainingLaunchCompletionCard && !msg.trainingLaunchQrCard,
+        msg => !msg.trainingLaunchReceiptCard && !msg.trainingLaunchCompletionCard && !msg.trainingLaunchQrCard && !msg.voiceKnowledgeConfirmCard,
       );
 
       return [
@@ -1293,7 +1309,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
   };
 
   const isTrainingConversation = fromTrainingScan || trainingRegistered || trainingIsActive || trainingIsFeedback || messages.some(
-    msg => msg.trainingCard || msg.isQuestion || msg.isTrainingDone || msg.trainingLaunchReceiptCard || msg.trainingLaunchCompletionCard || msg.trainingLaunchQrCard,
+    msg => msg.trainingCard || msg.isQuestion || msg.isTrainingDone || msg.trainingLaunchReceiptCard || msg.trainingLaunchCompletionCard || msg.trainingLaunchQrCard || msg.voiceKnowledgeConfirmCard,
   );
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1421,6 +1437,56 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
+  const formatVoiceKnowledgeFileName = (startedAt: number, sequence: number) => {
+    const date = new Date(startedAt);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    return `录音_${yyyy}${mm}${dd}_${String(sequence).padStart(3, "0")}.m4a`;
+  };
+
+  const handleConfirmVoiceKnowledge = (messageId: number, card: VoiceKnowledgeConfirmCard) => {
+    if (card.status !== "pending") return;
+
+    const simulatedIntent = "对领导讲话进行碎片录音，自动沉淀培训题目";
+    const simulatedGoal = `录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：${card.analysisSummary}`;
+
+    setTrainingLaunchIntent(prev => prev.trim() || simulatedIntent);
+    setTrainingLaunchGoal(simulatedGoal);
+    setTrainingLaunchUploadedFiles(prev => [{ name: card.recordingName, sizeLabel: card.durationLabel }, ...prev.filter(file => file.name !== card.recordingName)].slice(0, 3));
+    setInputText(card.recognizedText);
+    setChatMode(true);
+    setMessages(prev => [
+      ...prev.map(msg => msg.id === messageId
+        ? { ...msg, voiceKnowledgeConfirmCard: { ...card, status: "confirmed" as const } }
+        : msg),
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: `已确认采用「${card.recordingName}」，解析内容已归入「${card.bankTitle}」，并按「${card.archiveName}」完成题库存档。后续继续录音会自动累计到同一题库。`,
+      },
+    ]);
+    toast.success("已归档到题库并保留为知识记录");
+    setTimeout(() => inputRef.current?.focus(), 120);
+  };
+
+  const handleDiscardVoiceKnowledge = (messageId: number, card: VoiceKnowledgeConfirmCard) => {
+    if (card.status !== "pending") return;
+
+    setMessages(prev => [
+      ...prev.map(msg => msg.id === messageId
+        ? { ...msg, voiceKnowledgeConfirmCard: { ...card, status: "discarded" as const } }
+        : msg),
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: `已放弃本次录音解析，「${card.recordingName}」不会归档到题库；你可以重新录音或补充其它培训资料。`,
+      },
+    ]);
+    toast.info("已放弃本次录音解析");
+    setTimeout(() => inputRef.current?.focus(), 120);
+  };
+
   const commitTrainingLaunchVoiceKnowledge = (durationMs?: number) => {
     const voiceSnippets = [
       "今天晨会重点强调三件事：迎宾先微笑，点单要复述，异常情况 30 秒内上报值班经理。",
@@ -1432,36 +1498,61 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
       "已拆解为晨会口径、岗位动作、风险提醒 3 个解析模块，并生成 5 道培训题。",
       "已整理为门店执行要点、管理要求、顾客沟通话术 3 类题目素材，并生成 6 道题库条目。",
     ];
-    const recognized = voiceSnippets[Math.floor(Math.random() * voiceSnippets.length)];
-    const analysis = analysisSummaries[Math.floor(Math.random() * analysisSummaries.length)];
+    const questionPresets = [
+      [
+        "顾客进店后，迎宾动作的第一步应该是什么？",
+        "当顾客点完单后，服务员为什么必须复述一次关键信息？",
+        "遇到异常情况时，应在多长时间内同步值班经理？",
+      ],
+      [
+        "高峰期顾客排队接近两分钟时，收银与迎宾应该如何分岗协作？",
+        "如果迎宾离岗去协助收银，现场最容易出现什么服务风险？",
+        "怎样用一句话向顾客解释当前排队等待原因更稳妥？",
+      ],
+      [
+        "后厨出餐慢时，前厅同事第一句话应该先处理什么？",
+        "安抚顾客之后，为什么还要同步预计等待时间？",
+        "若预计时间再次变化，前厅需要追加哪一步沟通动作？",
+      ],
+    ];
+    const contentIndex = Math.floor(Math.random() * voiceSnippets.length);
+    const recognized = voiceSnippets[contentIndex];
+    const analysis = analysisSummaries[contentIndex];
+    const questionPreview = questionPresets[contentIndex];
     const durationSeconds = Math.max(8, Math.round((durationMs ?? 26000) / 1000));
-    const simulatedIntent = "对领导讲话进行碎片录音，自动沉淀培训题目";
-    const simulatedGoal = `录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：${analysis}`;
-    const audioRecord = {
-      name: `领导讲话录音_${new Date().getMonth() + 1}${new Date().getDate()}_${String(new Date().getHours()).padStart(2, "0")}${String(new Date().getMinutes()).padStart(2, "0")}.m4a`,
-      sizeLabel: `${durationSeconds}秒 · 语音解析`,
-    };
+    const startedAt = knowledgeRecordingStartedAt ?? Date.now();
+    const recordingName = formatVoiceKnowledgeFileName(startedAt, knowledgeRecordingSerial);
     const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
+    const archiveDate = new Date(startedAt);
+    const archiveName = `${archiveDate.getMonth() + 1}月${archiveDate.getDate()}日领导讲话知识归档`;
 
-    setTrainingLaunchIntent(prev => prev.trim() || simulatedIntent);
-    setTrainingLaunchGoal(simulatedGoal);
-    setTrainingLaunchUploadedFiles(prev => [audioRecord, ...prev.filter(file => file.name !== audioRecord.name)].slice(0, 3));
-    setInputText(recognized);
+    setKnowledgeRecordingSerial(prev => prev + 1);
     setChatMode(true);
     setMessages(prev => [
       ...prev,
       {
         id: msgIdRef.current++,
         role: "user",
-        text: `碎片录音（${durationSeconds}秒）：${recognized}`,
+        text: `录音已结束：${recordingName}（${durationSeconds}秒）`,
       },
       {
         id: msgIdRef.current++,
         role: "ai",
-        text: `已完成这段领导讲话的知识记录与解析。${analysis} 当前内容已归入「${recommendedBankTitle}」，后续继续录音会自动累计到同一题库。`,
+        text: "",
+        voiceKnowledgeConfirmCard: {
+          title: "录音解析待确认",
+          recordingName,
+          durationLabel: `${durationSeconds}秒 · 语音解析`,
+          recognizedText: recognized,
+          analysisSummary: analysis,
+          archiveName,
+          bankTitle: recommendedBankTitle,
+          questionPreview,
+          status: "pending",
+        },
       },
     ]);
-    toast.success("录音已转为知识记录，并同步进入题库累积");
+    toast.info("录音已完成，请先确认是否归档到题库");
     setTimeout(() => inputRef.current?.focus(), 120);
   };
 
@@ -1469,8 +1560,8 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     if (!isKnowledgeRecording) {
       setIsKnowledgeRecording(true);
       setKnowledgeRecordingStartedAt(Date.now());
+      setKnowledgeRecordingElapsedMs(0);
       setChatMode(true);
-      toast.info("已开始录音，再次点击“结束”完成录音");
       return;
     }
 
@@ -1505,6 +1596,22 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setVoiceCancelRequested(false);
     handleSend(recognized);
   };
+
+  useEffect(() => {
+    if (!isKnowledgeRecording || !knowledgeRecordingStartedAt) {
+      setKnowledgeRecordingElapsedMs(0);
+      return undefined;
+    }
+
+    setKnowledgeRecordingElapsedMs(Math.max(0, Date.now() - knowledgeRecordingStartedAt));
+    const intervalId = window.setInterval(() => {
+      setKnowledgeRecordingElapsedMs(Math.max(0, Date.now() - knowledgeRecordingStartedAt));
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isKnowledgeRecording, knowledgeRecordingStartedAt]);
 
   useEffect(() => {
     if (!isVoiceHolding) return undefined;
@@ -1683,7 +1790,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-start" }}>
                     {[
                       { label: "资料库", onClick: () => toast.info("资料库功能即将开放"), active: false },
-                      { label: isKnowledgeRecording ? "结束" : "录音", onClick: handleTrainingLaunchVoiceCapture, active: isKnowledgeRecording },
+                      { label: "录音", onClick: handleTrainingLaunchVoiceCapture, active: isKnowledgeRecording },
                       { label: "上传", onClick: handleTrainingLaunchUploadTrigger, active: false },
                     ].map(action => (
                       <button
@@ -1710,7 +1817,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                     <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 2 }}>
                       <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e8750a", boxShadow: "0 0 0 4px rgba(232,117,10,0.14)" }} />
                       <div style={{ fontSize: 11.5, color: "#9a6334", lineHeight: 1.5 }}>
-                        录音进行中，再次点击“结束”后进入语音知识解析与题库累积
+                        录音进行中，请在弹窗内结束录音；结束后会先生成待确认的题库解析卡片
                       </div>
                     </div>
                   )}
@@ -2383,6 +2490,112 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             </span>
                             <span>转发</span>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : msg.voiceKnowledgeConfirmCard ? (
+                    <div style={{ padding: "12px" }}>
+                      <div style={{
+                        borderRadius: 16,
+                        padding: "13px 12px 12px",
+                        background: "linear-gradient(180deg, rgba(255,249,242,0.98) 0%, rgba(255,255,255,0.98) 100%)",
+                        border: "1px solid rgba(241,214,190,0.92)",
+                        boxShadow: "0 8px 20px rgba(232,117,10,0.08)",
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 14.5, fontWeight: 700, color: "#2d2040" }}>{msg.voiceKnowledgeConfirmCard.title}</div>
+                            <div style={{ marginTop: 4, fontSize: 12, color: "#8f6b47", lineHeight: 1.4 }}>{msg.voiceKnowledgeConfirmCard.recordingName}</div>
+                          </div>
+                          <div style={{
+                            padding: "4px 9px",
+                            borderRadius: 999,
+                            background: msg.voiceKnowledgeConfirmCard.status === "confirmed"
+                              ? "rgba(34,197,94,0.12)"
+                              : msg.voiceKnowledgeConfirmCard.status === "discarded"
+                                ? "rgba(148,163,184,0.14)"
+                                : "rgba(232,117,10,0.12)",
+                            color: msg.voiceKnowledgeConfirmCard.status === "confirmed"
+                              ? "#15803d"
+                              : msg.voiceKnowledgeConfirmCard.status === "discarded"
+                                ? "#64748b"
+                                : "#c15f08",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            flexShrink: 0,
+                          }}>
+                            {msg.voiceKnowledgeConfirmCard.status === "confirmed" ? "已归档" : msg.voiceKnowledgeConfirmCard.status === "discarded" ? "已放弃" : "待确认"}
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c15f08", fontSize: 11, fontWeight: 700 }}>
+                            {msg.voiceKnowledgeConfirmCard.durationLabel}
+                          </span>
+                          <span style={{ padding: "4px 8px", borderRadius: 999, background: "rgba(59,130,246,0.1)", color: "#1d4ed8", fontSize: 11, fontWeight: 700 }}>
+                            题库：{msg.voiceKnowledgeConfirmCard.bankTitle}
+                          </span>
+                        </div>
+                        <div style={{ borderRadius: 13, background: "rgba(255,255,255,0.9)", border: "1px solid rgba(241,214,190,0.72)", padding: "10px 10px 9px", marginBottom: 10 }}>
+                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>识别文本</div>
+                          <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.6 }}>{msg.voiceKnowledgeConfirmCard.recognizedText}</div>
+                        </div>
+                        <div style={{ borderRadius: 13, background: "rgba(255,248,241,0.9)", border: "1px solid rgba(241,214,190,0.68)", padding: "10px 10px 9px", marginBottom: 10 }}>
+                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析结果</div>
+                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6, marginBottom: 8 }}>{msg.voiceKnowledgeConfirmCard.analysisSummary}</div>
+                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>题目预览</div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            {msg.voiceKnowledgeConfirmCard.questionPreview.map((question, index) => (
+                              <div key={`${msg.id}-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
+                                <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                  {index + 1}
+                                </span>
+                                <span style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{question}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ borderRadius: 12, background: "rgba(255,255,255,0.78)", border: "1px dashed rgba(232,117,10,0.28)", padding: "9px 10px", marginBottom: 10 }}>
+                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 4 }}>归档名称</div>
+                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.5 }}>{msg.voiceKnowledgeConfirmCard.archiveName}</div>
+                        </div>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            onClick={() => handleDiscardVoiceKnowledge(msg.id, msg.voiceKnowledgeConfirmCard!)}
+                            disabled={msg.voiceKnowledgeConfirmCard.status !== "pending"}
+                            style={{
+                              flex: 1,
+                              borderRadius: 999,
+                              padding: "9px 12px",
+                              border: "1px solid rgba(148,163,184,0.28)",
+                              background: msg.voiceKnowledgeConfirmCard.status === "pending" ? "rgba(255,255,255,0.96)" : "rgba(248,250,252,0.82)",
+                              color: msg.voiceKnowledgeConfirmCard.status === "pending" ? "#64748b" : "#94a3b8",
+                              fontSize: 12.5,
+                              fontWeight: 700,
+                              cursor: msg.voiceKnowledgeConfirmCard.status === "pending" ? "pointer" : "not-allowed",
+                            }}
+                          >
+                            放弃
+                          </button>
+                          <button
+                            onClick={() => handleConfirmVoiceKnowledge(msg.id, msg.voiceKnowledgeConfirmCard!)}
+                            disabled={msg.voiceKnowledgeConfirmCard.status !== "pending"}
+                            style={{
+                              flex: 1,
+                              borderRadius: 999,
+                              padding: "9px 12px",
+                              border: "none",
+                              background: msg.voiceKnowledgeConfirmCard.status === "pending"
+                                ? "linear-gradient(135deg, #ff9a3c, #e8750a)"
+                                : "linear-gradient(135deg, rgba(255,154,60,0.55), rgba(232,117,10,0.5))",
+                              color: "#fff",
+                              fontSize: 12.5,
+                              fontWeight: 700,
+                              boxShadow: msg.voiceKnowledgeConfirmCard.status === "pending" ? "0 8px 18px rgba(232,117,10,0.18)" : "none",
+                              cursor: msg.voiceKnowledgeConfirmCard.status === "pending" ? "pointer" : "not-allowed",
+                            }}
+                          >
+                            确认归档
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -3062,6 +3275,82 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
           )}
         </div>
       </div>
+
+      {isKnowledgeRecording && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 230,
+            background: "rgba(31,23,18,0.48)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 310,
+              borderRadius: 22,
+              background: "linear-gradient(180deg, rgba(255,252,248,0.98) 0%, rgba(255,245,236,0.98) 100%)",
+              border: "1px solid rgba(255,255,255,0.78)",
+              boxShadow: "0 24px 48px rgba(74,42,13,0.22)",
+              padding: "18px 18px 16px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#2d2040" }}>正在录音</div>
+                <div style={{ marginTop: 4, fontSize: 12, color: "#9a7c62", lineHeight: 1.5 }}>
+                  当前为阻塞录音状态，结束前不会离开发起培训流程
+                </div>
+              </div>
+              <div style={{ minWidth: 72, textAlign: "right", fontSize: 18, fontWeight: 800, color: "#e8750a", fontVariantNumeric: "tabular-nums" }}>
+                {`${String(Math.floor(knowledgeRecordingElapsedMs / 60000)).padStart(2, "0")}:${String(Math.floor((knowledgeRecordingElapsedMs % 60000) / 1000)).padStart(2, "0")}`}
+              </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 16 }}>
+              {[0, 1, 2, 3, 4].map(index => (
+                <span
+                  key={index}
+                  style={{
+                    width: 8,
+                    height: 18 + (index % 2) * 10,
+                    borderRadius: 999,
+                    background: index % 2 === 0 ? "rgba(255,154,60,0.9)" : "rgba(232,117,10,0.55)",
+                    boxShadow: "0 4px 10px rgba(232,117,10,0.18)",
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ borderRadius: 16, background: "rgba(255,255,255,0.84)", border: "1px solid rgba(241,214,190,0.9)", padding: "12px 12px 11px", marginBottom: 16 }}>
+              <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6 }}>
+                请持续录入领导讲话、晨会重点或门店执行要求。结束录音后，系统会先展示识别文本、解析摘要和题目预览，待你确认后再归档到题库。
+              </div>
+            </div>
+            <button
+              onClick={handleTrainingLaunchVoiceCapture}
+              style={{
+                width: "100%",
+                border: "none",
+                borderRadius: 999,
+                padding: "12px 14px",
+                background: "linear-gradient(135deg, #ff9a3c, #e8750a)",
+                color: "#fff",
+                fontSize: 14,
+                fontWeight: 800,
+                boxShadow: "0 12px 24px rgba(232,117,10,0.22)",
+                cursor: "pointer",
+              }}
+            >
+              结束录音
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 光标闪烁动画 */}
       <style>{`
