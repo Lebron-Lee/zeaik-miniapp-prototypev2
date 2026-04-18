@@ -900,12 +900,7 @@ function SalesQrRegisterModal({
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
           <div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#2d2040" }}>
-              {submitted ? "欢迎加入智爱客" : "扫码后注册企业信息"}
-            </div>
-            <div style={{ fontSize: 12.5, lineHeight: 1.6, color: "#8a6f58", marginTop: 4 }}>
-              {submitted
-                ? "信息已登记成功，您现在可以继续分享小程序二维码给同事或伙伴。"
-                : "模拟首次接收销售二维码扫码进入小程序，先登记企业信息，再继续后续体验。"}
+              {submitted ? "欢迎加入智爱客" : "注册企业信息"}
             </div>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", padding: 4, cursor: "pointer" }}>
@@ -942,7 +937,7 @@ function SalesQrRegisterModal({
               />
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#6d4c37", marginBottom: 6 }}>微信昵称 / 姓名 <span style={{ color: "#e8750a" }}>*</span></div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#6d4c37", marginBottom: 6 }}>姓名 <span style={{ color: "#e8750a" }}>*</span></div>
               <input
                 value={info.contactName}
                 onChange={(e) => setInfo((prev) => ({ ...prev, contactName: e.target.value }))}
@@ -959,7 +954,6 @@ function SalesQrRegisterModal({
                   outline: "none",
                 }}
               />
-              <div style={{ fontSize: 12, color: "#9a7b63", marginTop: 6 }}>已默认带出微信昵称，也可以手动修改为自己的真实姓名。</div>
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#6d4c37", marginBottom: 6 }}>手机号 <span style={{ color: "#e8750a" }}>*</span></div>
@@ -992,12 +986,6 @@ function SalesQrRegisterModal({
             flexDirection: "column",
             justifyContent: "space-between",
           }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#c45e00" }}>分享小程序二维码</div>
-              <div style={{ fontSize: 12, color: "#8a6f58", lineHeight: 1.6, marginTop: 5 }}>
-                完成登记后，可把这个小程序码继续分享给同事或合作伙伴，帮助他们直接进入体验流程。
-              </div>
-            </div>
             <div style={{ display: "flex", justifyContent: "center", margin: "14px 0 10px" }}>
               <div style={{
                 width: 118,
@@ -1023,26 +1011,11 @@ function SalesQrRegisterModal({
                 )}
               </div>
             </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: "#2d2040" }}>Zeaik 销售体验入口</div>
-              <div style={{ fontSize: 11.5, color: "#9a7b63", marginTop: 4 }}>扫码后先登记企业信息，再继续体验产品。</div>
-            </div>
           </div>
         </div>
 
         {!submitted ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
-            <div style={{
-              background: "rgba(255,154,60,0.1)",
-              border: "1px solid rgba(232,117,10,0.16)",
-              borderRadius: 14,
-              padding: "11px 12px",
-              fontSize: 12.5,
-              lineHeight: 1.65,
-              color: "#9a6c3b",
-            }}>
-              已模拟微信授权：系统会自动带出昵称和手机号，用户只需补充企业名称并确认即可完成首次登记。
-            </div>
             <button
               onClick={handleSubmit}
               disabled={!isComplete}
@@ -1059,7 +1032,7 @@ function SalesQrRegisterModal({
                 boxShadow: isComplete ? "0 10px 22px rgba(232,117,10,0.22)" : "none",
               }}
             >
-              确认企业信息并继续
+              确认
             </button>
           </div>
         ) : (
