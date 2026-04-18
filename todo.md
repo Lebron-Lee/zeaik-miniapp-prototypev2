@@ -345,3 +345,7 @@
 - [ ] CurrentTaskPage：核查当前工作页培训会话气泡与首页“立即培训”会话卡片的样式差异
 - [ ] CurrentTaskPage：统一 AI、用户、结果卡片及辅助按钮的视觉样式，使其与首页培训会话保持一致
 - [ ] CurrentTaskPage：完成样式统一后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查培训首卡外层浅蓝背景是否仍包裹后续会话流卡片
+- [ ] CurrentTaskPage：将培训首卡与后续会话流拆开，避免整段内容被同一背景容器包裹
+- [ ] CurrentTaskPage：删除每个会话卡片中的重复“培训助手”提示文案或标签
+- [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点

@@ -408,12 +408,12 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
     if (!trainingPanelOpen) return null;
 
     return (
-      <div style={{ marginTop: 12, background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
-        <div style={{ background: "#fff", borderRadius: 14, padding: "12px", display: "flex", flexDirection: "column", gap: 10, border: "1px solid rgba(59,91,219,0.1)", boxShadow: "0 1px 3px rgba(59,91,219,0.06)" }}>
-          {trainingMessages.map((message) => {
+      <div style={{ marginTop: 12, marginBottom: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+        {trainingMessages.map((message) => {
             if (message.type === "task") {
               return (
-                <div key={message.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: "1px solid #F5F5F5", gap: 8, background: "#fff", borderRadius: 14 }}>
+                <div key={message.id} style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", gap: 8, background: "#fff", borderRadius: 14, border: "1px solid rgba(59,91,219,0.1)", boxShadow: "0 1px 3px rgba(59,91,219,0.06)" }}>
                   <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{trainingTask.id}</span>
                   <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{resolvedTrainingTask.time}</span>
                   <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{trainingTask.name}</span>
@@ -423,6 +423,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                   >
                     {trainingStarted ? (trainingFinished ? "已完成" : "继续培训") : "立即培训"}
                   </button>
+                  </div>
                 </div>
               );
             }
@@ -478,9 +479,6 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                     overflow: "hidden",
                   }}>
                     <div style={{ padding: "10px 13px", fontSize: 12.5, lineHeight: 1.7, whiteSpace: "pre-line" }}>
-                      {!isUser && (
-                        <div style={{ fontSize: 10.5, fontWeight: 700, color: message.isCorrect ? "#15803d" : "#e8750a", marginBottom: 4 }}>{message.isCorrect ? "培训助手 · 已通过" : "培训助手"}</div>
-                      )}
                       {message.text}
                     </div>
                   </div>
@@ -512,8 +510,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                 )}
               </React.Fragment>
             );
-          })}
-        </div>
+        })}
       </div>
     );
   };
