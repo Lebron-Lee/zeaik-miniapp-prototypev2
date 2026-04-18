@@ -1630,6 +1630,29 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
     });
   };
 
+  const handleRandomTrainingLibrarySelection = () => {
+    const availableQuestions = (filteredTrainingLibraryBanks.find(bank => bank.id === activeTrainingLibraryBankId)?.questions
+      ?? activeTrainingLibraryBank.questions.filter(question => {
+        if (!normalizedTrainingLibraryKeyword) return true;
+        const haystack = `${question.title} ${question.summary} ${question.keywords.join(' ')}`.toLowerCase();
+        return haystack.includes(normalizedTrainingLibraryKeyword);
+      }));
+
+    if (availableQuestions.length === 0) {
+      toast.error("当前题库下没有可随机选择的题目");
+      return;
+    }
+
+    const maxCount = Math.min(5, availableQuestions.length);
+    const targetCount = Math.max(1, Math.floor(Math.random() * maxCount) + 1);
+    const shuffledQuestions = [...availableQuestions]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, targetCount);
+
+    setSelectedTrainingLibraryQuestionIds(new Set(shuffledQuestions.map(question => question.id)));
+    toast.success(`已随机选中 ${shuffledQuestions.length} 道题`);
+  };
+
   const handleConfirmTrainingLibrarySelection = () => {
     if (selectedTrainingLibraryQuestionIds.size === 0) {
       toast.error("请先选择至少 1 道题");
@@ -2428,13 +2451,6 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
                       <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
                         <div style={{ fontSize: 13.5, fontWeight: 700, color: "#2d2040", lineHeight: 1.45 }}>{question.title}</div>
                         <div style={{ fontSize: 12, color: "#8d7865", lineHeight: 1.6 }}>{question.summary}</div>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {question.keywords.map(keyword => (
-                            <span key={keyword} style={{ padding: "4px 7px", borderRadius: 999, background: "rgba(255,248,241,0.96)", border: "1px solid rgba(232,117,10,0.12)", fontSize: 11, color: "#9a6334" }}>
-                              {keyword}
-                            </span>
-                          ))}
-                        </div>
                       </div>
                     </div>
                   </button>
@@ -2448,14 +2464,22 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             </div>
             <div style={{ padding: "12px 16px 18px", borderTop: "1px solid rgba(232,117,10,0.08)", background: "rgba(255,250,246,0.96)" }}>
               <div style={{ fontSize: 11.5, color: "#8d7865", lineHeight: 1.6, marginBottom: 10 }}>
-                已选 {selectedTrainingLibraryQuestionIds.size} 道题。系统会自动总结培训主题，并在下一步直接进入“培训需求已确认”。
+                已选 {selectedTrainingLibraryQuestionIds.size} 道题
               </div>
-              <button
-                onClick={handleConfirmTrainingLibrarySelection}
-                style={{ width: "100%", borderRadius: 16, border: "none", background: "linear-gradient(135deg, #ff9a3c, #e8750a)", color: "#fff", fontSize: 14, fontWeight: 800, padding: "12px 14px", boxShadow: "0 10px 20px rgba(232,117,10,0.18)" }}
-              >
-                确认题目并继续
-              </button>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={handleRandomTrainingLibrarySelection}
+                  style={{ flex: 1, borderRadius: 16, border: "1px solid rgba(232,117,10,0.16)", background: "rgba(255,255,255,0.96)", color: "#c45e00", fontSize: 14, fontWeight: 700, padding: "12px 14px" }}
+                >
+                  随机
+                </button>
+                <button
+                  onClick={handleConfirmTrainingLibrarySelection}
+                  style={{ flex: 1.4, borderRadius: 16, border: "none", background: "linear-gradient(135deg, #ff9a3c, #e8750a)", color: "#fff", fontSize: 14, fontWeight: 800, padding: "12px 14px", boxShadow: "0 10px 20px rgba(232,117,10,0.18)" }}
+                >
+                  确认
+                </button>
+              </div>
             </div>
           </div>
         </div>
