@@ -349,3 +349,7 @@
 - [ ] CurrentTaskPage：将培训首卡与后续会话流拆开，避免整段内容被同一背景容器包裹
 - [ ] CurrentTaskPage：删除每个会话卡片中的重复“培训助手”提示文案或标签
 - [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查“查看提示 / 跳过此题”当前是否仍挂在题目状态下方而非答错反馈卡片中
+- [ ] CurrentTaskPage：将两个辅助按钮移动到“思路是对的，但还差一个关键点，再想想？”这一类答错反馈卡片内部
+- [ ] CurrentTaskPage：确保只有回答不正确时才展示这两个提醒按钮
+- [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点

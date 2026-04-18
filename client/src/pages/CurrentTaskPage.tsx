@@ -90,7 +90,7 @@ interface TrainingMessage {
   id: number;
   role: "ai" | "user";
   text: string;
-  type?: "task" | "question" | "result";
+  type?: "task" | "question" | "result" | "retryPrompt";
   questionIdx?: number;
   isCorrect?: boolean;
   trainingScore?: number;
@@ -280,6 +280,8 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
           id: newTrainingMessageId(),
           role: "ai",
           text: nextAttempts >= 2 ? "这道题还差一点，你可以先查看提示，再继续补充。" : "思路是对的，但还差一个关键点，再想想？",
+          type: "retryPrompt",
+          questionIdx: trainingQuestionIndex,
         },
       ]);
       return;
@@ -463,6 +465,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
 
             const isUser = message.role === "user";
             const isCurrentQuestion = message.type === "question" && message.questionIdx === trainingQuestionIndex && !trainingFinished && !trainingIsFeedback;
+            const isRetryPrompt = message.type === "retryPrompt" && message.questionIdx === trainingQuestionIndex && !trainingFinished && !trainingIsFeedback;
             return (
               <React.Fragment key={message.id}>
                 <div style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start" }}>
@@ -481,28 +484,28 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                     <div style={{ padding: "10px 13px", fontSize: 12.5, lineHeight: 1.7, whiteSpace: "pre-line" }}>
                       {message.text}
                     </div>
+                    {isRetryPrompt && trainingAttempts > 0 && (
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "0 13px 10px" }}>
+                        <button onClick={() => setTrainingShowHint((prev) => !prev)} style={{ padding: "6px 12px", borderRadius: 16, background: "none", border: "1.5px dashed #e8750a", color: "#e8750a", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>{trainingShowHint ? "收起提示" : "查看提示"}</button>
+                        <button onClick={() => {
+                          const nextIndex = trainingQuestionIndex + 1;
+                          setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "user", text: "跳过此题" }, { id: newTrainingMessageId(), role: "ai", text: `已跳过第 ${trainingQuestionIndex + 1} 题，建议课后回看提示再复习。` }]);
+                          setTrainingShowHint(false);
+                          setTrainingAttempts(0);
+                          if (nextIndex < TRAINING_QUESTIONS.length) {
+                            const nextQuestion = TRAINING_QUESTIONS[nextIndex];
+                            setTrainingQuestionIndex(nextIndex);
+                            setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "ai", text: nextQuestion.aiIntro }, { id: newTrainingMessageId(), role: "ai", text: `第 ${nextIndex + 1} 题：${nextQuestion.question}`, type: "question", questionIdx: nextIndex }]);
+                          } else {
+                            setTrainingIsFeedback(true);
+                            setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "ai", text: "题目部分已经结束，请说说这次培训对你有没有帮助？" }]);
+                          }
+                        }} style={{ padding: "6px 12px", borderRadius: 16, background: "none", border: "1.5px dashed #9a8aaa", color: "#9a8aaa", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>跳过此题</button>
+                      </div>
+                    )}
                   </div>
                 </div>
-                {isCurrentQuestion && trainingAttempts > 0 && (
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 6 }}>
-                    <button onClick={() => setTrainingShowHint((prev) => !prev)} style={{ padding: "6px 12px", borderRadius: 16, background: "none", border: "1.5px dashed #e8750a", color: "#e8750a", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>{trainingShowHint ? "收起提示" : "查看提示"}</button>
-                    <button onClick={() => {
-                      const nextIndex = trainingQuestionIndex + 1;
-                      setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "user", text: "跳过此题" }, { id: newTrainingMessageId(), role: "ai", text: `已跳过第 ${trainingQuestionIndex + 1} 题，建议课后回看提示再复习。` }]);
-                      setTrainingShowHint(false);
-                      setTrainingAttempts(0);
-                      if (nextIndex < TRAINING_QUESTIONS.length) {
-                        const nextQuestion = TRAINING_QUESTIONS[nextIndex];
-                        setTrainingQuestionIndex(nextIndex);
-                        setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "ai", text: nextQuestion.aiIntro }, { id: newTrainingMessageId(), role: "ai", text: `第 ${nextIndex + 1} 题：${nextQuestion.question}`, type: "question", questionIdx: nextIndex }]);
-                      } else {
-                        setTrainingIsFeedback(true);
-                        setTrainingMessages((prev) => [...prev, { id: newTrainingMessageId(), role: "ai", text: "题目部分已经结束，请说说这次培训对你有没有帮助？" }]);
-                      }
-                    }} style={{ padding: "6px 12px", borderRadius: 16, background: "none", border: "1.5px dashed #9a8aaa", color: "#9a8aaa", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>跳过此题</button>
-                  </div>
-                )}
-                {isCurrentQuestion && trainingShowHint && (
+                {isRetryPrompt && trainingShowHint && (
                   <div style={{ margin: "0 14px 12px", padding: "10px 12px", background: "rgba(232,117,10,0.06)", border: "1px solid rgba(232,117,10,0.2)", borderRadius: 10 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#e8750a", marginBottom: 4 }}>💡 参考提示</div>
                     <div style={{ fontSize: 12.5, lineHeight: 1.7, color: "#5a4a6a" }}>{TRAINING_QUESTIONS[trainingQuestionIndex]?.hint}</div>
