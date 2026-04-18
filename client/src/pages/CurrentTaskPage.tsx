@@ -151,7 +151,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
   const [pendingExpanded, setPendingExpanded] = useState(true);
   const [doneExpanded, setDoneExpanded] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [trainingPanelOpen, setTrainingPanelOpen] = useState(Boolean(selectedTrainingTask));
+  const [trainingPanelOpen, setTrainingPanelOpen] = useState(true);
   const [trainingStarted, setTrainingStarted] = useState(false);
   const [trainingFinished, setTrainingFinished] = useState(false);
   const [trainingQuestionIndex, setTrainingQuestionIndex] = useState(0);
@@ -159,11 +159,6 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
   const [trainingMessages, setTrainingMessages] = useState<TrainingMessage[]>([
     {
       id: 1,
-      role: "ai",
-      text: "你今天有 1 项服务流程培训待完成，建议在空档时间完成，培训结果会自动同步到当前工作记录。",
-    },
-    {
-      id: 2,
       role: "ai",
       text: "",
       type: "task",
@@ -343,16 +338,6 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
 
     return (
       <div style={{ marginTop: 12, background: "#EAF0FF", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(59,91,219,0.08)" }}>
-        <div style={{ padding: "12px 14px", borderBottom: "1px solid rgba(59,91,219,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1F2A5A" }}>当前培训</div>
-            <div style={{ fontSize: 11.5, color: "#6B7AAE", marginTop: 2 }}>会话窗口仅保留本条培训任务</div>
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#3B5BDB", background: "rgba(255,255,255,0.7)", padding: "3px 8px", borderRadius: 999 }}>
-            {trainingFinished ? "已完成" : trainingStarted ? "进行中" : "待开始"}
-          </span>
-        </div>
-
         <div style={{ padding: "12px", display: "flex", flexDirection: "column", gap: 10 }}>
           {trainingMessages.map((message) => {
             if (message.type === "task") {
@@ -412,77 +397,6 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
   // ── 当前工作内容 ──
   const renderCurrentWork = () => (
     <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 0" }}>
-      <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-        {displayTasks.map((task, index) => {
-          const isTrainingTask = Boolean(task.isTraining);
-          const actionLabel = isTrainingTask
-            ? trainingFinished ? "回看" : trainingStarted ? "继续" : "进入"
-            : submittedIds.includes(task.id) ? "已提交" : "申诉";
-
-          return (
-            <div
-              key={task.id}
-              onClick={isTrainingTask ? openTrainingPanel : undefined}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "14px 14px",
-                borderBottom: index < tasks.length - 1 ? "1px solid #F0F0F0" : "none",
-                gap: 8,
-                background: isTrainingTask && trainingPanelOpen ? "#F5F8FF" : "transparent",
-                cursor: isTrainingTask ? "pointer" : "default",
-              }}
-            >
-              <span style={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                background: task.isNow || isTrainingTask ? "#3B5BDB" : "#E8EAED",
-                color: task.isNow || isTrainingTask ? "#fff" : "#888",
-                fontSize: 11,
-                fontWeight: 600,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}>{task.id}</span>
-              <span style={{ width: 36, fontSize: 12, color: "#878787", fontWeight: task.isNow ? 600 : 400, flexShrink: 0, textAlign: "center" }}>{task.time || "—"}</span>
-              <span style={{ flex: 1, fontSize: 14, color: "#1A1A1A", fontWeight: isTrainingTask ? 700 : 500 }}>
-                {task.name}
-              </span>
-              <span
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onOpenQuotaDetail?.(task.code);
-                }}
-                style={{ fontSize: 12, color: "#3B5BDB", marginRight: 6, flexShrink: 0, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2, cursor: "pointer" }}
-              >
-                {task.code}
-              </span>
-              {isTrainingTask ? (
-                <button
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    openTrainingPanel();
-                  }}
-                  style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
-                >
-                  {actionLabel}
-                </button>
-              ) : task.canSubmit && !submittedIds.includes(task.id) ? (
-                <button
-                  onClick={() => handleSubmit(task.id)}
-                  style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
-                >申诉</button>
-              ) : submittedIds.includes(task.id) ? (
-                <span style={{ fontSize: 11, color: "#52C41A", flexShrink: 0 }}>已提交</span>
-              ) : (
-                <button style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>申诉</button>
-              )}
-            </div>
-          );
-        })}
-      </div>
       {renderTrainingPanel()}
     </div>
   );
