@@ -415,6 +415,7 @@ interface TrainingLibraryQuestion {
   id: string;
   title: string;
   summary: string;
+  answer: string;
   keywords: string[];
 }
 
@@ -457,11 +458,14 @@ const TRAINING_LIBRARY_BANKS: TrainingLibraryBank[] = [
     description: "聚焦入岗第一周最容易出错的服务礼仪、迎宾流程与基本动作。",
     tag: "入岗必练",
     questions: [
-      { id: "new-1", title: "新员工礼仪：迎宾前三句话怎么说？", summary: "覆盖问候语、站姿和引导手势。", keywords: ["新员工礼仪", "迎宾", "服务话术"] },
-      { id: "new-2", title: "临时工上岗前需要完成哪些卫生检查？", summary: "检查工服、手部卫生与台面清洁。", keywords: ["临时工", "卫生检查", "上岗"] },
-      { id: "new-3", title: "顾客高峰期如何快速确认点单信息？", summary: "训练复述确认和加单提醒动作。", keywords: ["点单确认", "高峰期", "新员工"] },
-      { id: "new-4", title: "遇到不会回答的问题时应如何向上求助？", summary: "明确向店长和值班经理求助路径。", keywords: ["求助", "新员工", "门店协同"] },
-      { id: "new-5", title: "餐前五分钟需要完成哪些岗位准备？", summary: "围绕备餐、设备与站位检查。", keywords: ["餐前准备", "新员工", "岗位动作"] },
+      { id: "new-1", title: "新员工礼仪：迎宾前三句话怎么说？", summary: "覆盖问候语、站姿和引导手势。", answer: "答案｜微笑问候“欢迎光临”，随后确认人数与用餐需求，最后用手势引导入座并提醒地面台阶。", keywords: ["新员工礼仪", "迎宾", "服务话术"] },
+      { id: "new-2", title: "临时工上岗前需要完成哪些卫生检查？", summary: "检查工服、手部卫生与台面清洁。", answer: "答案｜先检查工服与工牌是否整洁，再完成洗手消毒，最后确认台面、托盘和抹布处于可用洁净状态。", keywords: ["临时工", "卫生检查", "上岗"] },
+      { id: "new-3", title: "顾客高峰期如何快速确认点单信息？", summary: "训练复述确认和加单提醒动作。", answer: "答案｜下单后要复述菜品、份数和特殊要求，提醒顾客核对漏项，并告知加单可直接呼叫服务员。", keywords: ["点单确认", "高峰期", "新员工"] },
+      { id: "new-4", title: "遇到不会回答的问题时应如何向上求助？", summary: "明确向店长和值班经理求助路径。", answer: "答案｜先向顾客说明“我帮您马上确认”，随后联系值班经理或店长，不擅自承诺超出权限的内容。", keywords: ["求助", "新员工", "门店协同"] },
+      { id: "new-5", title: "餐前五分钟需要完成哪些岗位准备？", summary: "围绕备餐、设备与站位检查。", answer: "答案｜确认备餐物料、设备电源与点单系统正常，检查个人站位和责任区域，再等待第一波顾客进店。", keywords: ["餐前准备", "新员工", "岗位动作"] },
+      { id: "new-6", title: "顾客入座后第一杯水应该在多久内送达？", summary: "用于训练新员工的桌面开场节奏。", answer: "答案｜通常应在顾客入座后 1 分钟内完成上水，同时同步介绍点单方式与当日推荐。", keywords: ["上水", "服务节奏", "新员工"] },
+      { id: "new-7", title: "第一次巡台时要重点看哪三个细节？", summary: "帮助新员工建立巡台观察顺序。", answer: "答案｜重点看顾客是否已开吃、桌面餐具是否齐全，以及是否需要加水、纸巾或额外调料。", keywords: ["巡台", "观察", "服务细节"] },
+      { id: "new-8", title: "临时工在传菜时最容易出错的两个动作是什么？", summary: "聚焦传菜安全与报菜名动作。", answer: "答案｜一是端托盘时身体重心不稳，二是上菜时未报菜名也未确认桌号，容易造成误上或撒漏。", keywords: ["传菜", "临时工", "动作规范"] },
     ],
   },
   {
@@ -470,11 +474,14 @@ const TRAINING_LIBRARY_BANKS: TrainingLibraryBank[] = [
     description: "聚焦门店规章制度、奖惩边界与团队协同文化。",
     tag: "制度文化",
     questions: [
-      { id: "culture-1", title: "门店迟到早退的上报与记录规则是什么？", summary: "覆盖班次纪律与异常报备。", keywords: ["制度", "考勤", "上报"] },
-      { id: "culture-2", title: "遇到顾客投诉时，团队协同的标准顺序是什么？", summary: "强调先安抚顾客，再同步管理岗。", keywords: ["制度", "投诉", "协同"] },
-      { id: "culture-3", title: "门店文化中“先解决问题”体现在哪些动作？", summary: "用真实场景理解服务文化。", keywords: ["文化", "服务意识", "团队"] },
-      { id: "culture-4", title: "交接班信息遗漏会带来哪些经营风险？", summary: "覆盖值班日志与责任传递。", keywords: ["交接班", "制度", "风险"] },
-      { id: "culture-5", title: "员工如何在班前会中快速对齐当日重点？", summary: "围绕晨会口径和任务传达。", keywords: ["班前会", "文化", "晨会"] },
+      { id: "culture-1", title: "门店迟到早退的上报与记录规则是什么？", summary: "覆盖班次纪律与异常报备。", answer: "答案｜员工需第一时间在班组群报备并说明原因，到店后由值班负责人登记，连续异常要进入班前复盘。", keywords: ["制度", "考勤", "上报"] },
+      { id: "culture-2", title: "遇到顾客投诉时，团队协同的标准顺序是什么？", summary: "强调先安抚顾客，再同步管理岗。", answer: "答案｜先由现场员工安抚顾客情绪，再同步值班经理介入处理，最后在班后复盘并形成记录。", keywords: ["制度", "投诉", "协同"] },
+      { id: "culture-3", title: "门店文化中“先解决问题”体现在哪些动作？", summary: "用真实场景理解服务文化。", answer: "答案｜不推诿、不争辩，先帮顾客解决当前体验问题，再回到内部追责和流程优化。", keywords: ["文化", "服务意识", "团队"] },
+      { id: "culture-4", title: "交接班信息遗漏会带来哪些经营风险？", summary: "覆盖值班日志与责任传递。", answer: "答案｜会造成库存断层、顾客投诉遗漏、设备异常无人跟进，还会让责任边界不清晰。", keywords: ["交接班", "制度", "风险"] },
+      { id: "culture-5", title: "员工如何在班前会中快速对齐当日重点？", summary: "围绕晨会口径和任务传达。", answer: "答案｜围绕今日客流、主推菜品、风险提醒和岗位分工四项进行 3 分钟快对齐，确保每个人都能复述重点。", keywords: ["班前会", "文化", "晨会"] },
+      { id: "culture-6", title: "为什么门店要求先复盘事实，再讨论责任？", summary: "帮助团队建立一致的复盘文化。", answer: "答案｜先对齐事实可以减少情绪化争执，让团队先找到问题根因，再决定责任与改进动作。", keywords: ["复盘", "文化", "责任"] },
+      { id: "culture-7", title: "门店内部出现跨岗位支援时，优先遵守什么规则？", summary: "用于训练协同边界与服从顺序。", answer: "答案｜优先服从当班负责人调度，先保顾客体验与出餐效率，再补齐本岗位未完成事项。", keywords: ["支援", "协同", "调度"] },
+      { id: "culture-8", title: "什么情况下必须立刻上报，不允许自行处理？", summary: "明确制度红线与升级路径。", answer: "答案｜涉及食品安全、顾客受伤、现金差异、设备安全事故等情形，必须第一时间上报管理岗。", keywords: ["上报", "红线", "制度"] },
     ],
   },
   {
@@ -483,11 +490,14 @@ const TRAINING_LIBRARY_BANKS: TrainingLibraryBank[] = [
     description: "聚焦服务、出品、收银等岗位的标准动作与实操技能。",
     tag: "岗位技能",
     questions: [
-      { id: "skill-1", title: "收银找零时必须复述哪三项关键信息？", summary: "强调金额确认与顾客二次核对。", keywords: ["收银", "技能", "金额确认"] },
-      { id: "skill-2", title: "后厨出品前如何完成效期与留样复检？", summary: "覆盖留样、效期和标签。", keywords: ["后厨", "留样", "效期"] },
-      { id: "skill-3", title: "新员工礼仪：托盘服务的动作标准是什么？", summary: "围绕站姿、转身和上菜动作。", keywords: ["新员工礼仪", "托盘", "服务动作"] },
-      { id: "skill-4", title: "高峰时段如何进行分区巡台与异常预警？", summary: "训练巡台节奏与优先级判断。", keywords: ["巡台", "高峰期", "服务标准"] },
-      { id: "skill-5", title: "饮品制作中如何避免配方遗漏与返工？", summary: "适用于饮品岗位的流程复核。", keywords: ["饮品", "配方", "技能"] },
+      { id: "skill-1", title: "收银找零时必须复述哪三项关键信息？", summary: "强调金额确认与顾客二次核对。", answer: "答案｜需复述消费总额、顾客支付金额和找零金额，必要时再确认是否需要发票或小票。", keywords: ["收银", "技能", "金额确认"] },
+      { id: "skill-2", title: "后厨出品前如何完成效期与留样复检？", summary: "覆盖留样、效期和标签。", answer: "答案｜先看效期标签是否在有效期内，再检查留样记录完整，最后确认菜品标签与实际出品一致。", keywords: ["后厨", "留样", "效期"] },
+      { id: "skill-3", title: "新员工礼仪：托盘服务的动作标准是什么？", summary: "围绕站姿、转身和上菜动作。", answer: "答案｜托盘保持胸口以下、肩膀放松，转身时先撤半步避让顾客，上菜前先报菜名再稳托落台。", keywords: ["新员工礼仪", "托盘", "服务动作"] },
+      { id: "skill-4", title: "高峰时段如何进行分区巡台与异常预警？", summary: "训练巡台节奏与优先级判断。", answer: "答案｜每轮巡台优先处理催菜、缺品和桌面清理，同时把需升级处理的问题同步给值班负责人。", keywords: ["巡台", "高峰期", "服务标准"] },
+      { id: "skill-5", title: "饮品制作中如何避免配方遗漏与返工？", summary: "适用于饮品岗位的流程复核。", answer: "答案｜按照杯型、糖冰、辅料和封口四步复核，出杯前再次比对小票，减少返工。", keywords: ["饮品", "配方", "技能"] },
+      { id: "skill-6", title: "收台时餐具与垃圾的分离顺序是什么？", summary: "用于训练收台效率与卫生风险控制。", answer: "答案｜先撤明显垃圾，再按玻璃器皿、金属餐具、瓷器餐具分开回收，最后擦桌消毒并复位。", keywords: ["收台", "卫生", "技能"] },
+      { id: "skill-7", title: "如何在 30 秒内完成一道菜的推荐话术？", summary: "锻炼服务员的产品推荐能力。", answer: "答案｜先说这道菜的特色，再给出适合人群或搭配建议，最后补一句销量或口味反馈。", keywords: ["推荐话术", "加点", "服务技能"] },
+      { id: "skill-8", title: "遇到 POS 卡顿时，收银岗位的应急步骤是什么？", summary: "强化设备异常下的岗位动作。", answer: "答案｜先安抚顾客并暂停新单录入，再通知店长或值班经理处理，同时使用备用记录方式保障订单不丢失。", keywords: ["POS", "应急", "收银"] },
     ],
   },
   {
@@ -496,11 +506,14 @@ const TRAINING_LIBRARY_BANKS: TrainingLibraryBank[] = [
     description: "聚焦节假日大促、食品安全、突发客诉等专项培训主题。",
     tag: "专项强化",
     questions: [
-      { id: "special-1", title: "节假日高峰时如何安排迎宾分流？", summary: "覆盖排队安抚与动线管理。", keywords: ["节假日", "迎宾", "高峰"] },
-      { id: "special-2", title: "食品安全突发事件的第一响应是什么？", summary: "训练封存、上报与顾客沟通。", keywords: ["食品安全", "突发事件", "上报"] },
-      { id: "special-3", title: "外卖催单集中出现时如何稳定门店节奏？", summary: "覆盖前后厨协同与时间承诺。", keywords: ["外卖", "催单", "专项"] },
-      { id: "special-4", title: "临时工在大型活动日应重点关注哪些禁忌？", summary: "适合活动场景临时补训。", keywords: ["临时工", "活动日", "专项"] },
-      { id: "special-5", title: "顾客连续追问优惠规则时如何统一口径？", summary: "强调促销政策与话术统一。", keywords: ["优惠规则", "统一口径", "专项"] },
+      { id: "special-1", title: "节假日高峰时如何安排迎宾分流？", summary: "覆盖排队安抚与动线管理。", answer: "答案｜设置迎宾、叫号和引导三类角色，先安抚排队顾客，再根据桌型与翻台情况动态分流。", keywords: ["节假日", "迎宾", "高峰"] },
+      { id: "special-2", title: "食品安全突发事件的第一响应是什么？", summary: "训练封存、上报与顾客沟通。", answer: "答案｜第一时间停止相关产品售卖并封存样品，同步管理岗和总部质控，再统一对外沟通口径。", keywords: ["食品安全", "突发事件", "上报"] },
+      { id: "special-3", title: "外卖催单集中出现时如何稳定门店节奏？", summary: "覆盖前后厨协同与时间承诺。", answer: "答案｜优先区分已出餐和待出餐订单，对外卖平台统一更新时间，对内重新调配出品与打包节奏。", keywords: ["外卖", "催单", "专项"] },
+      { id: "special-4", title: "临时工在大型活动日应重点关注哪些禁忌？", summary: "适合活动场景临时补训。", answer: "答案｜不得私自改动动线、不可独自处理客诉，不清楚规则时必须立即上报带教人员。", keywords: ["临时工", "活动日", "专项"] },
+      { id: "special-5", title: "顾客连续追问优惠规则时如何统一口径？", summary: "强调促销政策与话术统一。", answer: "答案｜先按活动海报或系统口径解释，再复述适用条件，如仍有争议立即请管理岗接手。", keywords: ["优惠规则", "统一口径", "专项"] },
+      { id: "special-6", title: "门店突发停电时，现场服务应先处理什么？", summary: "用于训练门店突发事件处置顺序。", answer: "答案｜先保障顾客安全与照明疏导，再暂停下单与出品，随后由负责人统一安排解释、退款或继续服务。", keywords: ["停电", "突发事件", "专项"] },
+      { id: "special-7", title: "大型团餐到店前 15 分钟，前厅应完成哪些准备？", summary: "适用于活动或预订集中接待。", answer: "答案｜提前核对桌型、上菜节奏、冷菜备齐情况和迎宾口径，确保顾客到店后可快速落座。", keywords: ["团餐", "接待", "专项"] },
+      { id: "special-8", title: "客诉升级到短视频平台时，门店现场怎么配合？", summary: "强化舆情场景下的一线动作。", answer: "答案｜现场员工不私自拍摄或回应，保留事实记录并及时上报，由授权负责人统一对外处理。", keywords: ["客诉", "舆情", "专项"] },
     ],
   },
 ];
@@ -1634,7 +1647,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
     const availableQuestions = (filteredTrainingLibraryBanks.find(bank => bank.id === activeTrainingLibraryBankId)?.questions
       ?? activeTrainingLibraryBank.questions.filter(question => {
         if (!normalizedTrainingLibraryKeyword) return true;
-        const haystack = `${question.title} ${question.summary} ${question.keywords.join(' ')}`.toLowerCase();
+        const haystack = `${question.title} ${question.summary} ${question.answer} ${question.keywords.join(' ')}`.toLowerCase();
         return haystack.includes(normalizedTrainingLibraryKeyword);
       }));
 
@@ -2248,9 +2261,9 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
                       <div style={{ fontSize: 12, color: "#9b7f69" }}>培训题目</div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
                         {(selectedTrainingLibraryQuestions.length > 0 ? selectedTrainingLibraryQuestions : [
-                          { id: "auto-1", title: "服务标准执行是否到位？", summary: "", keywords: [] },
-                          { id: "auto-2", title: "异常情况上报路径是否清晰？", summary: "", keywords: [] },
-                          { id: "auto-3", title: "岗位协同动作是否形成统一口径？", summary: "", keywords: [] },
+                          { id: "auto-1", title: "服务标准执行是否到位？", summary: "", answer: "答案｜围绕门店服务动作、站位节奏与顾客反馈进行抽查。", keywords: [] },
+                          { id: "auto-2", title: "异常情况上报路径是否清晰？", summary: "", answer: "答案｜重点确认员工能否在异常发生后第一时间同步对应管理岗。", keywords: [] },
+                          { id: "auto-3", title: "岗位协同动作是否形成统一口径？", summary: "", answer: "答案｜检查前厅、后厨和值班岗是否对关键动作使用同一套处理标准。", keywords: [] },
                         ]).map(question => (
                           <div
                             key={question.id}
@@ -2428,7 +2441,7 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
               {(filteredTrainingLibraryBanks.find(bank => bank.id === activeTrainingLibraryBankId)?.questions ?? activeTrainingLibraryBank.questions.filter(question => {
                 if (!normalizedTrainingLibraryKeyword) return true;
-                const haystack = `${question.title} ${question.summary} ${question.keywords.join(' ')}`.toLowerCase();
+                const haystack = `${question.title} ${question.summary} ${question.answer} ${question.keywords.join(' ')}`.toLowerCase();
                 return haystack.includes(normalizedTrainingLibraryKeyword);
               })).map(question => {
                 const selected = selectedTrainingLibraryQuestionIds.has(question.id);
@@ -2447,11 +2460,11 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                      <div style={{ width: 18, height: 18, marginTop: 1, borderRadius: 999, flexShrink: 0, border: selected ? "1px solid #e8750a" : "1px solid rgba(143,107,71,0.3)", background: selected ? "#e8750a" : "#fff", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{selected ? "✓" : ""}</div>
-                      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
                         <div style={{ fontSize: 13.5, fontWeight: 700, color: "#2d2040", lineHeight: 1.45 }}>{question.title}</div>
-                        <div style={{ fontSize: 12, color: "#8d7865", lineHeight: 1.6 }}>{question.summary}</div>
+                        <div style={{ fontSize: 12, color: "#8d7865", lineHeight: 1.55 }}>{question.answer}</div>
                       </div>
+                      <div style={{ width: 22, height: 22, marginTop: 2, borderRadius: 999, flexShrink: 0, border: selected ? "1px solid #e8750a" : "1px solid rgba(143,107,71,0.3)", background: selected ? "#e8750a" : "#fff", color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{selected ? "✓" : ""}</div>
                     </div>
                   </button>
                 );
