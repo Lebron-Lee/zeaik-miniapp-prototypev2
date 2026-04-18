@@ -1696,6 +1696,14 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     );
   };
 
+  const getVoiceQuestionStartTick = (questions: string[], index: number, baseTick = 8, gapTick = 7, charsPerTick = 1.15) => {
+    let tick = baseTick;
+    for (let i = 0; i < index; i += 1) {
+      tick += Math.ceil(questions[i].length / charsPerTick) + gapTick;
+    }
+    return tick;
+  };
+
   // 渲染消息内容（支持Markdown粗体）
   const renderText = (text: string) => {
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
@@ -2608,32 +2616,15 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                             题库：{msg.voiceKnowledgeConfirmCard.bankTitle}
                           </span>
                         </div>
-                        <div style={{ borderRadius: 13, background: "rgba(255,255,255,0.9)", border: "1px solid rgba(241,214,190,0.72)", padding: "10px 10px 9px", marginBottom: 10, animation: "thinkingFade 0.45s ease 0.08s both" }}>
-                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>识别文本</div>
-                          <div style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.6 }}>{renderVoiceTypedText(msg.voiceKnowledgeConfirmCard.recognizedText, 2, 1.35, msg.voiceKnowledgeConfirmCard.status === "pending")}</div>
-                        </div>
                         <div style={{ borderRadius: 13, background: "rgba(255,248,241,0.9)", border: "1px solid rgba(241,214,190,0.68)", padding: "10px 10px 9px", marginBottom: 10, animation: "thinkingFade 0.45s ease 0.22s both" }}>
-                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析过程</div>
-                          <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 10 }}>
-                            {msg.voiceKnowledgeConfirmCard.parsingSteps.map((step, index) => (
-                              <div key={`${msg.id}-step-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start", animation: `thinkingFade 0.4s ease ${0.36 + index * 0.12}s both` }}>
-                                <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(255,154,60,0.14)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                  {index + 1}
-                                </span>
-                                <span style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.55 }}>{renderVoiceTypedText(step, 12 + index * 10, 1.3, msg.voiceKnowledgeConfirmCard!.status === "pending", "#5b4739")}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>解析结论</div>
-                          <div style={{ fontSize: 12.5, color: "#5b4739", lineHeight: 1.6, marginBottom: 10 }}>{renderVoiceTypedText(msg.voiceKnowledgeConfirmCard.analysisSummary, 46, 1.25, msg.voiceKnowledgeConfirmCard.status === "pending", "#5b4739")}</div>
                           <div style={{ fontSize: 11.5, color: "#9a7c62", fontWeight: 700, marginBottom: 6 }}>输出题目</div>
                           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                             {msg.voiceKnowledgeConfirmCard.questionPreview.map((question, index) => (
-                              <div key={`${msg.id}-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start", animation: `thinkingFade 0.4s ease ${0.82 + index * 0.12}s both` }}>
+                              <div key={`${msg.id}-${index}`} style={{ display: "flex", gap: 7, alignItems: "flex-start", animation: `thinkingFade 0.4s ease ${0.24 + index * 0.12}s both` }}>
                                 <span style={{ marginTop: 1, width: 18, height: 18, borderRadius: 999, background: "rgba(232,117,10,0.1)", color: "#c15f08", fontSize: 10.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                   {index + 1}
                                 </span>
-                                <span style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{renderVoiceTypedText(question, 60 + index * 12, 1.25, msg.voiceKnowledgeConfirmCard!.status === "pending")}</span>
+                                <span style={{ fontSize: 12.5, color: "#4f4135", lineHeight: 1.5 }}>{renderVoiceTypedText(question, getVoiceQuestionStartTick(msg.voiceKnowledgeConfirmCard!.questionPreview, index), 1.15, msg.voiceKnowledgeConfirmCard!.status === "pending")}</span>
                               </div>
                             ))}
                           </div>
