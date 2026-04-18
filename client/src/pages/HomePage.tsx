@@ -1414,6 +1414,52 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
+  const handleTrainingLaunchVoiceCapture = () => {
+    const voiceSnippets = [
+      "今天晨会重点强调三件事：迎宾先微笑，点单要复述，异常情况 30 秒内上报值班经理。",
+      "领导补充要求：高峰期收银与迎宾要分岗协作，避免顾客排队超过两分钟。",
+      "店长强调：后厨出餐慢时，前厅必须先安抚顾客并同步预计等待时间。",
+    ];
+    const analysisSummaries = [
+      "已提炼为服务标准、异常上报、岗位协同 3 个知识点，并生成 6 道情境题。",
+      "已拆解为晨会口径、岗位动作、风险提醒 3 个解析模块，并生成 5 道培训题。",
+      "已整理为门店执行要点、管理要求、顾客沟通话术 3 类题目素材，并生成 6 道题库条目。",
+    ];
+    const recognized = voiceSnippets[Math.floor(Math.random() * voiceSnippets.length)];
+    const analysis = analysisSummaries[Math.floor(Math.random() * analysisSummaries.length)];
+    const simulatedIntent = "对领导讲话进行碎片录音，自动沉淀培训题目";
+    const simulatedGoal = `录音完成后进行知识记录与解析，进入对应题库形成培训题目累积。最新解析：${analysis}`;
+    const audioRecord = {
+      name: `领导讲话录音_${new Date().getMonth() + 1}${new Date().getDate()}_${String(new Date().getHours()).padStart(2, "0")}${String(new Date().getMinutes()).padStart(2, "0")}.m4a`,
+      sizeLabel: "语音解析",
+    };
+    const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
+
+    setIsVoiceMode(true);
+    setIsVoiceHolding(true);
+    window.setTimeout(() => setIsVoiceHolding(false), 700);
+    setTrainingLaunchIntent(prev => prev.trim() || simulatedIntent);
+    setTrainingLaunchGoal(simulatedGoal);
+    setTrainingLaunchUploadedFiles(prev => [audioRecord, ...prev.filter(file => file.name !== audioRecord.name)].slice(0, 3));
+    setInputText(recognized);
+    setChatMode(true);
+    setMessages(prev => [
+      ...prev,
+      {
+        id: msgIdRef.current++,
+        role: "user",
+        text: `碎片录音：${recognized}`,
+      },
+      {
+        id: msgIdRef.current++,
+        role: "ai",
+        text: `已完成这段领导讲话的知识记录与解析。${analysis} 当前内容已归入「${recommendedBankTitle}」，后续继续录音会自动累计到同一题库。`,
+      },
+    ]);
+    toast.success("录音已转为知识记录，并同步进入题库累积");
+    setTimeout(() => inputRef.current?.focus(), 120);
+  };
+
   // 语音按住说话
   const handleVoiceStart = () => setIsVoiceHolding(true);
   const handleVoiceEnd = () => {
@@ -1589,7 +1635,7 @@ export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn 
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-start" }}>
                     {[
                       { label: "资料库", onClick: () => toast.info("资料库功能即将开放") },
-                      { label: "录音", onClick: () => toast.info("录音功能即将开放") },
+                      { label: "录音", onClick: handleTrainingLaunchVoiceCapture },
                       { label: "上传", onClick: handleTrainingLaunchUploadTrigger },
                     ].map(action => (
                       <button
