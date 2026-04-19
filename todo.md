@@ -415,3 +415,9 @@
 - [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与紧凑布局
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查分组标题右侧是否尚未提供收起按钮
+- [ ] TrainingDetailPage：为掌握／提升中／未掌握分组标题增加右侧收起按钮
+- [ ] TrainingDetailPage：美化词云气泡样式，提升层次、光泽与轻盈感
+- [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与紧凑布局
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果
