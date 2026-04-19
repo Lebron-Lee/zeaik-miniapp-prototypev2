@@ -426,3 +426,9 @@
 - [ ] TrainingDetailPage：确认删除后详情页蓝白主题与交互结构不受影响
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查 title 区域当前是否仍为白底而非蓝色
+- [ ] TrainingDetailPage：核查用户要求删除的区块在当前结构中的对应位置
+- [ ] TrainingDetailPage：将内容示例改为员工吐槽点表达与示例词条
+- [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与整体层级协调
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果

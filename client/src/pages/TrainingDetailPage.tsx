@@ -37,13 +37,13 @@ const DETAIL_DATA: Record<
   1: {
     feedbackCount: 18,
     words: [
-      { text: "更接地气", size: 20, tone: "orange" },
-      { text: "案例清楚", size: 18, tone: "blue" },
-      { text: "能直接上手", size: 24, tone: "orange" },
-      { text: "想多看示范", size: 16, tone: "neutral" },
-      { text: "记忆点强", size: 17, tone: "green" },
-      { text: "适合早会复盘", size: 15, tone: "blue" },
-      { text: "希望增加错题回顾", size: 14, tone: "neutral" },
+      { text: "题太多了", size: 20, tone: "orange" },
+      { text: "讲得有点快", size: 18, tone: "blue" },
+      { text: "想看真实示范", size: 24, tone: "orange" },
+      { text: "门店太忙没空学", size: 16, tone: "neutral" },
+      { text: "案例还不够像现场", size: 17, tone: "green" },
+      { text: "希望错题直接讲透", size: 15, tone: "blue" },
+      { text: "想要更短一点", size: 14, tone: "neutral" },
     ],
     mastered: [
       { id: 1, name: "张敏", role: "店长", score: 98, note: "反馈完整，能举一反三" },
@@ -63,11 +63,11 @@ const DETAIL_DATA: Record<
   2: {
     feedbackCount: 9,
     words: [
-      { text: "流程更清晰", size: 20, tone: "orange" },
-      { text: "适合开档前看", size: 17, tone: "green" },
-      { text: "再加照片更好", size: 15, tone: "neutral" },
-      { text: "提醒及时", size: 16, tone: "blue" },
-      { text: "责任点明确", size: 22, tone: "orange" },
+      { text: "步骤有点绕", size: 20, tone: "orange" },
+      { text: "开档前根本来不及看完", size: 17, tone: "green" },
+      { text: "最好配现场照片", size: 15, tone: "neutral" },
+      { text: "提醒能再早点", size: 16, tone: "blue" },
+      { text: "责任划分还想更清楚", size: 22, tone: "orange" },
     ],
     mastered: [
       { id: 1, name: "黄蓉", role: "店长", score: 97, note: "检查点记忆完整" },
@@ -82,11 +82,11 @@ const DETAIL_DATA: Record<
   3: {
     feedbackCount: 12,
     words: [
-      { text: "话术更自然", size: 21, tone: "orange" },
-      { text: "适合新人", size: 17, tone: "blue" },
-      { text: "再多一点场景", size: 15, tone: "neutral" },
-      { text: "记住推荐顺序", size: 19, tone: "green" },
-      { text: "转化技巧好用", size: 23, tone: "orange" },
+      { text: "话术还是像背稿", size: 21, tone: "orange" },
+      { text: "新人容易紧张", size: 17, tone: "blue" },
+      { text: "想多一点拒绝场景", size: 15, tone: "neutral" },
+      { text: "推荐顺序总记混", size: 19, tone: "green" },
+      { text: "转化技巧需要演示", size: 23, tone: "orange" },
     ],
     mastered: [
       { id: 1, name: "韩雪", role: "店长", score: 95, note: "推荐逻辑顺畅" },
@@ -101,12 +101,12 @@ const DETAIL_DATA: Record<
   4: {
     feedbackCount: 15,
     words: [
-      { text: "更有代入感", size: 21, tone: "orange" },
-      { text: "想看优秀示范", size: 15, tone: "neutral" },
-      { text: "礼貌用语更清楚", size: 20, tone: "blue" },
-      { text: "很适合班前会", size: 17, tone: "green" },
-      { text: "容易记住", size: 22, tone: "orange" },
-      { text: "希望加情景题", size: 14, tone: "neutral" },
+      { text: "情景还是不够真实", size: 21, tone: "orange" },
+      { text: "想看优秀员工示范", size: 15, tone: "neutral" },
+      { text: "礼貌用语太书面", size: 20, tone: "blue" },
+      { text: "班前会时间太紧", size: 17, tone: "green" },
+      { text: "重点太散不好记", size: 22, tone: "orange" },
+      { text: "需要更多投诉题", size: 14, tone: "neutral" },
     ],
     mastered: [
       { id: 1, name: "彭琳", role: "店长", score: 97, note: "礼仪规范执行稳定" },
@@ -125,11 +125,11 @@ const DETAIL_DATA: Record<
   5: {
     feedbackCount: 11,
     words: [
-      { text: "重点很明确", size: 18, tone: "orange" },
-      { text: "适合轮训", size: 15, tone: "green" },
-      { text: "还想看案例", size: 14, tone: "neutral" },
-      { text: "警示性强", size: 22, tone: "orange" },
-      { text: "容易记住高风险点", size: 19, tone: "blue" },
+      { text: "重点还可以更直白", size: 18, tone: "orange" },
+      { text: "轮训时长还是偏长", size: 15, tone: "green" },
+      { text: "还想多看门店案例", size: 14, tone: "neutral" },
+      { text: "警示有了但不够具体", size: 22, tone: "orange" },
+      { text: "高风险点太多记不住", size: 19, tone: "blue" },
     ],
     mastered: [
       { id: 1, name: "沈悦", role: "店长", score: 98, note: "风险识别准确" },
@@ -144,10 +144,10 @@ const DETAIL_DATA: Record<
   6: {
     feedbackCount: 7,
     words: [
-      { text: "适合交班前看", size: 18, tone: "orange" },
-      { text: "重点明确", size: 15, tone: "green" },
-      { text: "责任边界清楚", size: 20, tone: "blue" },
-      { text: "再多一点案例", size: 14, tone: "neutral" },
+      { text: "交班前根本没空看", size: 18, tone: "orange" },
+      { text: "重点还是有点散", size: 15, tone: "green" },
+      { text: "责任边界还会混", size: 20, tone: "blue" },
+      { text: "想再多一点案例", size: 14, tone: "neutral" },
     ],
     mastered: [
       { id: 1, name: "孔凡", role: "值班经理", score: 94, note: "交接表达完整" },
@@ -258,23 +258,20 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#F7F8FA" }}>
-      <div style={{ padding: "14px 14px 10px", background: "#fff", borderBottom: "1px solid rgba(59,91,219,0.08)" }}>
+      <div style={{ padding: "14px 14px 10px", background: "linear-gradient(180deg, #4B6BFF 0%, #3B5BDB 100%)", borderBottom: "1px solid rgba(59,91,219,0.18)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={onBack} style={{ width: 34, height: 34, borderRadius: 17, border: "none", background: "#EEF2FF", color: "#3B5BDB", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>
+          <button onClick={onBack} style={{ width: 34, height: 34, borderRadius: 17, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.16)", color: "#fff", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1, backdropFilter: "blur(8px)" }}>
             ‹
           </button>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#1A1A1A" }}>培训详情</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>培训详情</div>
           </div>
         </div>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 20px" }}>
         <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
-          <div style={{ padding: "12px 14px 10px", display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 10 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>反馈词云</span>
-          </div>
-          <div style={{ position: "relative", background: "#fff", borderRadius: "0 0 14px 14px", padding: "12px 12px 12px", display: "flex", flexWrap: "wrap", gap: 8 }}>
+          <div style={{ position: "relative", background: "#fff", borderRadius: 14, padding: "12px 12px 12px", display: "flex", flexWrap: "wrap", gap: 8 }}>
             {detail.words.map((word) => {
               const tone = toneStyle(word.tone);
               const wordCount = Math.max(3, Math.round(word.size * 0.75));
