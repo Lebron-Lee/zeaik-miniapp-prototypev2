@@ -39,13 +39,26 @@ interface StatusTask {
   hasView?: boolean;
 }
 
-const PENDING_TASKS: StatusTask[] = TRAINING_TASKS.slice(0, 4).map((task, index) => ({
-  id: task.id,
-  seq: index + 1,
-  time: task.time.replace("今天 ", "").replace("昨天 ", ""),
-  name: task.title,
-  code: `TR-${String(task.id).padStart(4, "0")}`,
-}));
+const PENDING_TASKS: StatusTask[] = TRAINING_TASKS
+  .filter((task) => task.group === "我发起的")
+  .map((task, index) => ({
+    id: task.id,
+    seq: index + 1,
+    time: task.time.replace("今天 ", "").replace("昨天 ", ""),
+    name: task.title,
+    code: `TR-${String(task.id).padStart(4, "0")}`,
+  }));
+
+const JOINED_TASKS: StatusTask[] = TRAINING_TASKS
+  .filter((task) => task.group === "我参加的")
+  .map((task, index) => ({
+    id: task.id,
+    seq: index + 1,
+    time: task.time.replace("今天 ", "").replace("昨天 ", ""),
+    name: task.title,
+    code: `TR-${String(task.id).padStart(4, "0")}`,
+  }));
+
 
 // ── 任务大厅数据 ──
 interface HallTask {
@@ -147,6 +160,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
   const [tasks, setTasks] = useState<Task[]>(CURRENT_TASKS);
   const [submittedIds, setSubmittedIds] = useState<number[]>([]);
   const [pendingExpanded, setPendingExpanded] = useState(true);
+  const [joinedExpanded, setJoinedExpanded] = useState(true);
   const [doneExpanded, setDoneExpanded] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [trainingPanelOpen, setTrainingPanelOpen] = useState(true);
@@ -528,6 +542,25 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
           <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
             {PENDING_TASKS.map((task, index) => (
               <div key={task.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: index < PENDING_TASKS.length - 1 ? "1px solid #F5F5F5" : "none", gap: 8 }}>
+                <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
+                <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
+                <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
+                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>查看</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 10px" }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>我参加的培训</span>
+          <button onClick={() => setJoinedExpanded(!joinedExpanded)} style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 20, padding: "4px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{joinedExpanded ? "收起" : "展开"}</button>
+        </div>
+        {joinedExpanded && (
+          <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
+            {JOINED_TASKS.map((task, index) => (
+              <div key={task.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: index < JOINED_TASKS.length - 1 ? "1px solid #F5F5F5" : "none", gap: 8 }}>
                 <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
                 <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
                 <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>

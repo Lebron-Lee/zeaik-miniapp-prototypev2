@@ -377,3 +377,8 @@
 - [ ] CurrentTaskPage：如时间字段仍缺失，则手动补回时间显示并保持编号字段继续隐藏
 - [ ] CurrentTaskPage：完成本轮核查后执行 pnpm exec tsc --noEmit
 - [ ] CurrentTaskPage：保存新的检查点并向用户汇报本轮调整
+- [ ] CurrentTaskPage：核查“问题清单”页是否已经存在“我参加的培训”区块
+- [ ] CurrentTaskPage：如可视化编辑未生效，则手动新增“我参加的培训清单”区块并保持与现有列表样式一致
+- [ ] CurrentTaskPage：确认新增区块的数据、文案与按钮风格和当前培训列表协调
+- [ ] CurrentTaskPage：完成本轮调整后执行 pnpm exec tsc --noEmit
+- [ ] CurrentTaskPage：保存新的检查点并向用户汇报本轮结果
