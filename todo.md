@@ -409,3 +409,9 @@
 - [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与紧凑布局
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查词云右上角人数标示是否仍为总人数文案
+- [ ] TrainingDetailPage：将词云人数调整为表达“每个词的人数”而非总人数
+- [ ] TrainingDetailPage：删除排名列表 item 中的副标题总结文案
+- [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与紧凑布局
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果

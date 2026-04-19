@@ -199,7 +199,6 @@ function GroupCard({
                 <span style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1A1A", whiteSpace: "nowrap" }}>{item.name}</span>
                 <span style={{ fontSize: 11, color: "#666", background: "#F5F7FA", borderRadius: 10, padding: "1px 6px", flexShrink: 0 }}>{item.role}</span>
               </div>
-              <div style={{ fontSize: 11.5, color: "#80838d", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.note}</div>
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#3B5BDB", flexShrink: 0 }}>{item.score}分</div>
           </div>
@@ -229,14 +228,18 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
             <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>反馈词云</span>
           </div>
           <div style={{ position: "relative", background: "#fff", borderRadius: "0 0 14px 14px", padding: "12px 12px 12px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <span style={{ position: "absolute", top: 8, right: 8, fontSize: 11, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{detail.feedbackCount} 人</span>
+            <span style={{ position: "absolute", top: 8, right: 8, fontSize: 11, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{detail.feedbackCount}</span>
             {detail.words.map((word) => {
               const tone = toneStyle(word.tone);
+              const wordCount = Math.max(3, Math.round(word.size * 0.75));
               return (
                 <span
                   key={word.text}
                   style={{
-                    padding: "6px 10px",
+                    position: "relative",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "6px 22px 6px 10px",
                     borderRadius: 999,
                     fontSize: Math.max(13, word.size - 3),
                     lineHeight: 1.15,
@@ -246,6 +249,7 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
                   }}
                 >
                   {word.text}
+                  <span style={{ position: "absolute", top: -4, right: 4, minWidth: 16, height: 16, borderRadius: 8, background: "rgba(255,255,255,0.92)", color: "#3B5BDB", fontSize: 9.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(59,91,219,0.12)" }}>{wordCount}</span>
                 </span>
               );
             })}
