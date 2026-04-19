@@ -367,3 +367,8 @@
 - [ ] CurrentTaskPage：按当前任务 item 样式恢复四条培训任务列表，并分别显示培训任务
 - [ ] CurrentTaskPage：检查底部导航“任务状态25”是否仍存在并改为“问题清单”
 - [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查“我发起的培训”标题是否已按可视化编辑正确生效
+- [ ] CurrentTaskPage：手动删除 renderTaskStatus 培训任务 item 中仍保留的时间字段 span
+- [ ] CurrentTaskPage：手动删除 renderTaskStatus 培训任务 item 中仍保留的编号字段 span
+- [ ] CurrentTaskPage：完成本轮核查后执行 pnpm exec tsc --noEmit
+- [ ] CurrentTaskPage：保存新的检查点并向用户汇报
