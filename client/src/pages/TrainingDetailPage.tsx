@@ -183,25 +183,25 @@ function GroupCard({
   } as const;
 
   return (
-    <div style={{ background: "#fff", borderRadius: 18, padding: 14, boxShadow: "0 8px 24px rgba(27,33,58,0.06)", marginBottom: 12 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: "#1f2430" }}>{title}</span>
+    <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 10px" }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>{title}</span>
         <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, ...toneMap[tone] }}>{items.length} 人</span>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
         {items.map((item, index) => (
-          <div key={`${title}-${item.id}`} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 0", borderTop: index === 0 ? "none" : "1px solid rgba(15,23,42,0.06)" }}>
-            <div style={{ width: 24, height: 24, borderRadius: 12, background: "#eef2ff", color: "#3b5bdb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+          <div key={`${title}-${item.id}`} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 12px", borderBottom: index < items.length - 1 ? "1px solid #F5F5F5" : "none" }}>
+            <div style={{ width: 20, height: 20, borderRadius: 10, background: "#E8EAED", color: "#666", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>
               {index + 1}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#1f2430" }}>{item.name}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#e8750a" }}>{item.score}分</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1A1A", whiteSpace: "nowrap" }}>{item.name}</span>
+                <span style={{ fontSize: 11, color: "#666", background: "#F5F7FA", borderRadius: 10, padding: "1px 6px", flexShrink: 0 }}>{item.role}</span>
               </div>
-              <div style={{ fontSize: 12, color: "#80838d", marginTop: 2 }}>{item.role}</div>
-              <div style={{ fontSize: 12.5, color: "#4b5563", marginTop: 6, lineHeight: 1.5 }}>{item.note}</div>
+              <div style={{ fontSize: 11.5, color: "#80838d", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.note}</div>
             </div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#3B5BDB", flexShrink: 0 }}>{item.score}分</div>
           </div>
         ))}
       </div>
@@ -213,30 +213,33 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
   const detail = DETAIL_DATA[task.id] ?? DETAIL_DATA[1];
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "oklch(0.965 0.005 270)" }}>
-      <div style={{ padding: "14px 14px 10px", background: "linear-gradient(180deg, rgba(255,249,243,0.98) 0%, rgba(255,255,255,0.92) 100%)", borderBottom: "1px solid rgba(232,117,10,0.08)" }}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#F7F8FA" }}>
+      <div style={{ padding: "14px 14px 10px", background: "#fff", borderBottom: "1px solid rgba(59,91,219,0.08)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={onBack} style={{ width: 34, height: 34, borderRadius: 17, border: "none", background: "rgba(232,117,10,0.12)", color: "#b85a00", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>‹</button>
+          <button onClick={onBack} style={{ width: 34, height: 34, borderRadius: 17, border: "none", background: "#EEF2FF", color: "#3B5BDB", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>‹</button>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#1f2430" }}>培训详情</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#1A1A1A" }}>培训详情</div>
           </div>
         </div>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 20px" }}>
-        <div style={{ background: "linear-gradient(180deg, #fff9f3 0%, #ffffff 100%)", borderRadius: 20, padding: 16, boxShadow: "0 10px 28px rgba(232,117,10,0.08)", marginBottom: 14 }}>
-
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+        <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
+          <div style={{ padding: "12px 14px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>反馈词云</span>
+            <span style={{ fontSize: 11, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{detail.feedbackCount} 人</span>
+          </div>
+          <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", padding: 12, display: "flex", flexWrap: "wrap", gap: 8 }}>
             {detail.words.map((word) => {
               const tone = toneStyle(word.tone);
               return (
                 <span
                   key={word.text}
                   style={{
-                    padding: "8px 12px",
+                    padding: "6px 10px",
                     borderRadius: 999,
-                    fontSize: word.size,
-                    lineHeight: 1.2,
+                    fontSize: Math.max(13, word.size - 3),
+                    lineHeight: 1.15,
                     fontWeight: word.size >= 20 ? 800 : 700,
                     letterSpacing: "0.01em",
                     ...tone,
@@ -250,9 +253,8 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#1f2430", marginBottom: 8 }}>掌握排名</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A", marginBottom: 8 }}>掌握排名</div>
         </div>
-
         <GroupCard title="掌握" tone="orange" items={detail.mastered} />
         <GroupCard title="提升中" tone="blue" items={detail.improving} />
         <GroupCard title="未掌握" tone="gray" items={detail.notStarted} />

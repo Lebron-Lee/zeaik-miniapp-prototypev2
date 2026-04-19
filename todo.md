@@ -394,3 +394,8 @@
 - [ ] TrainingDetailPage：确认删除后页面仍保留必要的标题、返回与核心信息结构
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：对齐任务清单页的蓝白工作台主题与卡片风格
+- [ ] TrainingDetailPage：压缩排名列表 item 的垂直占位与文字层级
+- [ ] TrainingDetailPage：保留词云与分段排名结构，同时减少多余视觉装饰
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果
