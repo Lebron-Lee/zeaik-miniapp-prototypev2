@@ -36,6 +36,7 @@ interface StatusTask {
   time: string;
   name: string;
   code: string;
+  sourceTask: DrawerTrainingTask;
   hasView?: boolean;
 }
 
@@ -47,6 +48,7 @@ const PENDING_TASKS: StatusTask[] = TRAINING_TASKS
     time: task.time.replace("今天 ", "").replace("昨天 ", ""),
     name: task.title,
     code: `TR-${String(task.id).padStart(4, "0")}`,
+    sourceTask: task,
   }));
 
 const JOINED_TASKS: StatusTask[] = TRAINING_TASKS
@@ -57,6 +59,7 @@ const JOINED_TASKS: StatusTask[] = TRAINING_TASKS
     time: task.time.replace("今天 ", "").replace("昨天 ", ""),
     name: task.title,
     code: `TR-${String(task.id).padStart(4, "0")}`,
+    sourceTask: task,
   }));
 
 
@@ -135,6 +138,7 @@ interface CurrentTaskPageProps {
   initialTab?: string;
   selectedTrainingTask?: DrawerTrainingTask | null;
   onOpenQuotaDetail?: (code: string) => void;
+  onOpenTrainingDetail?: (task: DrawerTrainingTask) => void;
 }
 
 // ── 闪电图标 ──
@@ -155,7 +159,7 @@ function SendIcon() {
   );
 }
 
-export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTask, onOpenQuotaDetail }: CurrentTaskPageProps) {
+export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTask, onOpenQuotaDetail, onOpenTrainingDetail }: CurrentTaskPageProps) {
   const [activeTab, setActiveTab] = useState<string>(initialTab ?? "current");
   const [tasks, setTasks] = useState<Task[]>(CURRENT_TASKS);
   const [submittedIds, setSubmittedIds] = useState<number[]>([]);
@@ -545,7 +549,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                 <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
                 <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
                 <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
-                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>查看</button>
+                <button onClick={() => onOpenTrainingDetail?.(task.sourceTask)} style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>查看</button>
               </div>
             ))}
           </div>
@@ -564,7 +568,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                 <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
                 <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
                 <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
-                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>查看</button>
+                <button onClick={() => onOpenTrainingDetail?.(task.sourceTask)} style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>查看</button>
               </div>
             ))}
           </div>

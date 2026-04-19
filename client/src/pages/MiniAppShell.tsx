@@ -22,6 +22,7 @@ import TrainingPage from "./TrainingPage";
 import TrainingAnswerPage from "./TrainingAnswerPage";
 import TrainingReportPage from "./TrainingReportPage";
 import TrainingManagerPage from "./TrainingManagerPage";
+import TrainingDetailPage from "./TrainingDetailPage";
 import OrgTreePage from "./OrgTreePage";
 import OrgRegisterPage from "./OrgRegisterPage";
 import type { TrainingTask } from "./TrainingPage";
@@ -30,7 +31,7 @@ import type { TrainingTask as DrawerTrainingTask } from "./DrawerPage";
 
 // ── 全局阶段类型 ─────────────────────────────────────────────────────────────
 export type UserStage = 1 | 2 | 3;
-export type AppView = "home" | "video" | "store-info" | "product" | "current-task" | "inspection" | "daily-salary" | "quota-detail" | "ai-menu" | "store-ai-model" | "group-ai-model" | "training" | "training-answer" | "training-report" | "training-manager" | "org-tree" | "org-register";
+export type AppView = "home" | "video" | "store-info" | "product" | "current-task" | "inspection" | "daily-salary" | "quota-detail" | "ai-menu" | "store-ai-model" | "group-ai-model" | "training" | "training-answer" | "training-report" | "training-manager" | "training-detail" | "org-tree" | "org-register";
 type OrgTreeSource = "training-manager" | "home-training";
 
 // ── 登录弹窗组件 ─────────────────────────────────────────────────────────────
@@ -217,6 +218,7 @@ export default function MiniAppShell() {
   const [appView, setAppView] = useState<AppView>("home");
   const [currentTaskInitialTab, setCurrentTaskInitialTab] = useState<string>("current");
   const [currentDrawerTrainingTask, setCurrentDrawerTrainingTask] = useState<DrawerTrainingTask | null>(null);
+  const [currentTrainingDetailTask, setCurrentTrainingDetailTask] = useState<DrawerTrainingTask | null>(null);
   const [quotaDetailCode, setQuotaDetailCode] = useState<string>("BZ-102");
   const [trainingTask, setTrainingTask] = useState<TrainingTask | null>(null);
   const [trainingResult, setTrainingResult] = useState<TrainingResult | null>(null);
@@ -290,6 +292,13 @@ export default function MiniAppShell() {
   const handleOpenQuotaDetail = (code: string) => {
     setQuotaDetailCode(code);
     setAppView("quota-detail");
+  };
+
+  const handleOpenTrainingDetail = (task: DrawerTrainingTask) => {
+    setCurrentTrainingDetailTask(task);
+    setCurrentTaskInitialTab("status");
+    setCurrentDrawerTrainingTask(task);
+    setAppView("training-detail");
   };
 
   const handleOpenTraining = () => {
@@ -400,6 +409,16 @@ export default function MiniAppShell() {
             initialTab={currentTaskInitialTab}
             selectedTrainingTask={currentDrawerTrainingTask}
             onOpenQuotaDetail={handleOpenQuotaDetail}
+            onOpenTrainingDetail={handleOpenTrainingDetail}
+          />
+        )}
+        {appView === "training-detail" && currentTrainingDetailTask && (
+          <TrainingDetailPage
+            task={currentTrainingDetailTask}
+            onBack={() => {
+              setCurrentTaskInitialTab("status");
+              setAppView("current-task");
+            }}
           />
         )}
         {appView === "inspection" && (
