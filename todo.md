@@ -359,3 +359,7 @@
 - [ ] CurrentTaskPage：核查培训反馈完成文案是否仍为长版旧文本
 - [ ] CurrentTaskPage：将“收到你的反馈啦，辛苦你认真完成整个培训！你的参与很重要，也给团队带来了很好的示范。接下来培训就圆满结束啦，你可以顺手为这次培训打个分，我们也会继续把内容做得更实用。”改为“收到你的反馈啦，辛苦你认真完成整个培训！”
 - [ ] CurrentTaskPage：完成文案精简后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查“待执行任务”是否已按可视化编辑改为“培训”
+- [ ] CurrentTaskPage：检查“已完成任务”区块及其下方 item 是否仍然存在
+- [ ] CurrentTaskPage：如可视化编辑未完全生效，则手动删除“已完成任务”及其全部条目
+- [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点

@@ -530,7 +530,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
     <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 0" }}>
       <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 10px" }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>待执行任务</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>培训</span>
           <button onClick={() => setPendingExpanded(!pendingExpanded)} style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 20, padding: "4px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{pendingExpanded ? "收起" : "展开"}</button>
         </div>
         {pendingExpanded && (
@@ -549,28 +549,6 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
         )}
       </div>
 
-      <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 10px" }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>已完成任务</span>
-          <button onClick={() => setDoneExpanded(!doneExpanded)} style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 20, padding: "4px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{doneExpanded ? "收起" : "展开"}</button>
-        </div>
-        {doneExpanded && (
-          <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
-            {DONE_TASKS.map((task, index) => (
-              <div key={task.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: index < DONE_TASKS.length - 1 ? "1px solid #F5F5F5" : "none", gap: 8 }}>
-                <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
-                <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
-                <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
-                <span onClick={() => onOpenQuotaDetail?.(task.code)} style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2, cursor: "pointer" }}>{task.code}</span>
-                {task.hasView ? (
-                  <button style={{ background: "#3B5BDB", color: "#fff", border: "none", borderRadius: 14, padding: "3px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer", flexShrink: 0, marginRight: 2 }}>查看</button>
-                ) : null}
-                <LightningIcon />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 
