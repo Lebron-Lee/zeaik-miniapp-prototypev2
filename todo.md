@@ -399,3 +399,8 @@
 - [ ] TrainingDetailPage：保留词云与分段排名结构，同时减少多余视觉装饰
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查当前人数标示是否仍显示在右侧
+- [ ] TrainingDetailPage：将人数标示移动到左侧显示并保持与区块标题对齐
+- [ ] TrainingDetailPage：确认调整后卡片仍保持任务清单页的蓝白主题
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果

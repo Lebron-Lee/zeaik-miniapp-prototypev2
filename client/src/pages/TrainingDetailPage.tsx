@@ -184,9 +184,9 @@ function GroupCard({
 
   return (
     <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px 10px" }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>{title}</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 8, padding: "12px 14px 10px" }}>
         <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, ...toneMap[tone] }}>{items.length} 人</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>{title}</span>
       </div>
       <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
         {items.map((item, index) => (
