@@ -4225,46 +4225,36 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#2d2040" }}>正在录音</div>
-                <div style={{ marginTop: 4, fontSize: 11.5, color: "#8d6f5a", lineHeight: 1.5 }}>
-                  剩余可录制时间
-                </div>
               </div>
-              <div style={{ minWidth: 72, textAlign: "right", fontSize: 18, fontWeight: 800, color: "#e8750a", fontVariantNumeric: "tabular-nums" }}>
-                {(() => {
-                  const remainingMs = Math.max(0, 3 * 60 * 1000 - knowledgeRecordingElapsedMs);
-                  const minutes = String(Math.floor(remainingMs / 60000)).padStart(2, "0");
-                  const seconds = String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, "0");
-                  return `${minutes}:${seconds}`;
-                })()}
-              </div>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-              {[
-                "录制菜品介绍",
-                "服务礼仪",
-                "迎宾话术",
-                "投诉处理",
-              ].map(tag => (
+              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 6, minWidth: 92, textAlign: "right", fontSize: 18, fontWeight: 800, color: "#e8750a", fontVariantNumeric: "tabular-nums" }}>
                 <span
-                  key={tag}
+                  aria-hidden="true"
                   style={{
+                    width: 18,
+                    height: 18,
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "6px 10px",
                     borderRadius: 999,
-                    background: "rgba(59,91,219,0.1)",
-                    border: "1px solid rgba(59,91,219,0.18)",
-                    color: "#3b5bdb",
-                    fontSize: 11.5,
-                    fontWeight: 700,
-                    lineHeight: 1,
-                    boxShadow: "0 6px 14px rgba(59,91,219,0.08)",
+                    background: "rgba(232,117,10,0.12)",
+                    boxShadow: "inset 0 0 0 1px rgba(232,117,10,0.18)",
+                    flexShrink: 0,
                   }}
                 >
-                  {tag}
+                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="8" cy="8" r="5.5" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M8 4.8V8L10.4 9.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
-              ))}
+                <span>
+                  {(() => {
+                    const remainingMs = Math.max(0, 3 * 60 * 1000 - knowledgeRecordingElapsedMs);
+                    const minutes = String(Math.floor(remainingMs / 60000)).padStart(2, "0");
+                    const seconds = String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, "0");
+                    return `${minutes}:${seconds}`;
+                  })()}
+                </span>
+              </div>
             </div>
             <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-end", gap: 8, marginBottom: 16, minHeight: 42 }}>
               {[0, 1, 2, 3, 4, 5].map(index => (
