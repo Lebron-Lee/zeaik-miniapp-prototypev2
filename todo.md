@@ -372,3 +372,8 @@
 - [ ] CurrentTaskPage：手动删除 renderTaskStatus 培训任务 item 中仍保留的编号字段 span
 - [ ] CurrentTaskPage：完成本轮核查后执行 pnpm exec tsc --noEmit
 - [ ] CurrentTaskPage：保存新的检查点并向用户汇报
+- [ ] CurrentTaskPage：核查“我发起的培训”列表 item 的时间字段是否被误删
+- [ ] CurrentTaskPage：确认列表右侧按钮文案是否已从“培训”改为“查看”
+- [ ] CurrentTaskPage：如时间字段仍缺失，则手动补回时间显示并保持编号字段继续隐藏
+- [ ] CurrentTaskPage：完成本轮核查后执行 pnpm exec tsc --noEmit
+- [ ] CurrentTaskPage：保存新的检查点并向用户汇报本轮调整

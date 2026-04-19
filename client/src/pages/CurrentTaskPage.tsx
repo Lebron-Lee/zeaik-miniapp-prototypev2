@@ -529,8 +529,9 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
             {PENDING_TASKS.map((task, index) => (
               <div key={task.id} style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: index < PENDING_TASKS.length - 1 ? "1px solid #F5F5F5" : "none", gap: 8 }}>
                 <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#E8EAED", color: "#666", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{task.seq}</span>
+                <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
                 <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
-                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>培训</button>
+                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>查看</button>
               </div>
             ))}
           </div>
