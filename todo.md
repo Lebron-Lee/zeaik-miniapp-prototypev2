@@ -363,3 +363,7 @@
 - [ ] CurrentTaskPage：检查“已完成任务”区块及其下方 item 是否仍然存在
 - [ ] CurrentTaskPage：如可视化编辑未完全生效，则手动删除“已完成任务”及其全部条目
 - [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点
+- [ ] CurrentTaskPage：核查当前培训区是否仍缺少四条培训任务 item
+- [ ] CurrentTaskPage：按当前任务 item 样式恢复四条培训任务列表，并分别显示培训任务
+- [ ] CurrentTaskPage：检查底部导航“任务状态25”是否仍存在并改为“问题清单”
+- [ ] CurrentTaskPage：完成修改后执行 TypeScript 校验并创建新的检查点

@@ -6,7 +6,7 @@
  */
 import React, { useRef, useState } from "react";
 import TaskDrawerPage from "./TaskDrawerPage";
-import type { TrainingTask as DrawerTrainingTask } from "./DrawerPage";
+import { TRAINING_TASKS, type TrainingTask as DrawerTrainingTask } from "./DrawerPage";
 
 // ── 当前工作数据 ──
 interface Task {
@@ -39,22 +39,13 @@ interface StatusTask {
   hasView?: boolean;
 }
 
-const PENDING_TASKS: StatusTask[] = [
-  { id: 1, seq: 1, time: "11:00", name: "洗手台清洁", code: "BZ-230" },
-  { id: 2, seq: 2, time: "11:20", name: "烤鸭架清理", code: "BZ-102" },
-  { id: 3, seq: 3, time: "11:30", name: "切土豆块", code: "BZ-830" },
-  { id: 4, seq: 4, time: "12:00", name: "切土豆丝", code: "BZ-831" },
-  { id: 5, seq: 5, time: "12:30", name: "切牛肉块", code: "BZ-897" },
-  { id: 6, seq: 5, time: "13:00", name: "备桌-罗奇营", code: "BZ-839" },
-  { id: 7, seq: 5, time: "13:30", name: "洗手间清洁", code: "BZ-230" },
-  { id: 8, seq: 5, time: "14:00", name: "清洗餐具", code: "BZ-450" },
-];
-
-const DONE_TASKS: StatusTask[] = [
-  { id: 9, seq: 1, time: "10:00", name: "备桌-凯德麓语", code: "BZ-219", hasView: true },
-  { id: 10, seq: 2, time: "10:20", name: "翻台-大厅A区A1", code: "BZ-967", hasView: true },
-  { id: 11, seq: 3, time: "10:30", name: "大明虾解冻", code: "BZ-873" },
-];
+const PENDING_TASKS: StatusTask[] = TRAINING_TASKS.slice(0, 4).map((task, index) => ({
+  id: task.id,
+  seq: index + 1,
+  time: task.time.replace("今天 ", "").replace("昨天 ", ""),
+  name: task.title,
+  code: `TR-${String(task.id).padStart(4, "0")}`,
+}));
 
 // ── 任务大厅数据 ──
 interface HallTask {
@@ -121,7 +112,7 @@ const TRAINING_QUESTIONS: TrainingQuestion[] = [
 ];
 
 const TABS = [
-  { key: "status", label: "任务状态", count: 25 },
+  { key: "status", label: "问题清单", count: null },
   { key: "current", label: "当前工作", count: 7 },
   { key: "hall", label: "任务大厅", count: 13 },
 ] as const;
@@ -541,8 +532,7 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
                 <span style={{ width: 40, fontSize: 12, color: "#666", flexShrink: 0 }}>{task.time}</span>
                 <span style={{ flex: 1, fontSize: 13.5, color: "#1A1A1A", fontWeight: 500 }}>{task.name}</span>
                 <span onClick={() => onOpenQuotaDetail?.(task.code)} style={{ fontSize: 12, color: "#3B5BDB", flexShrink: 0, marginRight: 4, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2, cursor: "pointer" }}>{task.code}</span>
-                <LightningIcon />
-                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>申诉</button>
+                <button style={{ background: "#3b5bdb", color: "#fff", border: "none", borderRadius: 14, padding: "4px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}>培训</button>
               </div>
             ))}
           </div>
@@ -610,8 +600,10 @@ export default function CurrentTaskPage({ onBack, initialTab, selectedTrainingTa
               style={{ flex: 1, border: "none", cursor: "pointer", background: isActive ? "#EEF2FF" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: 0, transition: "background 0.15s" }}
             >
               <span style={{ fontSize: 13, fontWeight: isActive ? 700 : 400, color: isActive ? "#3B5BDB" : "#888" }}>{tab.label}</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: isActive ? "#3B5BDB" : "#aaa", background: isActive ? "rgba(59,91,219,0.12)" : "#F0F0F0", padding: "1px 5px", borderRadius: 10, minWidth: 18, textAlign: "center" }}>{tab.count}</span>
-              {tab.key !== "current" && <LightningIcon color={isActive ? "#3B5BDB" : "#ccc"} />}
+              {tab.count !== null ? (
+                <span style={{ fontSize: 11, fontWeight: 700, color: isActive ? "#3B5BDB" : "#aaa", background: isActive ? "rgba(59,91,219,0.12)" : "#F0F0F0", padding: "1px 5px", borderRadius: 10, minWidth: 18, textAlign: "center" }}>{tab.count}</span>
+              ) : null}
+              {tab.key !== "current" && tab.count !== null ? <LightningIcon color={isActive ? "#3B5BDB" : "#ccc"} /> : null}
             </button>
           );
         })}
