@@ -2234,15 +2234,36 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
       return undefined;
     }
 
-    setKnowledgeRecordingElapsedMs(Math.max(0, Date.now() - knowledgeRecordingStartedAt));
+    const maxDurationMs = 3 * 60 * 1000;
+    const syncRecordingElapsed = () => {
+      const elapsed = Math.min(maxDurationMs, Math.max(0, Date.now() - knowledgeRecordingStartedAt));
+      setKnowledgeRecordingElapsedMs(elapsed);
+
+      if (elapsed >= maxDurationMs) {
+        setIsKnowledgeRecording(false);
+        setKnowledgeRecordingStartedAt(null);
+        commitTrainingLaunchVoiceKnowledge(maxDurationMs);
+        return true;
+      }
+
+      return false;
+    };
+
+    if (syncRecordingElapsed()) {
+      return undefined;
+    }
+
     const intervalId = window.setInterval(() => {
-      setKnowledgeRecordingElapsedMs(Math.max(0, Date.now() - knowledgeRecordingStartedAt));
+      const reachedLimit = syncRecordingElapsed();
+      if (reachedLimit) {
+        window.clearInterval(intervalId);
+      }
     }, 1000);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [isKnowledgeRecording, knowledgeRecordingStartedAt]);
+  }, [commitTrainingLaunchVoiceKnowledge, isKnowledgeRecording, knowledgeRecordingStartedAt]);
 
   useEffect(() => {
     if (!isVoiceHolding) return undefined;
@@ -4205,11 +4226,16 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#2d2040" }}>正在录音</div>
                 <div style={{ marginTop: 4, fontSize: 11.5, color: "#8d6f5a", lineHeight: 1.5 }}>
-                  录制一次，最长三分钟
+                  剩余可录制时间
                 </div>
               </div>
               <div style={{ minWidth: 72, textAlign: "right", fontSize: 18, fontWeight: 800, color: "#e8750a", fontVariantNumeric: "tabular-nums" }}>
-                {`${String(Math.floor(knowledgeRecordingElapsedMs / 60000)).padStart(2, "0")}:${String(Math.floor((knowledgeRecordingElapsedMs % 60000) / 1000)).padStart(2, "0")}`}
+                {(() => {
+                  const remainingMs = Math.max(0, 3 * 60 * 1000 - knowledgeRecordingElapsedMs);
+                  const minutes = String(Math.floor(remainingMs / 60000)).padStart(2, "0");
+                  const seconds = String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, "0");
+                  return `${minutes}:${seconds}`;
+                })()}
               </div>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
