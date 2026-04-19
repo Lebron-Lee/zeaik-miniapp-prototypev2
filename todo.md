@@ -389,3 +389,8 @@
 - [ ] 培训详情联动：将问题清单中的“查看”按钮接入详情页跳转并支持返回
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查未生效删除意图对应的词云与排名区块位置
+- [ ] TrainingDetailPage：如可视化编辑未生效，则手动删除用户指定的详情页内容块
+- [ ] TrainingDetailPage：确认删除后页面仍保留必要的标题、返回与核心信息结构
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果

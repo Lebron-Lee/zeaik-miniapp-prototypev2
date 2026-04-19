@@ -219,23 +219,12 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
           <button onClick={onBack} style={{ width: 34, height: 34, borderRadius: 17, border: "none", background: "rgba(232,117,10,0.12)", color: "#b85a00", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>‹</button>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#1f2430" }}>培训详情</div>
-            <div style={{ fontSize: 12.5, color: "#7a7f87", marginTop: 2 }}>{task.title}</div>
           </div>
         </div>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 20px" }}>
         <div style={{ background: "linear-gradient(180deg, #fff9f3 0%, #ffffff 100%)", borderRadius: 20, padding: 16, boxShadow: "0 10px 28px rgba(232,117,10,0.08)", marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: "#1f2430" }}>最后一题反馈词云</div>
-              <div style={{ fontSize: 12.5, color: "#7a7f87", marginTop: 4 }}>聚合员工对“这次培训对你有什么帮助”的吐槽与反馈，用于快速判断培训体感。</div>
-            </div>
-            <div style={{ minWidth: 64, textAlign: "center", padding: "6px 8px", borderRadius: 14, background: "rgba(232,117,10,0.12)", color: "#b85a00" }}>
-              <div style={{ fontSize: 11, fontWeight: 700 }}>反馈人数</div>
-              <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.2, marginTop: 2 }}>{detail.feedbackCount}</div>
-            </div>
-          </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {detail.words.map((word) => {
@@ -262,7 +251,6 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
 
         <div style={{ marginBottom: 10 }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#1f2430", marginBottom: 8 }}>掌握排名</div>
-          <div style={{ fontSize: 12.5, color: "#7a7f87", marginBottom: 12 }}>根据答题表现、反馈质量与关键点完整度，分段展示当前培训对象的掌握情况。</div>
         </div>
 
         <GroupCard title="掌握" tone="orange" items={detail.mastered} />
