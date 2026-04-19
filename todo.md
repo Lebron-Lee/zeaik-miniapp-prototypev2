@@ -437,3 +437,8 @@
 - [ ] TrainingDetailPage：确认收起按钮文案与交互状态保持一致
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查当前返回按钮是否仍与任务详情页样式不一致
+- [ ] TrainingDetailPage：定位任务详情页当前返回按钮的具体视觉样式
+- [ ] TrainingDetailPage：将培训详情页返回按钮改为与任务详情页一致
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果

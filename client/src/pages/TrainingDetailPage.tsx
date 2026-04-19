@@ -259,9 +259,11 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#F7F8FA" }}>
       <div style={{ padding: "14px 14px 10px", background: "linear-gradient(180deg, #4B6BFF 0%, #3B5BDB 100%)", borderBottom: "1px solid rgba(59,91,219,0.18)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={onBack} style={{ width: 34, height: 34, borderRadius: 17, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.16)", color: "#fff", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1, backdropFilter: "blur(8px)" }}>
-            ‹
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>培训详情</div>
