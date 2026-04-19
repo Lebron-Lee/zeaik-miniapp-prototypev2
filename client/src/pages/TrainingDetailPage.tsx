@@ -174,7 +174,7 @@ function GroupCard({
   tone: "orange" | "blue" | "gray";
   items: RankingItem[];
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const toneMap = {
     orange: { color: "#b85a00", background: "rgba(232,117,10,0.14)" },

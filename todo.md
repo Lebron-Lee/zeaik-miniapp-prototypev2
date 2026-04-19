@@ -432,3 +432,8 @@
 - [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与整体层级协调
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查分组卡片当前是否默认展开
+- [ ] TrainingDetailPage：将掌握／提升中／未掌握三个分组改为默认收起
+- [ ] TrainingDetailPage：确认收起按钮文案与交互状态保持一致
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果
