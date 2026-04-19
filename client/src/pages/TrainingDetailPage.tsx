@@ -185,8 +185,8 @@ function GroupCard({
   return (
     <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 8, padding: "12px 14px 10px" }}>
-        <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, ...toneMap[tone] }}>{items.length} 人</span>
         <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>{title}</span>
+        <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, ...toneMap[tone] }}>{items.length} 人</span>
       </div>
       <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", overflow: "hidden" }}>
         {items.map((item, index) => (
@@ -225,11 +225,11 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
 
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 20px" }}>
         <div style={{ background: "#EEF2FF", borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
-          <div style={{ padding: "12px 14px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+          <div style={{ padding: "12px 14px 10px", display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 10 }}>
             <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>反馈词云</span>
-            <span style={{ fontSize: 11, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{detail.feedbackCount} 人</span>
           </div>
-          <div style={{ background: "#fff", borderRadius: "0 0 14px 14px", padding: 12, display: "flex", flexWrap: "wrap", gap: 8 }}>
+          <div style={{ position: "relative", background: "#fff", borderRadius: "0 0 14px 14px", padding: "12px 12px 12px", display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <span style={{ position: "absolute", top: 8, right: 8, fontSize: 11, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{detail.feedbackCount} 人</span>
             {detail.words.map((word) => {
               const tone = toneStyle(word.tone);
               return (

@@ -404,3 +404,8 @@
 - [ ] TrainingDetailPage：确认调整后卡片仍保持任务清单页的蓝白主题
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查分组卡片人数标示是否需要从左侧移回到“掌握/提升中/未掌握”右边
+- [ ] TrainingDetailPage：将词云反馈人数移到词云区右上角浮层显示
+- [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与紧凑布局
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果
