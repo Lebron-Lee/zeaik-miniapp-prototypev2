@@ -4204,10 +4204,41 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#2d2040" }}>正在录音</div>
+                <div style={{ marginTop: 4, fontSize: 11.5, color: "#8d6f5a", lineHeight: 1.5 }}>
+                  录制一次，最长三分钟
+                </div>
               </div>
               <div style={{ minWidth: 72, textAlign: "right", fontSize: 18, fontWeight: 800, color: "#e8750a", fontVariantNumeric: "tabular-nums" }}>
                 {`${String(Math.floor(knowledgeRecordingElapsedMs / 60000)).padStart(2, "0")}:${String(Math.floor((knowledgeRecordingElapsedMs % 60000) / 1000)).padStart(2, "0")}`}
               </div>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+              {[
+                "录制菜品介绍",
+                "服务礼仪",
+                "迎宾话术",
+                "投诉处理",
+              ].map(tag => (
+                <span
+                  key={tag}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                    background: "rgba(59,91,219,0.1)",
+                    border: "1px solid rgba(59,91,219,0.18)",
+                    color: "#3b5bdb",
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    lineHeight: 1,
+                    boxShadow: "0 6px 14px rgba(59,91,219,0.08)",
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
             <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-end", gap: 8, marginBottom: 16, minHeight: 42 }}>
               {[0, 1, 2, 3, 4, 5].map(index => (
