@@ -172,6 +172,7 @@ const IcGroupAi = () => (
 );
 
 const SHORTCUT_BTNS = [
+  { Icon: IcTraining, label: "AI培训" },
   { Icon: IcSalary,   label: "工资日结" },
   { Icon: IcAiMenu,   label: "AI菜单" },
   { Icon: IcStoreAi,  label: "店面AI" },
@@ -179,7 +180,6 @@ const SHORTCUT_BTNS = [
   { Icon: IcInspect,  label: "AI巡检" },
   { Icon: IcService,  label: "服务检测" },
   { Icon: IcIntercom, label: "智能对讲" },
-  { Icon: IcTraining, label: "AI培训" },
 ];
 
 // 问题列表：每条问题配独立icon和颜色（蚂蚁阿福风格）
