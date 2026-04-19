@@ -275,7 +275,6 @@ export default function TrainingDetailPage({ task, onBack }: TrainingDetailPageP
             <span style={{ fontSize: 15, fontWeight: 700, color: "#1A1A1A" }}>反馈词云</span>
           </div>
           <div style={{ position: "relative", background: "#fff", borderRadius: "0 0 14px 14px", padding: "12px 12px 12px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <span style={{ position: "absolute", top: 8, right: 8, fontSize: 11, color: "#3B5BDB", background: "#DBEAFE", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{detail.feedbackCount}</span>
             {detail.words.map((word) => {
               const tone = toneStyle(word.tone);
               const wordCount = Math.max(3, Math.round(word.size * 0.75));

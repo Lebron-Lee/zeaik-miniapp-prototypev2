@@ -421,3 +421,8 @@
 - [ ] TrainingDetailPage：确认调整后仍保持蓝白主题与紧凑布局
 - [ ] 本轮完成后执行 pnpm exec tsc --noEmit
 - [ ] 保存新的检查点并向用户汇报本轮结果
+- [ ] TrainingDetailPage：核查本轮未生效删除意图对应的 span 元素当前内容
+- [ ] TrainingDetailPage：如可视化编辑未生效，则手动删除该单个元素并保持布局完整
+- [ ] TrainingDetailPage：确认删除后详情页蓝白主题与交互结构不受影响
+- [ ] 本轮完成后执行 pnpm exec tsc --noEmit
+- [ ] 保存新的检查点并向用户汇报本轮结果
