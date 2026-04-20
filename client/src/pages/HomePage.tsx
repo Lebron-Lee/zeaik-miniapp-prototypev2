@@ -4145,23 +4145,30 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flexWrap: "wrap" }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#2d2040" }}>正在录音</div>
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    maxWidth: 150,
-                    padding: "4px 8px",
-                    borderRadius: 999,
-                    background: "rgba(232,117,10,0.1)",
-                    border: "1px solid rgba(232,117,10,0.16)",
-                    color: "#b65d08",
-                    fontSize: 11.5,
-                    fontWeight: 700,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  录制菜品介绍、服务礼仪等
-                </span>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  {[
+                    "菜品介绍",
+                    "服务礼仪",
+                  ].map(label => (
+                    <span
+                      key={label}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "4px 8px",
+                        borderRadius: 999,
+                        background: "rgba(232,117,10,0.1)",
+                        border: "1px solid rgba(232,117,10,0.16)",
+                        color: "#b65d08",
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 6, minWidth: 92, textAlign: "right", fontSize: 18, fontWeight: 800, color: "#e8750a", fontVariantNumeric: "tabular-nums" }}>
                 <span
