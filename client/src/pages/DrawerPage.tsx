@@ -15,6 +15,7 @@ interface DrawerPageProps {
   onLogout: () => void;
   onOpenTrainingConversation?: () => void;
   onOpenCurrentTrainingTask?: (task: TrainingTask) => void;
+  onOpenTrainingDetail?: (task: TrainingTask) => void;
 }
 
 // ─── 线性 SVG 图标 ────────────────────────────────────────────────────────────
@@ -102,7 +103,7 @@ const CHAT_RECORDS: ChatRecord[] = [
   },
 ];
 
-export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation, onOpenCurrentTrainingTask }: DrawerPageProps) {
+export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversation, onOpenCurrentTrainingTask, onOpenTrainingDetail }: DrawerPageProps) {
   const [showAllTrainingTasks, setShowAllTrainingTasks] = useState(false);
 
   const initiatedTasks = TRAINING_TASKS.filter(task => task.group === "我发起的");
@@ -232,6 +233,10 @@ export default function DrawerPage({ userPhone, onClose, onOpenTrainingConversat
                 <button
                   key={task.id}
                   onClick={() => {
+                    if (onOpenTrainingDetail) {
+                      onOpenTrainingDetail(task);
+                      return;
+                    }
                     onOpenCurrentTrainingTask?.(task);
                   }}
                   style={{

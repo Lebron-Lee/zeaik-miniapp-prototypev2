@@ -1068,6 +1068,7 @@ interface HomePageProps {
    onOpenProduct?: () => void;
   onOpenCurrentTask?: (tab?: string) => void;
   onOpenCurrentTrainingTask?: (task: DrawerTrainingTask) => void;
+  onOpenTrainingDetail?: (task: DrawerTrainingTask) => void;
   onOpenDailySalary?: () => void;
   onOpenInspection?: () => void;
   onOpenAiMenu?: () => void;
@@ -1081,7 +1082,7 @@ interface HomePageProps {
   fromTrainingScan?: boolean; // 从培训二维码扫码进入
   onExitTrainingScan?: () => void; // 退出扫码培训模式
 }
-export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenCurrentTrainingTask, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, onOpenOrgTree, orgTreeSelectedMemberIds = [], orgTreeSelectionVersion = 0, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
+export default function HomePage({ userPhone, onLogout, onOpenVideo, isLoggedIn = true, stage = 2, onRequestLogin, onEnterStage3, onOpenProduct, onOpenCurrentTask, onOpenCurrentTrainingTask, onOpenTrainingDetail, onOpenDailySalary, onOpenInspection, onOpenAiMenu, onOpenStoreAiModel, onOpenGroupAiModel, onOpenTraining, onOpenTrainingConversation, onOpenOrgTree, orgTreeSelectedMemberIds = [], orgTreeSelectionVersion = 0, fromTrainingScan = false, onExitTrainingScan }: HomePageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [inputText, setInputText] = useState("");
   const [sectionOpen, setSectionOpen] = useState(true);
@@ -2720,6 +2721,10 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
           onOpenCurrentTrainingTask={(task) => {
             setDrawerOpen(false);
             onOpenCurrentTrainingTask?.(task);
+          }}
+          onOpenTrainingDetail={(task) => {
+            setDrawerOpen(false);
+            onOpenTrainingDetail?.(task);
           }}
         />
       </div>

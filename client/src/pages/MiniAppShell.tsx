@@ -358,6 +358,7 @@ export default function MiniAppShell() {
             onOpenProduct={handleOpenProduct}
             onOpenCurrentTask={handleOpenCurrentTask}
             onOpenCurrentTrainingTask={(task) => handleOpenCurrentTask("current", task)}
+            onOpenTrainingDetail={handleOpenTrainingDetail}
             onOpenDailySalary={handleOpenDailySalary}
             onOpenInspection={handleOpenInspection}
             onOpenAiMenu={() => setAppView("ai-menu")}
