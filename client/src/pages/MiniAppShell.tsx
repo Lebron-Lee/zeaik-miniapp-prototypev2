@@ -5,7 +5,7 @@
  * Stage 2: 快捷按钮触发登录提示 → 登录后产品体验
  * Stage 3: AI深度交流 → 店铺信息采集 → 申请全功能试用 + 一键电话咨询
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import HomePage from "./HomePage";
 import VideoPage from "./VideoPage";
@@ -33,6 +33,30 @@ import type { TrainingTask as DrawerTrainingTask } from "./DrawerPage";
 export type UserStage = 1 | 2 | 3;
 export type AppView = "home" | "video" | "store-info" | "product" | "current-task" | "inspection" | "daily-salary" | "quota-detail" | "ai-menu" | "store-ai-model" | "group-ai-model" | "training" | "training-answer" | "training-report" | "training-manager" | "training-detail" | "org-tree" | "org-register";
 type OrgTreeSource = "training-manager" | "home-training";
+
+const DOC_CAPTURE_TRAINING_TASK: TrainingTask = {
+  id: "DOC-T001",
+  title: "茶水区服务标准专项培训",
+  type: "专项",
+  sender: "王店长",
+  senderLevel: "门店级·管理者",
+  totalQuestions: 3,
+  deadline: "今日 22:00",
+  status: "in_progress",
+};
+
+const DOC_CAPTURE_TRAINING_RESULT: TrainingResult = {
+  taskId: "DOC-T001",
+  taskTitle: "茶水区服务标准专项培训",
+  totalQuestions: 3,
+  questions: [
+    { id: 1, question: "茶水区台面清洁的标准是什么？", correct: true, attempts: 1, usedHint: false },
+    { id: 2, question: "服务员在顾客点餐时应该注意哪些礼仪要点？", correct: true, attempts: 2, usedHint: true },
+    { id: 3, question: "发现顾客投诉时，处理的第一步是什么？", correct: true, attempts: 2, usedHint: true },
+  ],
+  score: 4.2,
+  duration: 8,
+};
 
 // ── 登录弹窗组件 ─────────────────────────────────────────────────────────────
 function LoginModal({
@@ -222,6 +246,7 @@ export default function MiniAppShell() {
   const [quotaDetailCode, setQuotaDetailCode] = useState<string>("BZ-102");
   const [trainingTask, setTrainingTask] = useState<TrainingTask | null>(null);
   const [trainingResult, setTrainingResult] = useState<TrainingResult | null>(null);
+  const [trainingAnswerDebugScenario, setTrainingAnswerDebugScenario] = useState<"default" | "hint">("default");
   const [userPhone, setUserPhone] = useState("138****8888");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginTrigger, setLoginTrigger] = useState<string | undefined>();
@@ -233,6 +258,24 @@ export default function MiniAppShell() {
   });
 
   const isLoggedIn = stage >= 2;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const docView = params.get("docView");
+    const docScenario = params.get("docScenario");
+
+    if (!docView) return;
+
+    setStage(2);
+    setFromTrainingScan(false);
+    setTrainingTask(DOC_CAPTURE_TRAINING_TASK);
+    setTrainingResult(DOC_CAPTURE_TRAINING_RESULT);
+    setTrainingAnswerDebugScenario(docScenario === "hint" ? "hint" : "default");
+
+    if (docView === "training" || docView === "training-answer" || docView === "training-report" || docView === "training-manager" || docView === "training-detail") {
+      setAppView(docView);
+    }
+  }, []);
 
   const handleLogin = (phone: string) => {
     setUserPhone(phone);
@@ -471,12 +514,13 @@ export default function MiniAppShell() {
             task={trainingTask}
             onBack={() => setAppView("training")}
             onComplete={handleTrainingComplete}
+            debugScenario={trainingAnswerDebugScenario}
           />
         )}
-        {appView === "training-report" && (
+        {appView === "training-report" && trainingTask && trainingResult && (
           <TrainingReportPage
-            result={trainingResult!}
-            task={trainingTask!}
+            result={trainingResult}
+            task={trainingTask}
             onBack={() => setAppView("training")}
             onRetry={() => setAppView("training-answer")}
             onHome={() => setAppView("training")}

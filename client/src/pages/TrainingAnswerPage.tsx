@@ -10,6 +10,7 @@ interface TrainingAnswerPageProps {
   task: TrainingTask;
   onBack: () => void;
   onComplete: (result: TrainingResult) => void;
+  debugScenario?: "default" | "hint";
 }
 
 export interface TrainingResult {
@@ -121,7 +122,7 @@ interface Message {
 }
 
 // ── 主组件 ────────────────────────────────────────────────────────────────────
-export default function TrainingAnswerPage({ task, onBack, onComplete }: TrainingAnswerPageProps) {
+export default function TrainingAnswerPage({ task, onBack, onComplete, debugScenario = "default" }: TrainingAnswerPageProps) {
   const [currentQIdx, setCurrentQIdx] = useState(0);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -145,13 +146,25 @@ export default function TrainingAnswerPage({ task, onBack, onComplete }: Trainin
     id: ++msgIdRef.current, role, text, ...extra,
   });
 
-  // 初始化：AI 发出第一道题
+  // 初始化：AI 发出第一道题 / 文档截图调试场景
   useEffect(() => {
     if (questions.length === 0) return;
+
     const intro = newMsg("ai", `你好！今天的培训主题是「${task.title}」，共 ${task.totalQuestions} 道题。答对一道才能进入下一题，加油！💪`);
     const q = newMsg("ai", `第 1 题：${questions[0].question}`, { isQuestion: true });
+
+    if (debugScenario === "hint") {
+      const userAttempt = newMsg("user", "台面要保持干净就可以了，还要注意服务态度。");
+      const aiReply = newMsg("ai", "你说到了一部分关键点，还有一个细节没有提到，再想想？");
+      setAttempts(1);
+      setUsedHint(true);
+      setShowHint(true);
+      setMessages([intro, q, userAttempt, aiReply]);
+      return;
+    }
+
     setTimeout(() => setMessages([intro, q]), 300);
-  }, []);
+  }, [debugScenario, questions.length, task.title, task.totalQuestions]);
 
   // 自动滚动到底部
   useEffect(() => {
