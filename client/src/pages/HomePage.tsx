@@ -1711,8 +1711,6 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
       ? `${selectedTrainingQuickLabels.join(" / ")} · 待细选`
       : `${summaryNames || `${totalCount}人`} · ${selectedTrainingGroupLabels.join(" / ") || "已选择"}`;
     const recommendedBankTitle = selectedTrainingBank?.title ?? "AI推荐题库";
-    const receiptCard = buildTrainingLaunchReceiptCard(effectiveTrainingMembers, recommendedBankTitle, targetSummary);
-    const completionCard = buildTrainingLaunchCompletionCard(effectiveTrainingMembers);
 
     const intentSummary = trainingTopicSummary;
     const qrCard = buildTrainingLaunchQrCard(recommendedBankTitle, targetSummary, intentSummary);
@@ -1747,18 +1745,6 @@ const newTrainingMsgId = () => ++trainingMsgIdRef.current;
         role: "ai",
         text: "",
         trainingLaunchQrCard: qrCard,
-      },
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: "",
-        trainingLaunchReceiptCard: receiptCard,
-      },
-      {
-        id: msgIdRef.current++,
-        role: "ai",
-        text: "",
-        trainingLaunchCompletionCard: completionCard,
       },
     ]);
   };
